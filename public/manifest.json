@@ -1,0 +1,19 @@
+{
+  "name": "PRA",
+  "short_name": "PRA",
+  "description": "Prostor pro zastavení a návrat k sobě",
+  "start_url": "/App/",
+  "scope": "/App/",
+  "display": "standalone",
+  "background_color": "#fdf9f3",
+  "theme_color": "#3f6450",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/App/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

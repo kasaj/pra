@@ -2,15 +2,44 @@
 <html lang="cs">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <link rel="apple-touch-icon" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#3f6450" />
-    <meta name="description" content="PRA - prostor pro zastavení a návrat k sobě" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- App info -->
     <title>PRA</title>
+    <meta name="description" content="PRA - prostor pro zastavení a návrat k sobě" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/png" href="/App/logo.png" />
+    <link rel="apple-touch-icon" href="/App/logo.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/App/manifest.json" />
+
+    <!-- Theme colors -->
+    <meta name="theme-color" content="#3f6450" />
+    <meta name="msapplication-TileColor" content="#3f6450" />
+
+    <!-- iOS PWA settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PRA" />
+
+    <!-- Prevent phone number detection -->
+    <meta name="format-detection" content="telephone=no" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/App/sw.js')
+            .then((reg) => console.log('SW registered:', reg.scope))
+            .catch((err) => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>
