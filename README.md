@@ -1,38 +1,38 @@
 # PRA
 
-Prostor pro zastavení a návrat k sobě.
+A space to pause and return to yourself.
 
-## O aplikaci
+## About
 
-PRA je minimalistická mindfulness aplikace pro každodenní praxi. Pomáhá vytvářet prostor pro zastavení, sledovat pokrok a budovat zdravé návyky.
+PRA is a minimalist mindfulness app for daily practice. It helps create space for pause, track progress, and build healthy habits.
 
-**[Spustit aplikaci →](https://kasaj.github.io/pra/)**
+**[Launch App →](https://kasaj.github.io/pra/)**
 
-## Funkce
+## Features
 
-- **Časované aktivity** - meditace, pohyb, rozjímání s časovačem
-- **Okamžiky** - rychlé záznamy bez časovače
-- **Hodnocení** - sledování stavu před a po aktivitě
-- **Statistiky** - týdenní trendy a celkový přehled
-- **Export** - záloha dat do .md souboru
-- **Offline** - funguje i bez internetu (PWA)
-- **Dvojjazyčné** - čeština a angličtina
+- **Timed activities** - meditation, movement, contemplation with timer
+- **Moments** - quick records without timer
+- **Ratings** - track state before and after activity
+- **Statistics** - weekly trends and overall summary
+- **Export** - backup data to .md file
+- **Offline** - works without internet (PWA)
+- **Bilingual** - Czech and English
 
-## Instalace na mobil (iOS/Android)
+## Install on Mobile (iOS/Android)
 
-1. Otevři [aplikaci](https://kasaj.github.io/pra/) v prohlížeči
-2. **iOS Safari**: Sdílet → Přidat na plochu
-3. **Android Chrome**: Menu → Přidat na plochu
+1. Open the [app](https://kasaj.github.io/pra/) in your browser
+2. **iOS Safari**: Share → Add to Home Screen
+3. **Android Chrome**: Menu → Add to Home Screen
 
-Aplikace se nainstaluje jako PWA a funguje offline.
+The app installs as a PWA and works offline.
 
-## Soukromí
+## Privacy
 
-- Všechna data zůstávají pouze na tvém zařízení
-- Žádné analytics, žádné trackování
-- Žádný server - čistě klientská aplikace
+- All data stays only on your device
+- No analytics, no tracking
+- No server - purely client-side application
 
-## Technologie
+## Tech Stack
 
 - React + TypeScript
 - Vite
@@ -40,22 +40,22 @@ Aplikace se nainstaluje jako PWA a funguje offline.
 - Recharts
 - PWA (Service Worker)
 
-## Vývoj
+## Development
 
 ```bash
-# Instalace závislostí
+# Install dependencies
 npm install
 
-# Spuštění vývojového serveru
+# Start development server
 npm run dev
 
-# Build pro produkci
+# Build for production
 npm run build
 
-# Nasazení na GitHub Pages
+# Deploy to GitHub Pages
 npm run deploy
 ```
 
-## Licence
+## License
 
 MIT
