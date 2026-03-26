@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- App info -->
+    <title>PRA</title>
+    <meta name="description" content="PRA - prostor pro zastavení a návrat k sobě" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/png" href="/pra/assets/logo-BXAbbf8b.png" />
+    <link rel="apple-touch-icon" href="/pra/assets/logo-BXAbbf8b.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- Theme colors -->
+    <meta name="theme-color" content="#3f6450" />
+    <meta name="msapplication-TileColor" content="#3f6450" />
+
+    <!-- iOS PWA settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PRA" />
+
+    <!-- Prevent phone number detection -->
+    <meta name="format-detection" content="telephone=no" />
+    <script type="module" crossorigin src="/pra/assets/index-Cl6QQJcT.js"></script>
+    <link rel="stylesheet" crossorigin href="/pra/assets/index-Ji0TFCCF.css">
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then((reg) => console.log('SW registered:', reg.scope))
+            .catch((err) => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>
