@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "activities": [
+    {
+      "type": "sobe",
+      "emoji": "🌬️",
+      "durationMinutes": 3,
+      "cs": {
+        "name": "Zastavení",
+        "description": "Na 3 minutky se zastavit, vnímat, pobýt sám se sebou",
+        "variants": ["Dýchání", "Sken těla", "Tiché zastavení"]
+      },
+      "en": {
+        "name": "Pause",
+        "description": "Stop for 3 minutes, observe, be present with yourself",
+        "variants": ["Breathing", "Body scan", "Silent pause"]
+      }
+    },
+    {
+      "type": "pohyb",
+      "emoji": "🚶",
+      "durationMinutes": 30,
+      "cs": {
+        "name": "Pohyb",
+        "description": "Protažení, posilování nebo chůze s vnímáním těla",
+        "variants": ["Chůze", "Protažení", "Posilování", "Jóga", "Tanec"]
+      },
+      "en": {
+        "name": "Movement",
+        "description": "Stretching, strengthening or walking with body awareness",
+        "variants": ["Walking", "Stretching", "Strengthening", "Yoga", "Dance"]
+      }
+    },
+    {
+      "type": "meditace",
+      "emoji": "🧘",
+      "durationMinutes": 15,
+      "cs": {
+        "name": "Meditace",
+        "description": "Řízená nebo volná meditace, klid nervové soustavy",
+        "variants": ["Řízená meditace", "Volná meditace", "Dechová meditace", "Loving-kindness"]
+      },
+      "en": {
+        "name": "Meditation",
+        "description": "Guided or free meditation, calming the nervous system",
+        "variants": ["Guided meditation", "Free meditation", "Breath meditation", "Loving-kindness"]
+      }
+    },
+    {
+      "type": "rozjimani",
+      "emoji": "🌅",
+      "durationMinutes": 15,
+      "cs": {
+        "name": "Rozjímání",
+        "description": "Tiché sezení, otevřená otázka, vnitřní prostor",
+        "variants": ["Tiché sezení", "Kontemplace", "Journaling", "Vděčnost"]
+      },
+      "en": {
+        "name": "Contemplation",
+        "description": "Silent sitting, open question, inner space",
+        "variants": ["Silent sitting", "Contemplation", "Journaling", "Gratitude"]
+      }
+    },
+    {
+      "type": "komentar",
+      "emoji": "✨",
+      "durationMinutes": null,
+      "cs": {
+        "name": "Komentář",
+        "description": "Záměr, slovo nebo věta která provede dnem"
+      },
+      "en": {
+        "name": "Comment",
+        "description": "Intention, word or sentence to guide the day"
+      }
+    },
+    {
+      "type": "objeti",
+      "emoji": "🤗",
+      "durationMinutes": null,
+      "cs": {
+        "name": "Objetí",
+        "description": "Vědomý kontakt s druhým člověkem"
+      },
+      "en": {
+        "name": "Embrace",
+        "description": "Conscious contact with another person"
+      }
+    },
+    {
+      "type": "vyzva",
+      "emoji": "🔥",
+      "durationMinutes": null,
+      "cs": {
+        "name": "Výzva",
+        "description": "Vědomé čelení tomu, čemu se vyhýbám"
+      },
+      "en": {
+        "name": "Challenge",
+        "description": "Consciously facing what I avoid"
+      }
+    },
+    {
+      "type": "krok",
+      "emoji": "🪨",
+      "durationMinutes": null,
+      "cs": {
+        "name": "Malý krok",
+        "description": "Jediná konkrétní akce uprostřed nepřehlednosti"
+      },
+      "en": {
+        "name": "Small step",
+        "description": "Single concrete action amid confusion"
+      }
+    }
+  ],
+  "info": {
+    "cs": {
+      "title": "Info",
+      "subtitle": "Kontext a záměr",
+      "intro1": "Aplikace vychází z přesvědčení, že člověk potřebuje ukotvenou přesahující podstatu (samobyti) a schopnost pustit se s proudem života namísto lpění na pomíjivosti.",
+      "intro2": "Kvalita vědomí se nebuduje informacemi, ale opakovanou praxí malých kroků, které sledují přirozenou posloupnost:",
+      "sequence": "myšlenka → slovo → čin → zvyk → charakter → osud",
+      "intro3": "Aplikace neslouží jako zdroj obsahu. Je tichým průvodcem, prostorem pro zastavení a návrat k sobě. Nic neučí — pomáhá naslouchat tomu, co člověk už v sobě nese.",
+      "bioTitle": "Biologický základ",
+      "bioText": "Praxe je ukotvena v nervovém systému: pozornost, dech a pohyb přímo regulují autonomní nervový systém, snižují kortizol, posilují parasympatikus a umožňují integraci těla a mysli.",
+      "psychTitle": "Psychologický rámec",
+      "psychText": "Pracuje s archetypy, stínem (Jung), přijetím (buddhismus, stoicismus) a sebeurčením (Maslow, Frankl).",
+      "philoTitle": "Filozofický základ",
+      "philoText": "Stojí na průniku bytí (Heidegger), přítomnosti (Tao) a etiky středu (Aristotelova mesotés — srdce mezi hlavou a emocí)."
+    },
+    "en": {
+      "title": "Info",
+      "subtitle": "Context and intent",
+      "intro1": "The app is based on the belief that a person needs a grounded transcending essence (self-being) and the ability to go with the flow of life instead of clinging to impermanence.",
+      "intro2": "The quality of consciousness is not built by information, but by repeated practice of small steps that follow a natural sequence:",
+      "sequence": "thought → word → action → habit → character → destiny",
+      "intro3": "The app does not serve as a source of content. It is a quiet guide, a space for pause and return to oneself. It teaches nothing — it helps listen to what one already carries within.",
+      "bioTitle": "Biological foundation",
+      "bioText": "Practice is anchored in the nervous system: attention, breath and movement directly regulate the autonomic nervous system, reduce cortisol, strengthen the parasympathetic system and enable integration of body and mind.",
+      "psychTitle": "Psychological framework",
+      "psychText": "Works with archetypes, shadow (Jung), acceptance (Buddhism, Stoicism) and self-determination (Maslow, Frankl).",
+      "philoTitle": "Philosophical foundation",
+      "philoText": "Stands at the intersection of being (Heidegger), presence (Tao) and ethics of the middle (Aristotle's mesotes — heart between head and emotion)."
+    }
+  }
+}

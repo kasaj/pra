@@ -122,40 +122,61 @@ export default function PageTime() {
   const { t, language } = useLanguage();
   const [data, setData] = useState(() => loadAllData());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [trendRange, setTrendRange] = useState<'week' | 'month'>('week');
 
   // Summary statistics
   const summaryStats = useMemo(() => {
     let totalActivities = 0;
     let totalSeconds = 0;
 
+    const todayStr = new Date().toISOString().split('T')[0];
+    let todayActivities = 0;
+    let todaySeconds = 0;
+
+    const weekAgoDate = new Date();
+    weekAgoDate.setDate(weekAgoDate.getDate() - 6);
+    const weekAgoStr = weekAgoDate.toISOString().split('T')[0];
+    let weekActivities = 0;
+    let weekSeconds = 0;
+
     data.forEach((day) => {
       day.activities.forEach((activity) => {
         totalActivities++;
-        if (activity.actualDurationSeconds) {
-          totalSeconds += activity.actualDurationSeconds;
-        } else if (activity.durationMinutes) {
-          totalSeconds += activity.durationMinutes * 60;
+        const secs = activity.actualDurationSeconds || (activity.durationMinutes ? activity.durationMinutes * 60 : 0);
+        totalSeconds += secs;
+
+        if (day.date === todayStr) {
+          todayActivities++;
+          todaySeconds += secs;
+        }
+        if (day.date >= weekAgoStr) {
+          weekActivities++;
+          weekSeconds += secs;
         }
       });
     });
 
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const toHM = (s: number) => ({ hours: Math.floor(s / 3600), minutes: Math.floor((s % 3600) / 60) });
 
-    return { totalActivities, hours, minutes };
+    return {
+      totalActivities, ...toHM(totalSeconds),
+      todayActivities, today: toHM(todaySeconds),
+      weekActivities, week: toHM(weekSeconds),
+    };
   }, [data]);
 
-  // Weekly trend data (last 7 days)
-  const weeklyTrendData = useMemo(() => {
+  // Trend data (week or month)
+  const trendData = useMemo(() => {
     const today = new Date();
-    const weekAgo = new Date(today);
-    weekAgo.setDate(weekAgo.getDate() - 6);
+    const days = trendRange === 'week' ? 7 : 30;
+    const start = new Date(today);
+    start.setDate(start.getDate() - (days - 1));
 
     const result: Array<{ day: string; avgRating: number | null }> = [];
 
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(weekAgo);
-      date.setDate(weekAgo.getDate() + i);
+    for (let i = 0; i < days; i++) {
+      const date = new Date(start);
+      date.setDate(start.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
       const dayEntry = data.find((d) => d.date === dateStr);
 
@@ -171,12 +192,14 @@ export default function PageTime() {
         }
       }
 
-      const dayName = date.toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'short' });
+      const dayName = trendRange === 'week'
+        ? date.toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'short' })
+        : `${date.getDate()}.${date.getMonth() + 1}`;
       result.push({ day: dayName, avgRating });
     }
 
     return result;
-  }, [data, language]);
+  }, [data, language, trendRange]);
 
   const chartData = useMemo(() => {
     return data
@@ -276,31 +299,69 @@ export default function PageTime() {
       <section className="mb-6">
         <h2 className="font-serif text-base text-clay-700 mb-3">{t.time.summaryTitle}</h2>
         <div className="grid grid-cols-2 gap-3">
-          <div className="card text-center py-4">
-            <div className="text-3xl font-serif text-forest-600">{summaryStats.totalActivities}</div>
-            <div className="text-sm text-clay-500 mt-1">{t.time.totalActivities}</div>
+          <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-forest-600">{summaryStats.weekActivities}</div>
+            <div className="text-xs text-clay-500 mt-1">{t.time.weekActivities}</div>
           </div>
-          <div className="card text-center py-4">
-            <div className="text-3xl font-serif text-forest-600">
-              {summaryStats.hours > 0 && `${summaryStats.hours} ${t.time.hours} `}
+          <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-forest-600">
+              {summaryStats.week.hours > 0 && `${summaryStats.week.hours}${t.time.hours} `}
+              {summaryStats.week.minutes} {t.time.minutes}
+            </div>
+            <div className="text-xs text-clay-500 mt-1">{t.time.weekTime}</div>
+          </div>
+          <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-forest-600">{summaryStats.totalActivities}</div>
+            <div className="text-xs text-clay-500 mt-1">{t.time.totalActivities}</div>
+          </div>
+          <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-forest-600">
+              {summaryStats.hours > 0 && `${summaryStats.hours}${t.time.hours} `}
               {summaryStats.minutes} {t.time.minutes}
             </div>
-            <div className="text-sm text-clay-500 mt-1">{t.time.totalTime}</div>
+            <div className="text-xs text-clay-500 mt-1">{t.time.totalTime}</div>
           </div>
         </div>
       </section>
 
-      {/* Weekly Trend Section */}
+      {/* Trend Section */}
       <section className="mb-6">
-        <h2 className="font-serif text-base text-clay-700 mb-3">{t.time.weeklyTrend}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-serif text-base text-clay-700">
+            {trendRange === 'week' ? t.time.weeklyTrend : t.time.monthlyTrend}
+          </h2>
+          <div className="flex gap-1 bg-clay-100 rounded-lg p-0.5">
+            <button
+              onClick={() => setTrendRange('week')}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                trendRange === 'week'
+                  ? 'bg-white text-forest-700 shadow-sm'
+                  : 'text-clay-500 hover:text-clay-700'
+              }`}
+            >
+              {t.time.trendWeek}
+            </button>
+            <button
+              onClick={() => setTrendRange('month')}
+              className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                trendRange === 'month'
+                  ? 'bg-white text-forest-700 shadow-sm'
+                  : 'text-clay-500 hover:text-clay-700'
+              }`}
+            >
+              {t.time.trendMonth}
+            </button>
+          </div>
+        </div>
         <div className="card">
-          <ResponsiveContainer width="100%" height={120}>
-            <BarChart data={weeklyTrendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height={trendRange === 'month' ? 150 : 120}>
+            <BarChart data={trendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
               <XAxis
                 dataKey="day"
-                tick={{ fontSize: 11, fill: '#6f4b3e' }}
+                tick={{ fontSize: trendRange === 'month' ? 9 : 11, fill: '#6f4b3e' }}
                 axisLine={false}
                 tickLine={false}
+                interval={trendRange === 'month' ? 4 : 0}
               />
               <YAxis
                 domain={[0, 5]}
@@ -316,7 +377,7 @@ export default function PageTime() {
                 formatter={(value) => value !== null ? [value, t.time.rating] : ['-', t.time.rating]}
               />
               <Bar dataKey="avgRating" radius={[4, 4, 0, 0]}>
-                {weeklyTrendData.map((entry, index) => (
+                {trendData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={getRatingColor(entry.avgRating)} />
                 ))}
               </Bar>

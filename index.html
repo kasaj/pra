@@ -9,11 +9,11 @@
     <meta name="description" content="PRA - prostor pro zastavení a návrat k sobě" />
 
     <!-- Favicon & Icons -->
-    <link rel="icon" type="image/png" href="/pra/logo.png" />
-    <link rel="apple-touch-icon" href="/pra/logo.png" />
+    <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="apple-touch-icon" href="logo.png" />
 
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/pra/manifest.json" />
+    <link rel="manifest" href="manifest.json" />
 
     <!-- Theme colors -->
     <meta name="theme-color" content="#3f6450" />
@@ -35,7 +35,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/pra/sw.js')
+          navigator.serviceWorker.register('sw.js')
             .then((reg) => console.log('SW registered:', reg.scope))
             .catch((err) => console.log('SW registration failed:', err));
         });

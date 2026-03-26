@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
 import { loadSettings, saveSettings } from '../utils/settings';
 import { loadAllData } from '../utils/storage';
-import { getActivityByType, loadActivities } from '../utils/activities';
-import { DayEntry } from '../types';
+import { getActivityByType, loadActivities, saveActivities } from '../utils/activities';
+import { translations } from '../i18n/translations';
+import { DayEntry, ActivityDefinition } from '../types';
 
 function formatDate(dateStr: string, lang: string): string {
   const date = new Date(dateStr);
@@ -44,21 +45,30 @@ function generateHistoryMarkdown(data: DayEntry[], lang: string): string {
   let totalSeconds = 0;
   const ratings: number[] = [];
 
+  const weekAgoDate = new Date();
+  weekAgoDate.setDate(weekAgoDate.getDate() - 6);
+  const weekAgoStr = weekAgoDate.toISOString().split('T')[0];
+  let weekActivities = 0;
+  let weekSeconds = 0;
+
   data.forEach((day) => {
     day.activities.forEach((activity) => {
       totalActivities++;
-      if (activity.actualDurationSeconds) {
-        totalSeconds += activity.actualDurationSeconds;
-      } else if (activity.durationMinutes) {
-        totalSeconds += activity.durationMinutes * 60;
-      }
+      const secs = activity.actualDurationSeconds || (activity.durationMinutes ? activity.durationMinutes * 60 : 0);
+      totalSeconds += secs;
       if (activity.ratingAfter) ratings.push(activity.ratingAfter);
       else if (activity.rating) ratings.push(activity.rating);
+
+      if (day.date >= weekAgoStr) {
+        weekActivities++;
+        weekSeconds += secs;
+      }
     });
   });
 
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const toHM = (s: number) => ({ h: Math.floor(s / 3600), m: Math.floor((s % 3600) / 60) });
+  const total = toHM(totalSeconds);
+  const weekHM = toHM(weekSeconds);
   const avgRating = ratings.length > 0
     ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
     : '-';
@@ -94,11 +104,18 @@ function generateHistoryMarkdown(data: DayEntry[], lang: string): string {
   let md = `# PRA - ${lang === 'cs' ? 'Historie' : 'History'}\n\n`;
   md += `${lang === 'cs' ? 'Exportováno' : 'Exported'}: ${new Date().toLocaleString(lang === 'cs' ? 'cs-CZ' : 'en-US')}\n\n`;
 
+  const fmtTime = (hm: { h: number; m: number }) => `${hm.h > 0 ? `${hm.h}h ` : ''}${hm.m}min`;
+  const weekLabel = lang === 'cs' ? 'Týden' : 'Week';
+  const activitiesLabel = lang === 'cs' ? 'aktivit' : 'activities';
+  const timeLabel = lang === 'cs' ? 'čas' : 'time';
+
   // Summary section
   md += `## ${t.summary}\n\n`;
   md += `| | |\n|---|---|\n`;
+  md += `| **${weekLabel} ${activitiesLabel}** | ${weekActivities} |\n`;
+  md += `| **${weekLabel} ${timeLabel}** | ${fmtTime(weekHM)} |\n`;
   md += `| **${t.totalActivities}** | ${totalActivities} |\n`;
-  md += `| **${t.totalTime}** | ${hours > 0 ? `${hours}h ` : ''}${minutes}min |\n`;
+  md += `| **${t.totalTime}** | ${fmtTime(total)} |\n`;
   md += `| **${t.avgRating}** | ${avgRating} |\n\n`;
 
   // Weekly overview
@@ -150,34 +167,109 @@ function generateHistoryMarkdown(data: DayEntry[], lang: string): string {
   return md;
 }
 
-function generateActivitiesMarkdown(lang: string): string {
-  const activities = loadActivities();
-
-  const t = lang === 'cs'
-    ? { name: 'Název', emoji: 'Ikona', desc: 'Popis', duration: 'Délka', timed: 'Časová', moment: 'Okamžik' }
-    : { name: 'Name', emoji: 'Icon', desc: 'Description', duration: 'Duration', timed: 'Timed', moment: 'Moment' };
-
-  let md = `# PRA - ${lang === 'cs' ? 'Aktivity' : 'Activities'}\n\n`;
-  md += `${lang === 'cs' ? 'Exportováno' : 'Exported'}: ${new Date().toLocaleString(lang === 'cs' ? 'cs-CZ' : 'en-US')}\n\n`;
-
-  // Table header
-  md += `| ${t.emoji} | ${t.name} | ${t.desc} | ${t.duration} |\n`;
-  md += `|------|----------|----------|----------|\n`;
-
-  // Table rows
-  activities.forEach((activity) => {
-    const duration = activity.durationMinutes
-      ? `${activity.durationMinutes} min`
-      : (lang === 'cs' ? t.moment : t.moment);
-
-    md += `| ${activity.emoji} | ${activity.name} | ${activity.description.replace(/\|/g, '\\|')} | ${duration} |\n`;
-  });
-
-  return md;
+interface ConfigActivity {
+  type: string;
+  emoji: string;
+  durationMinutes: number | null;
+  cs: { name: string; description: string; variants?: string[] };
+  en: { name: string; description: string; variants?: string[] };
 }
 
-function downloadFile(content: string, filename: string) {
-  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+interface ConfigInfo {
+  cs: {
+    title: string;
+    subtitle: string;
+    intro1: string;
+    intro2: string;
+    sequence: string;
+    intro3: string;
+    bioTitle: string;
+    bioText: string;
+    psychTitle: string;
+    psychText: string;
+    philoTitle: string;
+    philoText: string;
+  };
+  en: {
+    title: string;
+    subtitle: string;
+    intro1: string;
+    intro2: string;
+    sequence: string;
+    intro3: string;
+    bioTitle: string;
+    bioText: string;
+    psychTitle: string;
+    psychText: string;
+    philoTitle: string;
+    philoText: string;
+  };
+}
+
+interface AppConfig {
+  version: 1;
+  exportedAt: string;
+  activities: ConfigActivity[];
+  info: ConfigInfo;
+}
+
+function generateConfig(): AppConfig {
+  const activities = loadActivities();
+  const cs = translations.cs;
+  const en = translations.en;
+
+  const configActivities: ConfigActivity[] = activities.map((activity) => {
+    const csTransKey = activity.type as keyof typeof cs.activities;
+    const enTransKey = activity.type as keyof typeof en.activities;
+    const csTrans = cs.activities[csTransKey];
+    const enTrans = en.activities[enTransKey];
+
+    const csData: ConfigActivity['cs'] = csTrans
+      ? { name: csTrans.name, description: csTrans.desc, ...('variants' in csTrans ? { variants: [...csTrans.variants] } : {}) }
+      : { name: activity.name, description: activity.description, ...(activity.variants ? { variants: activity.variants } : {}) };
+
+    const enData: ConfigActivity['en'] = enTrans
+      ? { name: enTrans.name, description: enTrans.desc, ...('variants' in enTrans ? { variants: [...enTrans.variants] } : {}) }
+      : { name: activity.name, description: activity.description, ...(activity.variants ? { variants: activity.variants } : {}) };
+
+    return {
+      type: activity.type,
+      emoji: activity.emoji,
+      durationMinutes: activity.durationMinutes,
+      cs: csData,
+      en: enData,
+    };
+  });
+
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    activities: configActivities,
+    info: {
+      cs: { ...translations.cs.info },
+      en: { ...translations.en.info },
+    },
+  };
+}
+
+function importConfig(config: AppConfig, lang: string): ActivityDefinition[] {
+  const activities: ActivityDefinition[] = config.activities.map((item) => {
+    const localized = lang === 'cs' ? item.cs : item.en;
+    return {
+      type: item.type,
+      emoji: item.emoji,
+      durationMinutes: item.durationMinutes,
+      name: localized.name,
+      description: localized.description,
+      variants: localized.variants,
+    };
+  });
+  saveActivities(activities);
+  return activities;
+}
+
+function downloadFile(content: string, filename: string, mimeType = 'text/markdown;charset=utf-8') {
+  const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -193,6 +285,8 @@ export default function PageSettings() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [saved, setSaved] = useState(false);
+  const [importStatus, setImportStatus] = useState<'success' | 'error' | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const settings = loadSettings();
@@ -212,9 +306,33 @@ export default function PageSettings() {
     downloadFile(markdown, `pra-history-${new Date().toISOString().split('T')[0]}.md`);
   }, [language]);
 
-  const handleExportActivities = useCallback(() => {
-    const markdown = generateActivitiesMarkdown(language);
-    downloadFile(markdown, `pra-activities-${new Date().toISOString().split('T')[0]}.md`);
+  const handleExportConfig = useCallback(() => {
+    const config = generateConfig();
+    const json = JSON.stringify(config, null, 2);
+    downloadFile(json, `pra-config-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
+  }, []);
+
+  const handleImportConfig = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const config = JSON.parse(event.target?.result as string) as AppConfig;
+        if (!config.version || !Array.isArray(config.activities)) {
+          throw new Error('Invalid config format');
+        }
+        importConfig(config, language);
+        setImportStatus('success');
+      } catch {
+        setImportStatus('error');
+      }
+      setTimeout(() => setImportStatus(null), 3000);
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
   }, [language]);
 
   return (
@@ -273,31 +391,10 @@ export default function PageSettings() {
                          text-clay-800 placeholder:text-clay-400"
               />
             </div>
-            <div>
-              <label className="block text-sm text-clay-600 mb-2">
-                {t.settings.email}
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t.settings.emailPlaceholder}
-                className="w-full p-3 rounded-xl bg-cream-100 border border-clay-200
-                         focus:outline-none focus:border-forest-400
-                         text-clay-800 placeholder:text-clay-400"
-              />
-            </div>
           </div>
         </section>
 
-        <button
-          onClick={handleSave}
-          className="btn-primary w-full"
-        >
-          {saved ? `${t.settings.saved} ✓` : t.settings.save}
-        </button>
-
-        {/* Export */}
+        {/* Export / Import */}
         <section className="card">
           <h2 className="font-serif text-lg text-clay-800 mb-4">
             {t.settings.export}
@@ -318,7 +415,7 @@ export default function PageSettings() {
               </div>
             </button>
             <button
-              onClick={handleExportActivities}
+              onClick={handleExportConfig}
               className="w-full flex items-center gap-3 p-3 rounded-xl bg-cream-100 border border-clay-200
                        hover:border-clay-300 transition-colors text-left"
             >
@@ -327,9 +424,64 @@ export default function PageSettings() {
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               <div>
-                <div className="text-clay-800 font-medium">{t.settings.exportActivities}</div>
-                <div className="text-sm text-clay-500">{t.settings.exportActivitiesDesc}</div>
+                <div className="text-clay-800 font-medium">{t.settings.exportConfig}</div>
+                <div className="text-sm text-clay-500">{t.settings.exportConfigDesc}</div>
               </div>
+            </button>
+            <label
+              className="w-full flex items-center gap-3 p-3 rounded-xl bg-cream-100 border border-clay-200
+                       hover:border-clay-300 transition-colors text-left cursor-pointer"
+            >
+              <svg className="w-5 h-5 text-clay-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m4-8l-4-4m0 0L16 8m4-4v12" />
+              </svg>
+              <div>
+                <div className="text-clay-800 font-medium">{t.settings.importConfig}</div>
+                <div className="text-sm text-clay-500">{t.settings.importConfigDesc}</div>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleImportConfig}
+                className="hidden"
+              />
+            </label>
+            {importStatus && (
+              <div className={`p-3 rounded-xl text-sm ${
+                importStatus === 'success'
+                  ? 'bg-forest-100 text-forest-700'
+                  : 'bg-red-100 text-red-700'
+              }`}>
+                {importStatus === 'success' ? t.settings.importSuccess : t.settings.importError}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Subscription */}
+        <section className="card">
+          <h2 className="font-serif text-lg text-clay-800 mb-4">
+            {t.settings.subscription}
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.settings.subscriptionPlaceholder}
+                className="w-full p-3 rounded-xl bg-cream-100 border border-clay-200
+                         focus:outline-none focus:border-forest-400
+                         text-clay-800 placeholder:text-clay-400"
+              />
+            </div>
+            <button
+              onClick={handleSave}
+              className="btn-primary w-full"
+            >
+              {saved ? `${t.settings.saved} ✓` : t.settings.save}
             </button>
           </div>
         </section>
