@@ -342,35 +342,6 @@ export default function PageSettings() {
       </header>
 
       <div className="space-y-6">
-        {/* Jazyk */}
-        <section className="card">
-          <h2 className="font-serif text-lg text-clay-800 mb-4">
-            {t.settings.language}
-          </h2>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setLanguage('cs')}
-              className={`flex-1 py-3 px-4 rounded-xl border transition-colors ${
-                language === 'cs'
-                  ? 'bg-forest-100 border-forest-400 text-forest-700'
-                  : 'bg-cream-100 border-clay-200 text-clay-600 hover:border-clay-300'
-              }`}
-            >
-              Čeština
-            </button>
-            <button
-              onClick={() => setLanguage('en')}
-              className={`flex-1 py-3 px-4 rounded-xl border transition-colors ${
-                language === 'en'
-                  ? 'bg-forest-100 border-forest-400 text-forest-700'
-                  : 'bg-cream-100 border-clay-200 text-clay-600 hover:border-clay-300'
-              }`}
-            >
-              English
-            </button>
-          </div>
-        </section>
-
         {/* Profil */}
         <section className="card">
           <h2 className="font-serif text-lg text-clay-800 mb-4">
@@ -457,6 +428,35 @@ export default function PageSettings() {
                 {importStatus === 'success' ? t.settings.importSuccess : t.settings.importError}
               </div>
             )}
+          </div>
+        </section>
+
+        {/* Jazyk */}
+        <section className="card">
+          <h2 className="font-serif text-lg text-clay-800 mb-4">
+            {t.settings.language}
+          </h2>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setLanguage('cs')}
+              className={`flex-1 py-3 px-4 rounded-xl border transition-colors ${
+                language === 'cs'
+                  ? 'bg-forest-100 border-forest-400 text-forest-700'
+                  : 'bg-cream-100 border-clay-200 text-clay-600 hover:border-clay-300'
+              }`}
+            >
+              Čeština
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`flex-1 py-3 px-4 rounded-xl border transition-colors ${
+                language === 'en'
+                  ? 'bg-forest-100 border-forest-400 text-forest-700'
+                  : 'bg-cream-100 border-clay-200 text-clay-600 hover:border-clay-300'
+              }`}
+            >
+              English
+            </button>
           </div>
         </section>
 
