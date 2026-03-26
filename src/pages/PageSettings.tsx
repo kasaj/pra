@@ -312,6 +312,26 @@ export default function PageSettings() {
     downloadFile(json, `pra-config-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
   }, []);
 
+  const handleReset = useCallback(() => {
+    if (!window.confirm(t.settings.resetConfirm)) return;
+    // Clear all localStorage
+    localStorage.clear();
+    // Unregister service workers
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => reg.unregister());
+      });
+    }
+    // Clear caches
+    if ('caches' in window) {
+      caches.keys().then((keys) => {
+        keys.forEach((key) => caches.delete(key));
+      });
+    }
+    // Reload
+    window.location.reload();
+  }, [t]);
+
   const handleImportConfig = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -484,6 +504,23 @@ export default function PageSettings() {
               {saved ? `${t.settings.saved} ✓` : t.settings.save}
             </button>
           </div>
+        </section>
+
+        {/* Reset */}
+        <section className="card border-ochre-200">
+          <button
+            onClick={handleReset}
+            className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
+          >
+            <svg className="w-5 h-5 text-ochre-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <div>
+              <div className="text-ochre-700 font-medium">{t.settings.resetDefault}</div>
+              <div className="text-sm text-clay-500">{t.settings.resetDefaultDesc}</div>
+            </div>
+          </button>
         </section>
       </div>
     </div>
