@@ -113,14 +113,12 @@ export const translations = {
     },
     // Default activities
     activities: {
-      sobe: { name: 'Zastavení', desc: 'Na 3 minutky se zastavit, vnímat, pobýt sám se sebou', variants: ['Dýchání', 'Sken těla', 'Tiché zastavení'] },
-      pohyb: { name: 'Pohyb', desc: 'Protažení, posilování nebo chůze s vnímáním těla', variants: ['Chůze', 'Protažení', 'Posilování', 'Jóga', 'Tanec'] },
-      meditace: { name: 'Meditace', desc: 'Řízená nebo volná meditace, klid nervové soustavy', variants: ['Řízená meditace', 'Volná meditace', 'Dechová meditace', 'Loving-kindness'] },
-      rozjimani: { name: 'Rozjímání', desc: 'Tiché sezení, otevřená otázka, vnitřní prostor', variants: ['Tiché sezení', 'Kontemplace', 'Journaling', 'Vděčnost'] },
-      komentar: { name: 'Komentář', desc: 'Záměr, slovo nebo věta která provede dnem' },
-      objeti: { name: 'Objetí', desc: 'Vědomý kontakt s druhým člověkem' },
-      vyzva: { name: 'Výzva', desc: 'Vědomé čelení tomu, čemu se vyhýbám' },
-      krok: { name: 'Malý krok', desc: 'Jediná konkrétní akce uprostřed nepřehlednosti' },
+      sobe: { name: 'Zastavení', desc: 'Na pár minut se zastavit, vnímat, pobýt sám se sebou', variants: ['Dýchání', 'Sken těla', 'Tiché zastavení'] },
+      pohyb: { name: 'Pohyb', desc: 'Protažení, procvičení, posilování, sport nebo chůze s vnímáním těla', variants: ['Chůze', 'Protažení', 'Posilování', 'Jóga', 'Tanec'] },
+      rozjimani: { name: 'Rozjímání', desc: 'Tiché sezení, otevřená otázka, vnitřní prostor, pozorování přírody, pocitů, myšlenek', variants: ['Tiché sezení', 'Kontemplace', 'Journaling', 'Vděčnost'] },
+      komentar: { name: 'Komentář.', desc: 'Reflexe, záměr, slovo nebo věta která provede dnem' },
+      objeti: { name: 'Objetí nebo kontakt', desc: 'Vědomý kontakt s druhým člověkem' },
+      vyzva: { name: 'Výzva', desc: 'Vědomé čelení tomu, čemu se vyhýbám. Jediná konkrétní akce uprostřed nepřehlednosti.' },
     },
     // Settings page
     settings: {
@@ -258,14 +256,12 @@ export const translations = {
     },
     // Default activities
     activities: {
-      sobe: { name: 'Pause', desc: 'Stop for 3 minutes, observe, be present with yourself', variants: ['Breathing', 'Body scan', 'Silent pause'] },
+      sobe: { name: 'Pause', desc: 'Stop for a few minutes, observe, be present with yourself', variants: ['Breathing', 'Body scan', 'Silent pause'] },
       pohyb: { name: 'Movement', desc: 'Stretching, strengthening or walking with body awareness', variants: ['Walking', 'Stretching', 'Strengthening', 'Yoga', 'Dance'] },
-      meditace: { name: 'Meditation', desc: 'Guided or free meditation, calming the nervous system', variants: ['Guided meditation', 'Free meditation', 'Breath meditation', 'Loving-kindness'] },
       rozjimani: { name: 'Contemplation', desc: 'Silent sitting, open question, inner space', variants: ['Silent sitting', 'Contemplation', 'Journaling', 'Gratitude'] },
-      komentar: { name: 'Comment', desc: 'Intention, word or sentence to guide the day' },
+      komentar: { name: 'Comment', desc: 'Reflection, intention, word or sentence to guide the day' },
       objeti: { name: 'Embrace', desc: 'Conscious contact with another person' },
-      vyzva: { name: 'Challenge', desc: 'Consciously facing what I avoid' },
-      krok: { name: 'Small step', desc: 'Single concrete action amid confusion' },
+      vyzva: { name: 'Challenge', desc: 'Consciously facing what I avoid. Single concrete action amid confusion' },
     },
     // Settings page
     settings: {

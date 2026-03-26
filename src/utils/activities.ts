@@ -5,7 +5,7 @@ import { translations } from '../i18n/translations';
 const ACTIVITIES_STORAGE_KEY = 'pra_activities';
 
 // Default activity types that have translations
-const TRANSLATABLE_TYPES = ['sobe', 'pohyb', 'meditace', 'rozjimani', 'komentar', 'objeti', 'vyzva', 'krok'] as const;
+const TRANSLATABLE_TYPES = ['sobe', 'pohyb', 'rozjimani', 'komentar', 'objeti', 'vyzva'] as const;
 
 // Base activity definitions (without translations)
 const DEFAULT_ACTIVITY_BASE: Array<{
@@ -13,14 +13,12 @@ const DEFAULT_ACTIVITY_BASE: Array<{
   emoji: string;
   durationMinutes: number | null;
 }> = [
-  { type: 'sobe', emoji: '🌬️', durationMinutes: 3 },
+  { type: 'sobe', emoji: '⏸️', durationMinutes: 3 },
   { type: 'pohyb', emoji: '🚶', durationMinutes: 30 },
-  { type: 'meditace', emoji: '🧘', durationMinutes: 15 },
   { type: 'rozjimani', emoji: '🌅', durationMinutes: 15 },
-  { type: 'komentar', emoji: '✨', durationMinutes: null },
+  { type: 'komentar', emoji: '📜', durationMinutes: null },
   { type: 'objeti', emoji: '🤗', durationMinutes: null },
   { type: 'vyzva', emoji: '🔥', durationMinutes: null },
-  { type: 'krok', emoji: '🪨', durationMinutes: null },
 ];
 
 // Get localized default activities
@@ -94,8 +92,8 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
   {
     type: 'sobe',
     name: 'Zastavení',
-    emoji: '🌬️',
-    description: 'Na 3 minutky se zastavit, vnímat, pobýt sám se sebou',
+    emoji: '⏸️',
+    description: 'Na pár minut se zastavit, vnímat, pobýt sám se sebou',
     durationMinutes: 3,
     variants: ['Dýchání', 'Sken těla', 'Tiché zastavení'],
   },
@@ -103,37 +101,29 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
     type: 'pohyb',
     name: 'Pohyb',
     emoji: '🚶',
-    description: 'Protažení, posilování nebo chůze s vnímáním těla',
+    description: 'Protažení, procvičení, posilování, sport nebo chůze s vnímáním těla',
     durationMinutes: 30,
     variants: ['Chůze', 'Protažení', 'Posilování', 'Jóga', 'Tanec'],
-  },
-  {
-    type: 'meditace',
-    name: 'Meditace',
-    emoji: '🧘',
-    description: 'Řízená nebo volná meditace, klid nervové soustavy',
-    durationMinutes: 15,
-    variants: ['Řízená meditace', 'Volná meditace', 'Dechová meditace', 'Loving-kindness'],
   },
   {
     type: 'rozjimani',
     name: 'Rozjímání',
     emoji: '🌅',
-    description: 'Tiché sezení, otevřená otázka, vnitřní prostor',
+    description: 'Tiché sezení, otevřená otázka, vnitřní prostor, pozorování přírody, pocitů, myšlenek',
     durationMinutes: 15,
-    variants: ['Tiché sezení', 'Kontemplce', 'Journaling', 'Vděčnost'],
+    variants: ['Tiché sezení', 'Kontemplace', 'Journaling', 'Vděčnost'],
   },
   // Nečasové aktivity
   {
     type: 'komentar',
-    name: 'Komentář',
-    emoji: '✨',
-    description: 'Záměr, slovo nebo věta která provede dnem',
+    name: 'Komentář.',
+    emoji: '📜',
+    description: 'Reflexe, záměr, slovo nebo věta která provede dnem',
     durationMinutes: null,
   },
   {
     type: 'objeti',
-    name: 'Objetí',
+    name: 'Objetí nebo kontakt',
     emoji: '🤗',
     description: 'Vědomý kontakt s druhým člověkem',
     durationMinutes: null,
@@ -142,14 +132,7 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
     type: 'vyzva',
     name: 'Výzva',
     emoji: '🔥',
-    description: 'Vědomé čelení tomu, čemu se vyhýbám',
-    durationMinutes: null,
-  },
-  {
-    type: 'krok',
-    name: 'Malý krok',
-    emoji: '🪨',
-    description: 'Jediná konkrétní akce uprostřed nepřehlednosti',
+    description: 'Vědomé čelení tomu, čemu se vyhýbám. Jediná konkrétní akce uprostřed nepřehlednosti.',
     durationMinutes: null,
   },
 ];

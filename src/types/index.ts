@@ -1,12 +1,10 @@
 export type ActivityType =
   | 'sobe'
   | 'pohyb'
-  | 'meditace'
   | 'rozjimani'
   | 'komentar'
   | 'objeti'
   | 'vyzva'
-  | 'krok'
   | string; // Pro vlastní aktivity
 
 export interface ActivityDefinition {
