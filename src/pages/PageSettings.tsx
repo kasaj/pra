@@ -342,7 +342,7 @@ export default function PageSettings() {
     const config = generateConfig(language, theme, name);
     const json = JSON.stringify(config, null, 2);
     downloadFile(json, `pra-config-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
-  }, [language, theme]);
+  }, [language, theme, name]);
 
   const handleReset = useCallback(() => {
     if (!window.confirm(t.settings.resetConfirm)) return;
@@ -389,6 +389,18 @@ export default function PageSettings() {
         // Import theme
         if (config.theme && (config.theme === 'classic' || config.theme === 'modern' || config.theme === 'dark')) {
           saveTheme(config.theme);
+        }
+        // Import user notes from info
+        const importedInfo = config.info?.cs || config.info?.en;
+        if (importedInfo) {
+          const notes = {
+            why: (importedInfo as Record<string, unknown>).noteWhy as string || '',
+            how: (importedInfo as Record<string, unknown>).noteHow as string || '',
+            what: (importedInfo as Record<string, unknown>).noteWhat as string || '',
+          };
+          if (notes.why || notes.how || notes.what) {
+            localStorage.setItem('pra_info_notes', JSON.stringify(notes));
+          }
         }
         setImportStatus('success');
         // Reload to apply all changes (info, language, theme, activities)
