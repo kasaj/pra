@@ -306,7 +306,6 @@ function downloadFile(content: string, filename: string, mimeType = 'text/markdo
 export default function PageSettings() {
   const { language, setLanguage, t } = useLanguage();
   const [name, setName] = useState('');
-  const [saved, setSaved] = useState(false);
   const [importStatus, setImportStatus] = useState<'success' | 'error' | null>(null);
   const [theme, setThemeState] = useState<Theme>(loadTheme);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -327,11 +326,10 @@ export default function PageSettings() {
     }
   }, []);
 
-  const handleSave = () => {
-    saveSettings({ language, name });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+  // Auto-save on any change
+  useEffect(() => {
+    if (name) saveSettings({ language, name });
+  }, [language, name]);
 
   const handleExportHistory = useCallback(() => {
     const data = loadAllData();
@@ -597,14 +595,6 @@ export default function PageSettings() {
             ))}
           </div>
         </section>
-
-        {/* Save */}
-        <button
-          onClick={handleSave}
-          className="btn-primary w-full"
-        >
-          {saved ? `${t.settings.saved} ✓` : t.settings.save}
-        </button>
 
         {/* Sync */}
         <section className="card">
