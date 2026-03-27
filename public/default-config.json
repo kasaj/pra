@@ -182,6 +182,21 @@
           "Small step in chaos"
         ]
       }
+    },
+    {
+      "type": "test",
+      "emoji": "🧪",
+      "durationMinutes": 1,
+      "cs": {
+        "name": "Test",
+        "description": "Testovací aktivita na 1 minutu",
+        "variants": ["Test A", "Test B"]
+      },
+      "en": {
+        "name": "Test",
+        "description": "Test activity for 1 minute",
+        "variants": ["Test A", "Test B"]
+      }
     }
   ],
   "info": {
