@@ -71,7 +71,6 @@ async function fetchConfig(): Promise<AppConfig> {
 
     // Track config hash - detect changes
     const newHash = simpleHash(text);
-    const oldHash = localStorage.getItem(CONFIG_HASH_KEY);
     localStorage.setItem(CONFIG_HASH_KEY, newHash);
 
     return cachedConfig!;
