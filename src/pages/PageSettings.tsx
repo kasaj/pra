@@ -305,77 +305,47 @@ export default function PageSettings() {
             {t.settings.export}
           </h2>
           <div className="space-y-3">
-            {/* Backup */}
-            <button
-              onClick={handleExportBackup}
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-themed-input border border-themed
-                       hover:border-themed-medium transition-colors text-left"
-            >
-              <svg className="w-5 h-5 text-themed-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              <div>
-                <div className="text-themed-primary font-medium">{t.settings.backupExport}</div>
-                <div className="text-sm text-themed-faint">{t.settings.backupExportDesc}</div>
+            {/* Backup - highlighted */}
+            <div className="rounded-xl p-3 border-2" style={{ borderColor: 'var(--accent-border)', backgroundColor: 'var(--accent-bg)' }}>
+              <div className="text-themed-accent font-medium mb-2">{t.settings.backupExportDesc}</div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportBackup}
+                  className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors"
+                  style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
+                >
+                  {t.settings.backupExport}
+                </button>
+                <label
+                  className="flex-1 py-2 px-3 rounded-lg text-sm font-medium text-center cursor-pointer border transition-colors"
+                  style={{ borderColor: 'var(--accent-border)', color: 'var(--accent-text)' }}
+                >
+                  {t.settings.backupImport}
+                  <input ref={backupInputRef} type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
+                </label>
               </div>
-            </button>
-            <label
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-themed-input border border-themed
-                       hover:border-themed-medium transition-colors text-left cursor-pointer"
-            >
-              <svg className="w-5 h-5 text-themed-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m4-8l-4-4m0 0L16 8m4-4v12" />
-              </svg>
-              <div>
-                <div className="text-themed-primary font-medium">{t.settings.backupImport}</div>
-                <div className="text-sm text-themed-faint">{t.settings.backupImportDesc}</div>
-              </div>
-              <input
-                ref={backupInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleImportBackup}
-                className="hidden"
-              />
-            </label>
+            </div>
 
-            {/* Config only */}
-            <button
-              onClick={handleExportConfig}
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-themed-input border border-themed
-                       hover:border-themed-medium transition-colors text-left"
-            >
-              <svg className="w-5 h-5 text-themed-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              <div>
-                <div className="text-themed-primary font-medium">{t.settings.exportConfig}</div>
-                <div className="text-sm text-themed-faint">{t.settings.exportConfigDesc}</div>
+            {/* Config only - standard */}
+            <div className="rounded-xl p-3 bg-themed-input border border-themed">
+              <div className="text-themed-muted text-sm mb-2">{t.settings.exportConfigDesc}</div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportConfig}
+                  className="flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-themed-input border border-themed
+                           text-themed-secondary hover:border-themed-medium transition-colors"
+                >
+                  {t.settings.exportConfig}
+                </button>
+                <label
+                  className="flex-1 py-2 px-3 rounded-lg text-sm font-medium text-center cursor-pointer bg-themed-input border border-themed
+                           text-themed-secondary hover:border-themed-medium transition-colors"
+                >
+                  {t.settings.importConfig}
+                  <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportConfig} className="hidden" />
+                </label>
               </div>
-            </button>
-            <label
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-themed-input border border-themed
-                       hover:border-themed-medium transition-colors text-left cursor-pointer"
-            >
-              <svg className="w-5 h-5 text-themed-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m4-8l-4-4m0 0L16 8m4-4v12" />
-              </svg>
-              <div>
-                <div className="text-themed-primary font-medium">{t.settings.importConfig}</div>
-                <div className="text-sm text-themed-faint">{t.settings.importConfigDesc}</div>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleImportConfig}
-                className="hidden"
-              />
-            </label>
+            </div>
 
             {importStatus && (
               <div className={`p-3 rounded-xl text-sm ${
