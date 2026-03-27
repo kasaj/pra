@@ -131,7 +131,7 @@ export default function PageTime() {
   // Tick every second for elapsed clock + update on tab focus
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
-    const onVisible = () => { if (document.visibilityState === 'visible') setNow(Date.now()); };
+    const onVisible = () => { if (document.visibilityState === 'visible') { setNow(Date.now()); setData(loadAllData()); } };
     document.addEventListener('visibilitychange', onVisible);
     return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
   }, []);
@@ -415,9 +415,21 @@ export default function PageTime() {
       {/* Trend Section */}
       <section className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-serif text-base text-themed-secondary">
-            {trendRange === 'day' ? t.time.dailyTrend : trendRange === 'week' ? t.time.weeklyTrend : trendRange === 'month' ? t.time.monthlyTrend : t.time.allTrend}
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-serif text-base text-themed-secondary">
+              {trendRange === 'day' ? t.time.dailyTrend : trendRange === 'week' ? t.time.weeklyTrend : trendRange === 'month' ? t.time.monthlyTrend : t.time.allTrend}
+            </h2>
+            <button
+              onClick={() => setData(loadAllData())}
+              className="p-1 text-themed-faint hover:text-themed-accent-solid transition-colors"
+              title="Refresh"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
           <div className="flex gap-1 bg-themed-input rounded-lg p-0.5">
             {(['day', 'week', 'month', 'all'] as const).map((r) => (
               <button
