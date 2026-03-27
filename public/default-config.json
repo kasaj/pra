@@ -6,16 +6,27 @@
     {
       "type": "sobe",
       "emoji": "⏸️",
-      "durationMinutes": 3,
+      "durationMinutes": 1,
       "cs": {
-        "name": "Zastavení",
-        "description": "Na pár minut se zastavit, vnímat, pobýt sám se sebou",
-        "variants": ["Dýchání", "Sken těla", "Tiché zastavení"]
+        "name": "Zastavení - pauza",
+        "description": "Na pár minut se vědomě zastavit, vnímat, pobýt sám se sebou...",
+        "variants": [
+          "Dýchání nosem",
+          "Dlouhý výdech (uklidnění)",
+          "Sken těla",
+          "Pozorování",
+          "Energie života",
+          "Tiché zastavení"
+        ]
       },
       "en": {
         "name": "Pause",
         "description": "Stop for a few minutes, observe, be present with yourself",
-        "variants": ["Breathing", "Body scan", "Silent pause"]
+        "variants": [
+          "Breathing",
+          "Body scan",
+          "Silent pause"
+        ]
       }
     },
     {
@@ -23,14 +34,25 @@
       "emoji": "🏃‍♂️",
       "durationMinutes": 30,
       "cs": {
-        "name": "Pohyb",
-        "description": "Protažení, procvičení, posilování, sport nebo chůze s vnímáním těla",
-        "variants": ["Chůze", "Protažení", "Posilování", "Jóga", "Tanec"]
+        "name": "Pohyb - aktivita",
+        "description": "Rozproudění energie v těle, alespoň kapka potu, zahřátí...",
+        "variants": [
+          "Sport",
+          "Protažení",
+          "Posilování",
+          "Jóga"
+        ]
       },
       "en": {
         "name": "Movement",
         "description": "Stretching, strengthening or walking with body awareness",
-        "variants": ["Walking", "Stretching", "Strengthening", "Yoga", "Dance"]
+        "variants": [
+          "Walking",
+          "Stretching",
+          "Strengthening",
+          "Yoga",
+          "Dance"
+        ]
       }
     },
     {
@@ -38,14 +60,27 @@
       "emoji": "🌅",
       "durationMinutes": 15,
       "cs": {
-        "name": "Rozjímání",
-        "description": "Tiché sezení, otevřená otázka, vnitřní prostor, pozorování přírody, pocitů, myšlenek",
-        "variants": ["Tiché sezení", "Kontemplace", "Journaling", "Vděčnost"]
+        "name": "Rozjímání - potrava",
+        "description": "Vědomé jednání jako tiché sezení, konzumace potravym, otevřená otázka, vnitřní prostor, pozorování přírody, pocitů, myšlenek",
+        "variants": [
+          "Tiché sezení",
+          "Kontemplace",
+          "Journaling",
+          "Jídlo",
+          "Slast",
+          "Strast",
+          "Vděčnost"
+        ]
       },
       "en": {
         "name": "Contemplation",
         "description": "Silent sitting, open question, inner space",
-        "variants": ["Silent sitting", "Contemplation", "Journaling", "Gratitude"]
+        "variants": [
+          "Silent sitting",
+          "Contemplation",
+          "Journaling",
+          "Gratitude"
+        ]
       }
     },
     {
@@ -53,14 +88,27 @@
       "emoji": "📜",
       "durationMinutes": null,
       "cs": {
-        "name": "Komentář",
-        "description": "Reflexe, záměr, slovo nebo věta která provede dnem",
-        "variants": ["Ranní záměr", "Večerní reflexe", "Vděčnost", "Afirmace"]
+        "name": "Komentář - poznámka",
+        "description": "Vědomá sebereflexe, kotvení, záměr, poznámka",
+        "variants": [
+          "Záměr",
+          "Fail",
+          "Poznámka",
+          "Zkušenost",
+          "Řeč ega",
+          "Řeč těla",
+          "Aha"
+        ]
       },
       "en": {
         "name": "Comment",
         "description": "Reflection, intention, word or sentence to guide the day",
-        "variants": ["Morning intention", "Evening reflection", "Gratitude", "Affirmation"]
+        "variants": [
+          "Morning intention",
+          "Evening reflection",
+          "Gratitude",
+          "Affirmation"
+        ]
       }
     },
     {
@@ -68,14 +116,26 @@
       "emoji": "🤗",
       "durationMinutes": null,
       "cs": {
-        "name": "Objetí",
-        "description": "Vědomý kontakt s druhým člověkem",
-        "variants": ["Objetí", "Podání ruky", "Oční kontakt", "Rozhovor"]
+        "name": "Objetí - Vztahy",
+        "description": "Vědomý kontakt s druhým člověkem, mezilidské vztahy, společnost, komunita",
+        "variants": [
+          "Objetí",
+          "Rozhovor",
+          "Pochopení",
+          "Odmítnutí",
+          "Společnost",
+          "Rodina"
+        ]
       },
       "en": {
         "name": "Embrace",
         "description": "Conscious contact with another person",
-        "variants": ["Hug", "Handshake", "Eye contact", "Conversation"]
+        "variants": [
+          "Hug",
+          "Handshake",
+          "Eye contact",
+          "Conversation"
+        ]
       }
     },
     {
@@ -83,14 +143,25 @@
       "emoji": "🔥",
       "durationMinutes": null,
       "cs": {
-        "name": "Výzva",
-        "description": "Vědomé čelení tomu, čemu se vyhýbám. Jediná konkrétní akce uprostřed nepřehlednosti.",
-        "variants": ["Konfrontace strachu", "Těžký rozhovor", "Nový návyk", "Malý krok"]
+        "name": "Výzva - odvaha",
+        "description": "Vědomé čelení tomu, čemu se vyhýbám, malý krok středem, konkrétní akce k růstu",
+        "variants": [
+          "Konfrontace strachu",
+          "Přijetí bolesti",
+          "Přiznání pocitu",
+          "Nový návyk",
+          "Malý krok"
+        ]
       },
       "en": {
         "name": "Challenge",
         "description": "Consciously facing what I avoid. Single concrete action amid confusion",
-        "variants": ["Facing fear", "Difficult conversation", "New habit", "Small step"]
+        "variants": [
+          "Facing fear",
+          "Difficult conversation",
+          "New habit",
+          "Small step"
+        ]
       }
     }
   ],
