@@ -168,7 +168,7 @@ export default function PageInfo() {
         )}
 
         <footer className="text-center text-sm text-themed-faint pt-4">
-          Author <a href="https://kasaj.cz" target="_blank" rel="noopener noreferrer" className="text-themed-accent-solid hover:underline">kasaj.cz</a>
+          <a href="https://community.paulus.yoga" target="_blank" rel="noopener noreferrer" className="text-themed-accent-solid hover:underline">community.paulus.yoga</a>
         </footer>
       </div>
     </div>
