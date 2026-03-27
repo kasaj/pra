@@ -41,17 +41,20 @@ export default function PageInfo() {
         {info.intro2 && (
           <section className="card">
             <p>{info.intro2}</p>
-            {info.sequence && (
-              <p className="font-serif text-lg text-themed-primary mt-4 text-center">
-                {info.sequence}
-              </p>
-            )}
+          </section>
+        )}
+
+        {info.sequence && (
+          <section className="card">
+            <p>{info.sequence}</p>
           </section>
         )}
 
         {info.intro3 && (
           <section className="card">
-            <p>{info.intro3}</p>
+            {info.intro3.split('\n\n').map((paragraph, i) => (
+              <p key={i} className={i > 0 ? 'mt-4' : ''}>{paragraph}</p>
+            ))}
           </section>
         )}
 
