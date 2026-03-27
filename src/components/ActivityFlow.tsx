@@ -11,24 +11,27 @@ interface ActivityFlowProps {
   activity: ActivityDefinition;
   onClose: () => void;
   onEdit?: () => void;
+  existingActivity?: Activity;
+  onUpdateExisting?: (id: string, updates: Partial<Activity>) => void;
 }
 
-export default function ActivityFlow({ activity, onClose, onEdit }: ActivityFlowProps) {
+export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting }: ActivityFlowProps) {
   const { t } = useLanguage();
   const isTimed = activity.durationMinutes !== null;
+  const isEditing = !!existingActivity;
 
-  const [timedStep, setTimedStep] = useState<TimedFlowStep>('rating-before');
-  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const [ratingBefore, setRatingBefore] = useState<Rating | null>(null);
-  const [ratingAfter, setRatingAfter] = useState<Rating | null>(null);
-  const [noteBefore, setNoteBefore] = useState('');
-  const [noteAfter, setNoteAfter] = useState('');
+  const [timedStep, setTimedStep] = useState<TimedFlowStep>(isEditing ? 'rating-after' : 'rating-before');
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(existingActivity?.selectedVariant || null);
+  const [ratingBefore, setRatingBefore] = useState<Rating | null>(existingActivity?.ratingBefore || null);
+  const [ratingAfter, setRatingAfter] = useState<Rating | null>(existingActivity?.ratingAfter || null);
+  const [noteBefore, setNoteBefore] = useState(existingActivity?.noteBefore || '');
+  const [noteAfter, setNoteAfter] = useState(existingActivity?.noteAfter || '');
 
-  const [rating, setRating] = useState<Rating | null>(null);
-  const [note, setNote] = useState('');
+  const [rating, setRating] = useState<Rating | null>(existingActivity?.rating || null);
+  const [note, setNote] = useState(existingActivity?.note || '');
 
-  const [startedAt] = useState(new Date().toISOString());
-  const actualDurationRef = useRef<number>(0);
+  const [startedAt] = useState(existingActivity?.startedAt || new Date().toISOString());
+  const actualDurationRef = useRef<number>(existingActivity?.actualDurationSeconds || 0);
 
   const handleVariantClick = (variant: string) => {
     if (selectedVariant === variant) {
@@ -77,6 +80,17 @@ export default function ActivityFlow({ activity, onClose, onEdit }: ActivityFlow
   };
 
   const handleTimedAfterSubmit = () => {
+    if (isEditing && existingActivity && onUpdateExisting) {
+      onUpdateExisting(existingActivity.id, {
+        selectedVariant: selectedVariant || undefined,
+        ratingBefore: ratingBefore || undefined,
+        ratingAfter: ratingAfter || undefined,
+        noteBefore: noteBefore || undefined,
+        noteAfter: noteAfter || undefined,
+      });
+      onClose();
+      return;
+    }
     const newActivity: Activity = {
       id: generateId(),
       type: activity.type,
@@ -96,6 +110,15 @@ export default function ActivityFlow({ activity, onClose, onEdit }: ActivityFlow
   };
 
   const handleUntimedSubmit = () => {
+    if (isEditing && existingActivity && onUpdateExisting) {
+      onUpdateExisting(existingActivity.id, {
+        selectedVariant: selectedVariant || undefined,
+        rating: rating || undefined,
+        note: note || undefined,
+      });
+      onClose();
+      return;
+    }
     const newActivity: Activity = {
       id: generateId(),
       type: activity.type,
@@ -253,12 +276,31 @@ export default function ActivityFlow({ activity, onClose, onEdit }: ActivityFlow
             />
           )}
 
-          {/* Časové aktivity - po */}
+          {/* Časové aktivity - po (a edit mód) */}
           {isTimed && timedStep === 'rating-after' && (
             <div className="space-y-6 py-8">
               <h3 className="font-serif text-2xl text-themed-primary text-center">
                 {t.flow.whatShifted}
               </h3>
+
+              {isEditing && activity.variants && activity.variants.length > 0 && (
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {activity.variants.map((variant) => (
+                    <button
+                      key={variant}
+                      onClick={() => handleVariantClick(variant)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        selectedVariant === variant
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >
+                      {variant}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <div className="flex justify-center py-4">
                 <StarRating value={ratingAfter} onChange={setRatingAfter} size="lg" />
               </div>
@@ -273,7 +315,7 @@ export default function ActivityFlow({ activity, onClose, onEdit }: ActivityFlow
               />
 
               <button onClick={handleTimedAfterSubmit} className="btn-primary w-full">
-                {t.flow.finish}
+                {isEditing ? t.flow.record : t.flow.finish}
               </button>
             </div>
           )}

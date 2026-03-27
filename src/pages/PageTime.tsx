@@ -3,7 +3,8 @@ import { loadAllData, deleteActivitiesByIds, updateActivityById } from '../utils
 import { getChartColors } from '../utils/theme';
 import { getActivityByType, getTranslatedActivity } from '../utils/activities';
 import { useLanguage } from '../i18n';
-import { Activity, Rating } from '../types';
+import { Activity } from '../types';
+import ActivityFlow from '../components/ActivityFlow';
 import {
   LineChart,
   Line,
@@ -42,22 +43,14 @@ interface ActivityRowProps {
   lang: string;
   selected: boolean;
   onToggleSelect: () => void;
-  onUpdate: (id: string, updates: Partial<Activity>) => void;
+  onClickEdit: () => void;
   t: ReturnType<typeof useLanguage>['t'];
 }
 
-function ActivityRow({ activity, lang, selected, onToggleSelect, onUpdate, t }: ActivityRowProps) {
+function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, t }: ActivityRowProps) {
   const rawDef = getActivityByType(activity.type);
   const def = rawDef ? getTranslatedActivity(rawDef, t) : rawDef;
   const isTimed = activity.durationMinutes !== null;
-  const [editing, setEditing] = useState(false);
-
-  const noteValue = isTimed
-    ? activity.noteAfter || activity.noteBefore || ''
-    : activity.note || '';
-  const [noteText, setNoteText] = useState(noteValue);
-  const ratingValue = isTimed ? (activity.ratingAfter || 0) : (activity.rating || 0);
-  const [stars, setStars] = useState(ratingValue);
 
   const actualTime = activity.actualDurationSeconds
     ? formatDuration(activity.actualDurationSeconds)
@@ -65,30 +58,9 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onUpdate, t }: 
       ? `${activity.durationMinutes}m`
       : null;
 
-  const handleSave = () => {
-    const updates: Partial<Activity> = {};
-    if (isTimed) {
-      updates.noteAfter = noteText || undefined;
-      updates.ratingAfter = (stars || undefined) as Rating | undefined;
-    } else {
-      updates.note = noteText || undefined;
-      updates.rating = (stars || undefined) as Rating | undefined;
-    }
-    onUpdate(activity.id, updates);
-    setEditing(false);
-  };
-
-  const starDisplay = (value: number, onClick?: (v: number) => void) => (
-    <span className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <span
-          key={s}
-          className={`${onClick ? 'cursor-pointer' : ''} ${s <= value ? 'text-themed-ochre' : 'text-themed-faint'}`}
-          onClick={onClick ? () => onClick(s === value ? 0 : s) : undefined}
-        >★</span>
-      ))}
-    </span>
-  );
+  const noteDisplay = isTimed
+    ? activity.noteAfter || activity.noteBefore || ''
+    : activity.note || '';
 
   return (
     <div className="py-3 flex items-start gap-3">
@@ -107,15 +79,15 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onUpdate, t }: 
         )}
       </button>
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={onClickEdit}>
         <div className="flex items-center gap-3">
           <div className="text-themed-faint text-xs w-12 flex-shrink-0">
             {formatTime(activity.startedAt, lang)}
           </div>
 
-          <div className="flex items-center gap-2 flex-1 min-w-0" onClick={() => setEditing(!editing)}>
-            <span className="text-lg cursor-pointer">{def?.emoji}</span>
-            <span className="text-themed-primary font-medium truncate cursor-pointer">{def?.name}</span>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="text-lg">{def?.emoji}</span>
+            <span className="text-themed-primary font-medium truncate">{def?.name}</span>
           </div>
 
           {actualTime && (
@@ -124,49 +96,24 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onUpdate, t }: 
             </div>
           )}
 
-          {!editing && (
-            <div className="text-sm flex-shrink-0">
-              {isTimed ? (
-                (activity.ratingBefore || activity.ratingAfter) ? (
-                  <span className="text-themed-muted">
-                    {activity.ratingBefore || '-'}→{activity.ratingAfter || '-'}
-                  </span>
-                ) : null
-              ) : (
-                activity.rating ? (
-                  <span className="text-themed-ochre">{'★'.repeat(activity.rating)}</span>
-                ) : null
-              )}
-            </div>
-          )}
+          <div className="text-sm w-16 text-right flex-shrink-0">
+            {isTimed ? (
+              (activity.ratingBefore || activity.ratingAfter) ? (
+                <span className="text-themed-muted">
+                  {activity.ratingBefore || '-'}→{activity.ratingAfter || '-'}
+                </span>
+              ) : null
+            ) : (
+              activity.rating && (
+                <span className="text-themed-ochre">{'★'.repeat(activity.rating)}</span>
+              )
+            )}
+          </div>
         </div>
 
-        {!editing && noteValue && (
+        {noteDisplay && (
           <div className="mt-1 ml-12 text-sm text-themed-faint italic">
-            "{noteValue}"
-          </div>
-        )}
-
-        {editing && (
-          <div className="mt-2 ml-12 space-y-2">
-            <div className="text-sm">{starDisplay(stars, setStars)}</div>
-            <textarea
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              className="w-full p-2 text-sm rounded-lg bg-themed-input border border-themed
-                       focus:outline-none focus:border-themed-accent resize-none h-14
-                       text-themed-primary placeholder:text-themed-faint"
-              placeholder={t.flow.notePlaceholder}
-            />
-            <div className="flex gap-2">
-              <button onClick={handleSave} className="btn-primary text-xs py-1 px-3">
-                ✓
-              </button>
-              <button onClick={() => { setEditing(false); setNoteText(noteValue); setStars(ratingValue); }}
-                className="text-xs py-1 px-3 text-themed-faint">
-                ✕
-              </button>
-            </div>
+            "{noteDisplay}"
           </div>
         )}
       </div>
@@ -179,6 +126,7 @@ export default function PageTime() {
   const [data, setData] = useState(() => loadAllData());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [trendRange, setTrendRange] = useState<'week' | 'month'>('week');
+  const [editingRecord, setEditingRecord] = useState<Activity | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
   // Tick every second for elapsed clock + update on tab focus
@@ -628,7 +576,7 @@ export default function PageTime() {
                     lang={language}
                     selected={selectedIds.has(activity.id)}
                     onToggleSelect={() => toggleSelect(activity.id)}
-                    onUpdate={handleUpdateActivity}
+                    onClickEdit={() => setEditingRecord(activity)}
                     t={t}
                   />
                 ))}
@@ -636,6 +584,25 @@ export default function PageTime() {
           ))}
         </div>
       </section>
+
+      {editingRecord && (() => {
+        const def = getActivityByType(editingRecord.type);
+        const translated = def ? getTranslatedActivity(def, t) : null;
+        if (!translated) return null;
+        return (
+          <ActivityFlow
+            activity={translated}
+            existingActivity={editingRecord}
+            onUpdateExisting={(id, updates) => {
+              handleUpdateActivity(id, updates);
+            }}
+            onClose={() => {
+              setEditingRecord(null);
+              setData(loadAllData());
+            }}
+          />
+        );
+      })()}
     </div>
   );
 }
