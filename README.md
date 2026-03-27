@@ -6,6 +6,8 @@
 
 A conscious space for daily practice.
 
+**[Česky](README.cs.md)** | English
+
 **[Launch App](https://kasaj.github.io/app/)**
 
 ## About
@@ -28,33 +30,35 @@ Each user can write their own answers to these questions directly in the app (In
 
 ## Activities
 
-PRA comes with six default activities, each with selectable variants that flow into notes:
+PRA comes with six default activities, each with selectable variants that auto-fill into notes:
 
 | Activity | Type | Description |
 |----------|------|-------------|
-| **Pause** | Timed (1 min) | Consciously stop, breathe, observe, be present |
-| **Movement** | Timed (30 min) | Get energy flowing — sport, stretching, yoga, balance |
-| **Contemplation** | Timed (15 min) | Meditation, journaling, mindful eating, imagination |
-| **Comment** | Moment | Self-reflection, intention, anchoring a thought or feeling |
-| **Embrace** | Moment | Conscious contact — sharing, family, understanding, community |
-| **Challenge** | Moment | Facing what you avoid — fear, pain, new habits, small steps |
+| 🧍‍♂️ **Pause** | Timed (1 min) | Consciously stop, breathe, observe, be present |
+| 🏃‍♂️ **Movement - Activity** | Timed (30 min) | Get energy flowing — sport, stretching, yoga, balance |
+| 🧎‍♂️ **Contemplation - Nourishment** | Timed (15 min) | Meditation, mindful eating, imagination, observing thoughts |
+| 📜 **Comment - Note** | Moment | Self-reflection, intention, anchoring a thought or feeling |
+| 👫 **Embrace - Relationships** | Moment | Conscious contact — sharing, family, understanding, community |
+| 🔥 **Challenge - Courage** | Moment | Facing what you avoid — fear, pain, new habits, small steps |
 
-All activities are fully customizable — name, emoji, description, duration, and variants can be edited or new ones added.
+All activities are fully customizable — name, emoji, description, duration, and variants. Changes auto-save.
 
 ## Features
 
-- **Timed practice** — countdown timer with gong sound on completion, pause/resume, finish early, or record retroactively with "Done"
-- **Moments** — quick records without timer for untimed activities
-- **Variants** — clickable chips that auto-fill into notes for easy logging
+- **Timed practice** — countdown timer with gong on completion, pause/resume, finish early, or record retroactively with "Done"
+- **Moments** — quick records without timer
+- **Variants** — clickable chips that auto-fill into notes
 - **State tracking** — rate your state before and after timed activities (1-5 stars)
-- **Statistics** — weekly/monthly trend charts combining activity count and average state, elapsed time since first use, practice percentage of waking hours
-- **Info page** — philosophical context (Why/How/What) with personal note fields, inspirational quotes, biological/psychological/philosophical foundations
-- **Configuration** — JSON config file (`default-config.json`) drives activities, info content, quotes, default language and theme
-- **Export/Import** — full configuration export (activities, info, notes, language, theme, profile) as JSON; history export as Markdown
+- **Statistics** — weekly/monthly trend charts (activity count + average state), elapsed time since first use, practice percentage of waking hours
+- **Info page** — philosophical context (Why/How/What/I) with personal note fields, inspirational quotes, scientific foundations
+- **Smart sync** — app detects config changes on server, auto-merges new activities while preserving user edits
+- **Configuration** — JSON config file drives activities, info content, quotes, language and theme
+- **Export/Import** — single-language config export/import as JSON; history export as Markdown
 - **Themes** — Auto (follows system light/dark), Classic (warm earth tones), Dark
+- **Auto-save** — all settings and activity edits save instantly
 - **Bilingual** — Czech and English with per-language notes
-- **Offline** — works without internet as a PWA with Service Worker caching
-- **Auto-deploy** — push to main triggers GitHub Actions build and deploy
+- **Offline** — works without internet as a PWA
+- **CI/CD** — push to main auto-deploys via GitHub Actions
 
 ## Install on Mobile
 
@@ -62,11 +66,11 @@ All activities are fully customizable — name, emoji, description, duration, an
 2. **iOS Safari**: Share → Add to Home Screen
 3. **Android Chrome**: Menu → Add to Home Screen
 
-The app installs as a PWA and works offline. All data stays on your device.
+Works offline. All data stays on your device.
 
 ## Configuration
 
-The app is driven by `public/default-config.json` which defines:
+The app is driven by `public/default-config.json`:
 
 ```json
 {
@@ -76,30 +80,24 @@ The app is driven by `public/default-config.json` which defines:
   "theme": "modern",
   "activities": [...],
   "info": {
-    "cs": { "intro": "...", "quotes": [...], "why": "...", "how": "...", "what": "...", ... },
+    "cs": { "intro": "...", "quotes": [...], "why": "...", "how": "...", "what": "..." },
     "en": { ... }
   }
 }
 ```
 
-Editing the config and pushing to main automatically deploys the changes. Activities in the browser update when the config hash changes.
+Edit config → push to main → auto-deploy. New activities appear for users automatically. User-edited activities are never overwritten.
 
 ## Privacy
 
-- All data stays only on your device (localStorage)
+- All data stays on your device (localStorage)
 - No analytics, no tracking, no cookies
-- No server — purely client-side application
-- Backup and data protection is your responsibility
+- No server — purely client-side
+- Backup is your responsibility
 
 ## Tech Stack
 
-- React + TypeScript
-- Vite
-- Tailwind CSS (with CSS custom properties for theming)
-- Recharts
-- PWA (Service Worker)
-- GitHub Actions (CI/CD)
-- GitHub Pages (hosting)
+React + TypeScript, Vite, Tailwind CSS, Recharts, PWA, GitHub Actions, GitHub Pages
 
 ## Development
 
@@ -109,7 +107,7 @@ npm run dev        # Start dev server (localhost:3000)
 npm run build      # Build for production
 ```
 
-Push to `main` auto-deploys to GitHub Pages via GitHub Actions.
+Push to `main` auto-deploys via GitHub Actions.
 
 ## License
 
