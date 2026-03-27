@@ -243,6 +243,11 @@ export default function PageToday() {
             setActiveActivity(null);
             setRefreshKey((k) => k + 1);
           }}
+          onEdit={() => {
+            const original = activities.find(a => a.type === activeActivity.type);
+            setActiveActivity(null);
+            setEditingActivity(original || activeActivity);
+          }}
         />
       )}
 
