@@ -202,14 +202,14 @@
       "psychText": "Pracuje s archetypy, stínem (Jung), přijetím (buddhismus, stoicismus) a sebeurčením (Maslow, Frankl).",
       "philoTitle": "Filozofický základ",
       "philoText": "Stojí na průniku bytí (Heidegger), přítomnosti (Tao) a etiky středu (Aristotelova mesotés — srdce mezi hlavou a emocí).",
-      "noteWhy": "Např.: Pomáhám druhým a šířím laskavě světlo - dobro, pravdu, sebe.",
-      "noteHow": "Např.: Obezřetnost v realitě — vnitřní, fyzické, společenské. Odvaha a odhodlání přijímat skutečnost, jaká je a být za ni zodpovědný.",
-      "noteWhat": "Např.: Vědomá praxe a zdravý životní styl - spánek, jídlo, vztahy, pohyb, přirozenost."
+      "noteWhy": "Např.: Rád pomáhám druhým a šířím lv míru světlo - dobro, pravdu, sebe.",
+      "noteHow": "Např.: Jsem obezřetnostný ke korelátu reality. Mám odvahu a odhodlání přijímat skutečnost, jaká je a být za ni zodpovědný.",
+      "noteWhat": "Např.: Vědomá praxe a zdravý životní styl - spánek, jídlo, vztahy, pohyb, přirozenost, praxe."
     },
     "en": {
       "title": "Info",
       "subtitle": "Context and intent",
-      "intro": "The quality of awareness depends on what state a person is in, what they create, and how finely they perceive reality and themselves — and it reflects back into the world and into us. It is a constant process of becoming; the only certainty is change.\n\nThe mechanics of life: thought → word → action → habit → character → destiny.\n\nConsciousness can grasp reality as a whole — physical (objective), inner (subjective), and social (agreement, not fact) dimensions — not as a world of dualities. We are transcendental beings, yet also herd-like, logical-emotional creatures.\n\nIn the psyche there are colorful images — without identifying with them, we remain ourselves, in the best version of ourselves. The world works so that we can express ourselves. Let us meet it halfway.",
+      "intro": "The quality of our awareness depends on the state we are in, what we create, and how keenly we perceive reality and ourselves—and it is reflected back into the world and into ourselves. It is a constant process of becoming; the only certainty is change.\n\nThe mechanics of life: thought → word → action → habit → character → destiny.\n\nConsciousness can perceive reality as a whole—physical (objective), inner (subjective), and social (convention, not fact)—not as parts. We are transcendental beings, yet at the same time herd-like, logical-emotional creatures.\n\nColorful images exist within the psyche—without identifying with them, we remain ourselves, in the best version of ourselves. The world is within us and works to enable us to express ourselves, so let us trust it.",
       "quotes": [
         { "text": "I am not what happened to me, I am what I choose to become.", "author": "Carl Gustav Jung" },
         { "text": "No problem can be solved from the same level of consciousness that created it.", "author": "Albert Einstein" },
@@ -224,9 +224,9 @@
       "psychText": "Works with archetypes, shadow (Jung), acceptance (Buddhism, Stoicism) and self-determination (Maslow, Frankl).",
       "philoTitle": "Philosophical foundation",
       "philoText": "Stands at the intersection of being (Heidegger), presence (Tao) and ethics of the middle (Aristotle's mesotes — heart between head and emotion).",
-      "noteWhy": "E.g.: I help others and kindly spread good (truth). I protect those close to me and good (truth).",
-      "noteHow": "E.g.: Prudence across three dimensions of reality — inner, physical, social. Courage to accept reality (ego, emotions, evasion, shadow) and be responsible for it.",
-      "noteWhat": "E.g.: Conscious practice and healthy lifestyle (sleep, food, relationships, movement, naturalness)."
+      "noteWhy": "E.g.: I enjoy helping others and spreading the light of peace—goodness, truth, and myself.",
+      "noteHow": "E.g.: I am cautious about the correlation with reality. I have the courage and determination to accept reality as it is and take responsibility for it.",
+      "noteWhat": "E.g.: Mindful practices and a healthy lifestyle—sleep, food, relationships, exercise, nature, and daily practice."
     }
   }
 }
