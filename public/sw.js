@@ -1,5 +1,5 @@
 const CACHE_NAME = 'pra-v3';
-const BASE_PATH = '/pra';
+const BASE_PATH = '/app';
 
 const ASSETS_TO_CACHE = [
   `${BASE_PATH}/`,

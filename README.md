@@ -6,7 +6,7 @@
 
 A conscious space for daily practice.
 
-**[Launch App](https://kasaj.github.io/pra/)**
+**[Launch App](https://kasaj.github.io/app/)**
 
 ## About
 
@@ -58,7 +58,7 @@ All activities are fully customizable — name, emoji, description, duration, an
 
 ## Install on Mobile
 
-1. Open the [app](https://kasaj.github.io/pra/) in your browser
+1. Open the [app](https://kasaj.github.io/app/) in your browser
 2. **iOS Safari**: Share → Add to Home Screen
 3. **Android Chrome**: Menu → Add to Home Screen
 
