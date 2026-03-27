@@ -9,6 +9,7 @@ export interface ConfigInfo {
   statement?: string;
   intro?: string;
   quotes?: ConfigQuote[];
+  featuredQuote?: ConfigQuote;
   why?: string;
   how?: string;
   what?: string;

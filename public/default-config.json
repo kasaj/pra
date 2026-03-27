@@ -233,11 +233,11 @@
       "subtitle": "Kontext a záměr",
       "intro": "Kvalita života závisí na tom, kde jsme, co tvoříme a jak vnímáme sebe i svět kolem nás — a to se promítá zpět do světa i do nás samých. Jde o neustálý proces stávání se, jedinou jistotou je změna.\n\nMechanika života: myšlenka → slovo → čin → zvyk → charakter → osud.\n\nVědomí může vnímat realitu jako celek — fyzickou (objektivní), vnitřní (subjektivní) a společenskou (domluva, nikoli fakt). Jsme transcendentální bytosti, zároveň však teritoriální, stádoví a logicko-emoční tvorové.\n\nV psychice se zjevuje mnohé — s přijetím bez ztotožnění zůstáváme sami sebou, v té nejlepší verzi sebe sama. Svět jednoduše pracuje vždy pro nás.",
       "quotes": [
-        { "text": "Poznej sám sebe a poznáš svět (ty jsi ten svět).", "author": "Věštírna v Delfách" },
         { "text": "Nejsem tím, co se mi přihodilo, ale tím, čím jsem se rozhodl stát.", "author": "Carl Gustav Jung" },
         { "text": "Žádný problém nelze vyřešit na stejné úrovni vědomí, na kterém vznikl.", "author": "Albert Einstein" },
         { "text": "Kde vědomí (pozornost) bloudí, tam energie proudí.", "author": "Gurudéva" }
       ],
+      "featuredQuote": { "text": "Poznej sám sebe a poznáš svět (ty jsi ten svět).", "author": "Věštírna v Delfách" },
       "why": "Ale než se ptáme jak tuto posloupnost kultivovat a co konkrétně dělat, musíme se ptát hlouběji: proč. Člověk bez zakořenění ve smyslu, směru, důvodu — nemůže žádnou praxi dlouhodobě udržet. Z čeho u tebe vše ostatní vyrůstá?",
       "how": "Teprve pak nastupuje jak — a zde nejde o techniku, ale o způsob bytí. Disciplína je forma lásky k tomu, čím se chceme stát. Co je tvým mostem mezi záměrem a skutečností?",
       "what": "A teprve na tomto základě má smysl mluvit o co — o metodě a konkrétní praxi. Obsah bez směru je hluk, metoda bez formy chaos. Co pro mě funguje a je transformačním?",
@@ -256,11 +256,11 @@
       "subtitle": "Context and intent",
       "intro": "Quality of life depends on where and in what state a person finds themselves, what they create, and how keenly they perceive reality and themselves—and this is reflected back into the world and into ourselves. It is a constant process of becoming; the only certainty is change.\n\nThe mechanics of life: thought → word → action → habit → character → destiny.\n\nConsciousness can perceive reality as a whole—the physical (objective), inner (subjective), and social (convention, not fact) planes—rather than as separate parts. We are transcendental beings, yet at the same time herd-like, logical-emotional creatures.\n\nVarious images exist within the psyche—without identifying with them, we remain ourselves, in the best version of ourselves. The world is within us and for us, so that we may express ourselves.",
       "quotes": [
-        { "text": "Know thyself and thou shalt know the world (you are the world).", "author": "Oracle at Delphi" },
         { "text": "I am not what happened to me, I am what I choose to become.", "author": "Carl Gustav Jung" },
         { "text": "No problem can be solved from the same level of consciousness that created it.", "author": "Albert Einstein" },
         { "text": "Where awareness goes, energy flows.", "author": "Gurudéva" }
       ],
+      "featuredQuote": { "text": "Know thyself and thou shalt know the world (you are the world).", "author": "Oracle at Delphi" },
       "why": "But before we ask how to cultivate this sequence and what exactly to do, we must ask a deeper question: why. A person without a foundation in meaning, direction, and purpose cannot sustain any practice in the long run. Is yours the root from which everything else grows?",
       "how": "Only then comes how — and here it is not about technique, but about a way of being. Discipline is a form of love for what we are becoming. What is your bridge between intention and reality?",
       "what": "And only on this basis does it make sense to talk about what—about method and concrete practice. Content without direction is noise; method without form is chaos. What works for me and is transformative?",

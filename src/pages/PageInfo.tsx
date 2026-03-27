@@ -140,6 +140,13 @@ export default function PageInfo() {
           </section>
         )}
 
+        {cfgInfo.featuredQuote && (
+          <blockquote className="card border-l-4 py-3" style={{ borderLeftColor: 'var(--accent-solid)' }}>
+            <p className="italic text-themed-primary">{cfgInfo.featuredQuote.text}</p>
+            <footer className="mt-2 text-sm text-themed-faint">— {cfgInfo.featuredQuote.author}</footer>
+          </blockquote>
+        )}
+
         {info.bioTitle && info.bioText && (
           <section>
             <h2 className="font-serif text-xl text-themed-primary mb-3">{info.bioTitle}</h2>
