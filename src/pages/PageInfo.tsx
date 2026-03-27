@@ -167,8 +167,9 @@ export default function PageInfo() {
           </section>
         )}
 
-        <footer className="text-center text-sm text-themed-faint pt-4">
-          <a href="https://community.paulus.yoga" target="_blank" rel="noopener noreferrer" className="text-themed-accent-solid hover:underline">community.paulus.yoga</a>
+        <footer className="text-center text-sm text-themed-faint pt-4 space-y-1">
+          <div><a href="https://kasaj.cz" target="_blank" rel="noopener noreferrer" className="text-themed-accent-solid hover:underline">kasaj.cz</a></div>
+          <div><a href="https://community.paulus.yoga" target="_blank" rel="noopener noreferrer" className="text-themed-accent-solid hover:underline">community.paulus.yoga</a></div>
         </footer>
       </div>
     </div>
