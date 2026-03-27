@@ -219,7 +219,7 @@ interface AppConfig {
   language?: 'cs' | 'en';
   theme?: 'classic' | 'modern' | 'dark';
   activities: ConfigActivity[];
-  info: { cs: Record<string, string>; en: Record<string, string> };
+  info: { cs: Record<string, unknown>; en: Record<string, unknown> };
 }
 
 function generateConfig(lang: string, currentTheme: string, profileName: string): AppConfig {
