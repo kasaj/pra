@@ -13,11 +13,16 @@
         "description": "Na pár minut se vědomě zastavit, vnímat, pobýt sám se sebou...",
         "variants": [
           "Dýchání nosem",
-          "Dlouhý výdech (uklidnění)",
+          "Dlouhý výdech sss (uklidnění)",
           "Sken těla",
+          "Slunce",
           "Pozorování",
           "Stabilizace",
+          "Klid gesta 👌 NLP",
+          "Dobrý - poklepání ramena NLP",
+          "Do pěsti 🤜 dávám napětí NLP"
           "Energie života",
+          "Kontak se zemí",
           "Tiché zastavení"
         ]
       },
@@ -43,10 +48,13 @@
         "name": "Pohyb - Aktivita",
         "description": "Rozproudění energie v těle, alespoň kapka potu, zahřátí...",
         "variants": [
+          "Pohyb",
           "Sport",
           "Protažení",
           "Posilování",
           "Rovnováha",
+          "Kliky",
+          "Pět tibeťanů",
           "Jóga"
         ]
       },
@@ -74,8 +82,9 @@
           "Imaginace",
           "Kontemplace",
           "Jídlo",
-          "Slast",
-          "Strast",
+          "Káva",
+          "Tai-chi",
+          "Body & Mind",
           "Procítění štěstí",
           "Pozorování myšlenek",
           "Soustředěné dýchání"
@@ -105,11 +114,16 @@
         "description": "Vědomá sebereflexe, kotvení, záměr, poznámka",
         "variants": [
           "Záměr",
+          "Spánek 8h",
           "Fail",
+          "Slast",
+          "Strast",
           "Poznámka",
           "Zkušenost",
           "Myšlenka",
-          "Pocit"
+          "Pocit",
+          "Strach",
+          "Únava"
         ]
       },
       "en": {
@@ -138,6 +152,7 @@
           "Setkání",
           "Pochopení",
           "Odmítnutí",
+          "Selhání",
           "Společnost",
           "Rodina"
         ]
@@ -167,7 +182,13 @@
           "Konfrontace strachu",
           "Přijetí bolesti",
           "Přiznání si pocitu",
+          "Vůle jen pozorovat",
+          "Klid gesta 👌 NLP",
+          "Jsem dobý, poklepání ramena NLP",
+          "Do pěsti 🤜 dávám napětí NLP"
           "Nový návyk",
+          "Hlavně se nepo",
+          "Selhání je výhrou",
           "Malý krok v chaosu"
         ]
       },
