@@ -130,7 +130,7 @@
       "emoji": "👫",
       "durationMinutes": null,
       "cs": {
-        "name": "Vztahy - Spojení",
+        "name": "Vztahy - Interakce",
         "description": "Vědomý kontakt s druhým člověkem, mezilidské vztahy, společnost, komunita",
         "variants": [
           "Objetí",
@@ -161,7 +161,7 @@
       "emoji": "🔥",
       "durationMinutes": null,
       "cs": {
-        "name": "Výzva - Transformace",
+        "name": "Výzva - Integrace",
         "description": "Vědomé čelení tomu, čemu se vyhýbám, malý krok středem, konkrétní akce k růstu",
         "variants": [
           "Konfrontace strachu",
