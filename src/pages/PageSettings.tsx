@@ -3,7 +3,6 @@ import { useLanguage } from '../i18n';
 import { loadSettings, saveSettings } from '../utils/settings';
 import { loadAllData } from '../utils/storage';
 import { getActivityByType, loadActivities, saveActivities } from '../utils/activities';
-import { translations } from '../i18n/translations';
 import { DayEntry, ActivityDefinition } from '../types';
 import { Theme, loadTheme, saveTheme } from '../utils/theme';
 import { getCachedConfig } from '../utils/config';
