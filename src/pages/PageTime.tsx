@@ -8,13 +8,12 @@ import ActivityFlow from '../components/ActivityFlow';
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   ResponsiveContainer,
   Tooltip,
-  Cell,
 } from 'recharts';
 
 function formatDateFull(dateStr: string, lang: string): string {
@@ -449,7 +448,17 @@ export default function PageTime() {
         </div>
         <div className="card">
           <ResponsiveContainer width="100%" height={trendRange === 'year' ? 200 : trendRange === 'month' ? 180 : 150}>
-            <BarChart data={trendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+            <AreaChart data={trendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradCount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colors.barEmpty} stopOpacity={0.6} />
+                  <stop offset="95%" stopColor={colors.barEmpty} stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="gradRating" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colors.barHigh} stopOpacity={0.5} />
+                  <stop offset="95%" stopColor={colors.barHigh} stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
               <XAxis
                 dataKey="day"
                 tick={{ fontSize: trendRange === 'year' ? 8 : trendRange === 'month' ? 9 : trendRange === 'day' ? 9 : 11, fill: colors.tick }}
@@ -457,16 +466,8 @@ export default function PageTime() {
                 tickLine={false}
                 interval={trendRange === 'year' ? 7 : trendRange === 'month' ? 4 : trendRange === 'day' ? 2 : 0}
               />
-              <YAxis
-                yAxisId="rating"
-                domain={[0, 5]}
-                hide
-              />
-              <YAxis
-                yAxisId="count"
-                orientation="right"
-                hide
-              />
+              <YAxis yAxisId="rating" domain={[0, 5]} hide />
+              <YAxis yAxisId="count" orientation="right" hide />
               <Tooltip
                 contentStyle={{
                   backgroundColor: colors.tooltipBg,
@@ -479,21 +480,31 @@ export default function PageTime() {
                   return [value, language === 'cs' ? 'Aktivit' : 'Activities'];
                 }}
               />
-              <Bar yAxisId="count" dataKey="count" fill={colors.barEmpty} radius={[4, 4, 0, 0]} opacity={0.4} />
-              <Bar yAxisId="rating" dataKey="avgRating" radius={[4, 4, 0, 0]}>
-                {trendData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getRatingColor(entry.avgRating)} />
-                ))}
-              </Bar>
-            </BarChart>
+              <Area
+                yAxisId="count"
+                type="monotone"
+                dataKey="count"
+                stroke={colors.barEmpty}
+                fill="url(#gradCount)"
+                strokeWidth={2}
+              />
+              <Area
+                yAxisId="rating"
+                type="monotone"
+                dataKey="avgRating"
+                stroke={colors.barHigh}
+                fill="url(#gradRating)"
+                strokeWidth={2}
+              />
+            </AreaChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-6 mt-2 text-xs text-themed-faint">
             <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded-sm opacity-40" style={{ backgroundColor: colors.barEmpty }} />
+              <span className="w-4 h-0.5 rounded" style={{ backgroundColor: colors.barEmpty }} />
               {language === 'cs' ? 'Aktivit' : 'Activities'}
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: colors.barHigh }} />
+              <span className="w-4 h-0.5 rounded" style={{ backgroundColor: colors.barHigh }} />
               {t.time.rating}
             </span>
           </div>
