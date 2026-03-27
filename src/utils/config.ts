@@ -23,6 +23,8 @@ export interface ConfigActivity {
 
 export interface AppConfig {
   version: number;
+  language?: string;
+  theme?: string;
   activities: ConfigActivity[];
   info: {
     cs: ConfigInfo;

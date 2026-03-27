@@ -1,3 +1,5 @@
+import { getCachedConfig } from './config';
+
 export type Theme = 'classic' | 'modern' | 'dark';
 
 const THEME_KEY = 'pra_theme';
@@ -5,6 +7,9 @@ const THEME_KEY = 'pra_theme';
 export function loadTheme(): Theme {
   const stored = localStorage.getItem(THEME_KEY);
   if (stored === 'classic' || stored === 'modern' || stored === 'dark') return stored;
+  // Fallback to config default
+  const configTheme = getCachedConfig()?.theme;
+  if (configTheme === 'classic' || configTheme === 'modern' || configTheme === 'dark') return configTheme;
   return 'modern';
 }
 

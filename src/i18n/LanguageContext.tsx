@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { Language, translations, Translations } from './translations';
+import { getCachedConfig } from '../utils/config';
 
 interface LanguageContextType {
   language: Language;
@@ -15,6 +16,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'cs' || stored === 'en') return stored;
+    // Fallback to config default
+    const configLang = getCachedConfig()?.language;
+    if (configLang === 'cs' || configLang === 'en') return configLang;
     // Detekce jazyka prohlížeče
     const browserLang = navigator.language.split('-')[0];
     return browserLang === 'cs' ? 'cs' : 'en';

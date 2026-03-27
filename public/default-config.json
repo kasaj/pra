@@ -1,5 +1,7 @@
 {
   "version": 1,
+  "language": "cs",
+  "theme": "modern",
   "activities": [
     {
       "type": "sobe",
