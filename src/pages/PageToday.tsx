@@ -33,8 +33,14 @@ export default function PageToday() {
   const untimedActivities = translatedActivities.filter((a) => a.durationMinutes === null);
 
   // Session timestamp - activities before this are "previous" (gray), after are "current" (blue)
-  // New session on every page load / refresh
-  const [sessionStart, setSessionStart] = useState(() => new Date().toISOString());
+  // Persists across page refresh, only reset via button or midnight
+  const [sessionStart, setSessionStart] = useState(() => {
+    const stored = localStorage.getItem('pra_session_start');
+    if (stored) return stored;
+    const now = new Date().toISOString();
+    localStorage.setItem('pra_session_start', now);
+    return now;
+  });
 
   // Auto-detect midnight - start new session
   useEffect(() => {
@@ -42,7 +48,9 @@ export default function PageToday() {
       const todayMidnight = new Date();
       todayMidnight.setHours(0, 0, 0, 0);
       if (new Date(sessionStart) < todayMidnight) {
-        setSessionStart(todayMidnight.toISOString());
+        const newSession = todayMidnight.toISOString();
+        setSessionStart(newSession);
+        localStorage.setItem('pra_session_start', newSession);
         setRefreshKey((k) => k + 1);
       }
     };
@@ -53,7 +61,9 @@ export default function PageToday() {
   }, [sessionStart]);
 
   const handleNewSession = useCallback(() => {
-    setSessionStart(new Date().toISOString());
+    const now = new Date().toISOString();
+    setSessionStart(now);
+    localStorage.setItem('pra_session_start', now);
     setRefreshKey((k) => k + 1);
   }, []);
 
