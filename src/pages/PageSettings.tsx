@@ -245,11 +245,13 @@ interface ConfigInfo {
 interface AppConfig {
   version: 1;
   exportedAt: string;
+  language?: 'cs' | 'en';
+  theme?: 'classic' | 'modern' | 'dark';
   activities: ConfigActivity[];
   info: ConfigInfo;
 }
 
-function generateConfig(): AppConfig {
+function generateConfig(lang: string, currentTheme: string): AppConfig {
   const activities = loadActivities();
   const cs = translations.cs;
   const en = translations.en;
@@ -280,6 +282,8 @@ function generateConfig(): AppConfig {
   return {
     version: 1,
     exportedAt: new Date().toISOString(),
+    language: lang as 'cs' | 'en',
+    theme: currentTheme as 'classic' | 'modern' | 'dark',
     activities: configActivities,
     info: {
       cs: { ...translations.cs.info },
@@ -349,10 +353,10 @@ export default function PageSettings() {
   }, [language]);
 
   const handleExportConfig = useCallback(() => {
-    const config = generateConfig();
+    const config = generateConfig(language, theme);
     const json = JSON.stringify(config, null, 2);
     downloadFile(json, `pra-config-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
-  }, []);
+  }, [language, theme]);
 
   const handleReset = useCallback(() => {
     if (!window.confirm(t.settings.resetConfirm)) return;
@@ -385,7 +389,17 @@ export default function PageSettings() {
         if (!config.version || !Array.isArray(config.activities)) {
           throw new Error('Invalid config format');
         }
-        importConfig(config, language);
+        // Import activities
+        importConfig(config, config.language || language);
+        // Import language
+        if (config.language && (config.language === 'cs' || config.language === 'en')) {
+          setLanguage(config.language);
+        }
+        // Import theme
+        if (config.theme && (config.theme === 'classic' || config.theme === 'modern' || config.theme === 'dark')) {
+          setThemeState(config.theme);
+          saveTheme(config.theme);
+        }
         setImportStatus('success');
       } catch {
         setImportStatus('error');
