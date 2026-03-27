@@ -19,9 +19,12 @@ export default function ActivityEditor({ activity, onSave, onDelete, onClose }: 
   const [description, setDescription] = useState(activity?.description || '');
   const [isTimed, setIsTimed] = useState(activity?.durationMinutes !== null);
   const [duration, setDuration] = useState(activity?.durationMinutes?.toString() || '15');
+  const [variantsText, setVariantsText] = useState(activity?.variants?.join(', ') || '');
 
   const handleSubmit = () => {
     if (!name.trim()) return;
+
+    const variants = variantsText.split(',').map(v => v.trim()).filter(Boolean);
 
     const newActivity: ActivityDefinition = {
       type: activity?.type || generateActivityType(),
@@ -29,6 +32,7 @@ export default function ActivityEditor({ activity, onSave, onDelete, onClose }: 
       emoji: emoji || '✨',
       description: description.trim(),
       durationMinutes: isTimed ? parseInt(duration, 10) || 15 : null,
+      variants: variants.length > 0 ? variants : undefined,
     };
 
     onSave(newActivity);
@@ -132,6 +136,19 @@ export default function ActivityEditor({ activity, onSave, onDelete, onClose }: 
               />
             </div>
           )}
+
+          <div>
+            <label className="block text-sm text-themed-muted mb-2">{t.editor.variants}</label>
+            <input
+              type="text"
+              value={variantsText}
+              onChange={(e) => setVariantsText(e.target.value)}
+              placeholder={t.editor.variantsPlaceholder}
+              className="w-full p-3 rounded-xl bg-themed-input border border-themed
+                       focus:outline-none focus:border-themed-accent
+                       text-themed-primary placeholder:text-themed-faint"
+            />
+          </div>
         </div>
 
         <div className="p-4 border-t border-themed space-y-3">

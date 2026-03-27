@@ -11,6 +11,10 @@ export interface ConfigInfo {
   psychText?: string;
   philoTitle?: string;
   philoText?: string;
+  noteWhy?: string;
+  noteHow?: string;
+  noteWhat?: string;
+  noteI?: string;
 }
 
 export interface ConfigActivity {

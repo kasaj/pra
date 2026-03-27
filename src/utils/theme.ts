@@ -19,7 +19,26 @@ export function saveTheme(theme: Theme): void {
 }
 
 export function applyTheme(theme: Theme): void {
-  document.documentElement.setAttribute('data-theme', theme);
+  // Modern follows system preference
+  if (theme === 'modern') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'modern');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+}
+
+// Listen for system theme changes (only relevant for modern)
+export function watchSystemTheme(): () => void {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const handler = () => {
+    const current = localStorage.getItem('pra_theme');
+    if (!current || current === 'modern') {
+      applyTheme('modern');
+    }
+  };
+  mq.addEventListener('change', handler);
+  return () => mq.removeEventListener('change', handler);
 }
 
 // Chart colors from CSS variables

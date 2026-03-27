@@ -7,7 +7,7 @@ import PageTime from './pages/PageTime';
 import PageInfo from './pages/PageInfo';
 import PageSettings from './pages/PageSettings';
 import { loadConfig } from './utils/config';
-import { loadTheme, applyTheme } from './utils/theme';
+import { loadTheme, applyTheme, watchSystemTheme } from './utils/theme';
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState<Page>('today');
@@ -31,7 +31,9 @@ function App() {
 
   useEffect(() => {
     applyTheme(loadTheme());
+    const cleanup = watchSystemTheme();
     loadConfig().then(() => setReady(true));
+    return cleanup;
   }, []);
 
   if (!ready) return null;

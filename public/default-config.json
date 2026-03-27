@@ -107,7 +107,11 @@
       "psychTitle": "Psychologický rámec",
       "psychText": "Pracuje s archetypy, stínem (Jung), přijetím (buddhismus, stoicismus) a sebeurčením (Maslow, Frankl).",
       "philoTitle": "Filozofický základ",
-      "philoText": "Stojí na průniku bytí (Heidegger), přítomnosti (Tao) a etiky středu (Aristotelova mesotés — srdce mezi hlavou a emocí)."
+      "philoText": "Stojí na průniku bytí (Heidegger), přítomnosti (Tao) a etiky středu (Aristotelova mesotés — srdce mezi hlavou a emocí).",
+      "noteWhy": "",
+      "noteHow": "",
+      "noteWhat": "",
+      "noteI": ""
     },
     "en": {
       "title": "Info",
@@ -121,7 +125,11 @@
       "psychTitle": "Psychological framework",
       "psychText": "Works with archetypes, shadow (Jung), acceptance (Buddhism, Stoicism) and self-determination (Maslow, Frankl).",
       "philoTitle": "Philosophical foundation",
-      "philoText": "Stands at the intersection of being (Heidegger), presence (Tao) and ethics of the middle (Aristotle's mesotes — heart between head and emotion)."
+      "philoText": "Stands at the intersection of being (Heidegger), presence (Tao) and ethics of the middle (Aristotle's mesotes — heart between head and emotion).",
+      "noteWhy": "",
+      "noteHow": "",
+      "noteWhat": "",
+      "noteI": ""
     }
   }
 }

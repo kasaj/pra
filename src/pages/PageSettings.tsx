@@ -275,10 +275,20 @@ function generateConfig(lang: string, currentTheme: string): AppConfig {
     language: lang as 'cs' | 'en',
     theme: currentTheme as 'classic' | 'modern' | 'dark',
     activities: configActivities,
-    info: {
-      cs: { ...(getCachedConfig()?.info?.cs || translations.cs.info) },
-      en: { ...(getCachedConfig()?.info?.en || translations.en.info) },
-    },
+    info: (() => {
+      // Merge config info with user notes from localStorage
+      let userNotes = { why: '', how: '', what: '', i: '' };
+      try {
+        const stored = localStorage.getItem('pra_info_notes');
+        if (stored) userNotes = JSON.parse(stored);
+      } catch { /* default */ }
+      const csInfo = { ...(getCachedConfig()?.info?.cs || translations.cs.info) };
+      const enInfo = { ...(getCachedConfig()?.info?.en || translations.en.info) };
+      return {
+        cs: { ...csInfo, noteWhy: userNotes.why, noteHow: userNotes.how, noteWhat: userNotes.what, noteI: userNotes.i },
+        en: { ...enInfo, noteWhy: userNotes.why, noteHow: userNotes.how, noteWhat: userNotes.what, noteI: userNotes.i },
+      };
+    })(),
   };
 }
 
