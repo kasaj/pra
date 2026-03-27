@@ -16,6 +16,7 @@
           "Dlouhý výdech (uklidnění)",
           "Sken těla",
           "Pozorování",
+          "Stabilizace",
           "Energie života",
           "Tiché zastavení"
         ]
@@ -41,6 +42,7 @@
           "Sport",
           "Protažení",
           "Posilování",
+          "Rovnováha",
           "Jóga"
         ]
       },
@@ -61,10 +63,11 @@
       "emoji": "🌅",
       "durationMinutes": 15,
       "cs": {
-        "name": "Rozjímání - Potrava",
-        "description": "Vědomé jednání jako tiché sezení, konzumace potravym, otevřená otázka, vnitřní prostor, pozorování přírody, pocitů, myšlenek",
+        "name": "Rozjímání - Živiny",
+        "description": "Vědomé jednání jako tiché sezení, konzumace jídel, otevřená otázka, vnitřní prostor, pozorování přírody, pocitů, myšlenek",
         "variants": [
-          "Tiché sezení",
+          "Meditace",
+          "Imaginace",
           "Kontemplace",
           "Journaling",
           "Jídlo",
@@ -96,8 +99,8 @@
           "Fail",
           "Poznámka",
           "Zkušenost",
-          "Řeč ega",
-          "Řeč těla"
+          "Myšlenka",
+          "Pocit"
         ]
       },
       "en": {
@@ -144,7 +147,7 @@
       "emoji": "🔥",
       "durationMinutes": null,
       "cs": {
-        "name": "Výzva - odvaha",
+        "name": "Výzva - Odvaha",
         "description": "Vědomé čelení tomu, čemu se vyhýbám, malý krok středem, konkrétní akce k růstu",
         "variants": [
           "Konfrontace strachu",

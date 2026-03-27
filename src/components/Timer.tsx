@@ -7,18 +7,21 @@ function getGongUrl(): string {
   return `${base}gong.mp3`;
 }
 
+// Global audio element - persists across component unmounts
 let gongAudio: HTMLAudioElement | null = null;
 
-function playChime() {
-  try {
-    if (!gongAudio) {
-      gongAudio = new Audio(getGongUrl());
-    }
-    gongAudio.currentTime = 0;
-    gongAudio.play();
-  } catch {
-    // Silently fail if audio can't play
+function ensureGongLoaded(): HTMLAudioElement {
+  if (!gongAudio) {
+    gongAudio = new Audio(getGongUrl());
+    gongAudio.preload = 'auto';
   }
+  return gongAudio;
+}
+
+function playGong() {
+  const audio = ensureGongLoaded();
+  audio.currentTime = 0;
+  audio.play().catch(() => { /* browser blocked autoplay */ });
 }
 
 interface TimerProps {
@@ -35,6 +38,11 @@ export default function Timer({ durationMinutes, onComplete, onCancel }: TimerPr
   const [isPausedByVisibility, setIsPausedByVisibility] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const elapsedRef = useRef(0);
+
+  // Preload gong audio on mount (user has already interacted)
+  useEffect(() => {
+    ensureGongLoaded();
+  }, []);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -68,17 +76,19 @@ export default function Timer({ durationMinutes, onComplete, onCancel }: TimerPr
     return () => clearInterval(interval);
   }, [isRunning, isPausedByVisibility, isCompleted, totalSeconds]);
 
-  // Play chime and complete when timer finishes
+  // Play gong and complete when timer finishes (delay to let sound play)
   useEffect(() => {
     if (isCompleted) {
-      playChime();
-      onComplete(totalSeconds);
+      playGong();
+      const timeout = setTimeout(() => onComplete(totalSeconds), 1500);
+      return () => clearTimeout(timeout);
     }
   }, [isCompleted, onComplete, totalSeconds]);
 
   const handleFinishEarly = useCallback(() => {
     const elapsed = totalSeconds - secondsLeft;
-    onComplete(elapsed);
+    playGong();
+    setTimeout(() => onComplete(elapsed), 1500);
   }, [totalSeconds, secondsLeft, onComplete]);
 
   const togglePause = useCallback(() => {
