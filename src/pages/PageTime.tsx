@@ -125,10 +125,12 @@ export default function PageTime() {
   const [trendRange, setTrendRange] = useState<'week' | 'month'>('week');
   const [now, setNow] = useState(() => Date.now());
 
-  // Tick every second for elapsed clock
+  // Tick every second for elapsed clock + update on tab focus
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
+    const onVisible = () => { if (document.visibilityState === 'visible') setNow(Date.now()); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
   }, []);
 
   // Summary statistics
