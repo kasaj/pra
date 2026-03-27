@@ -47,17 +47,39 @@ function getConfigUrl(): string {
   return `${base}default-config.json`;
 }
 
+const CONFIG_HASH_KEY = 'pra_config_hash';
 let cachedConfig: AppConfig | null = null;
 
 export async function loadConfig(): Promise<AppConfig> {
   if (cachedConfig) return cachedConfig;
   try {
     const res = await fetch(getConfigUrl(), { cache: 'no-cache' });
-    cachedConfig = await res.json();
+    const text = await res.text();
+    cachedConfig = JSON.parse(text);
+
+    // Detect config changes - if hash differs, clear cached activities
+    const newHash = simpleHash(text);
+    const oldHash = localStorage.getItem(CONFIG_HASH_KEY);
+    if (oldHash !== null && oldHash !== newHash) {
+      // Config changed since last load - clear localStorage activities
+      localStorage.removeItem('pra_activities');
+    }
+    localStorage.setItem(CONFIG_HASH_KEY, newHash);
+
     return cachedConfig!;
   } catch {
     return { version: 1, activities: [], info: { cs: {}, en: {} } };
   }
+}
+
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const chr = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0;
+  }
+  return hash.toString(36);
 }
 
 export function getCachedConfig(): AppConfig | null {
