@@ -173,7 +173,6 @@
     "cs": {
       "title": "Info",
       "subtitle": "Kontext a záměr",
-      "statement": "Aplikace funguje offline jako PWA. Vše běží lokálně na vašem zařízení — žádná data neopouštějí prohlížeč. Zálohování a ochrana dat je ve vaší odpovědnosti.",
       "intro": "Kvalita vědomí se nebuduje informacemi, ale opakovanou praxí malých kroků, které sledují přirozenou posloupnost: myšlenka → slovo → čin → zvyk → charakter → osud.",
       "quotes": [
         { "text": "Nejsem tím, co se mi přihodilo, ale tím, čím jsem se rozhodl stát.", "author": "Carl Gustav Jung" },
@@ -196,7 +195,6 @@
     "en": {
       "title": "Info",
       "subtitle": "Context and intent",
-      "statement": "The app works offline as a PWA. Everything runs locally on your device — no data leaves the browser. Backup and data protection is your responsibility.",
       "intro": "The quality of consciousness is not built through information, but through the repeated practice of small steps that follow a natural sequence: thought → word → action → habit → character → destiny.",
       "quotes": [
         { "text": "I am not what happened to me, I am what I choose to become.", "author": "Carl Gustav Jung" },

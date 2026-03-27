@@ -94,12 +94,6 @@ export default function PageInfo() {
       </header>
 
       <div className="space-y-6 text-themed-secondary leading-relaxed">
-        {cfgInfo.statement && (
-          <section className="card" style={{ borderLeft: '3px solid var(--text-faint)' }}>
-            <p className="text-sm text-themed-muted">{cfgInfo.statement}</p>
-          </section>
-        )}
-
         {info.intro && (
           <section className="card">
             <p>{info.intro}</p>

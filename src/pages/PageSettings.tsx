@@ -536,6 +536,11 @@ export default function PageSettings() {
           </div>
         </section>
 
+        {/* Statement */}
+        <section className="card" style={{ borderLeft: '3px solid var(--text-faint)' }}>
+          <p className="text-sm text-themed-muted">{t.settings.statement}</p>
+        </section>
+
         {/* Install */}
         <section className="card">
           <h2 className="font-serif text-lg text-themed-primary mb-3">
