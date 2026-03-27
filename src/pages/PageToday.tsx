@@ -30,10 +30,14 @@ export default function PageToday() {
   const timedActivities = translatedActivities.filter((a) => a.durationMinutes !== null);
   const untimedActivities = translatedActivities.filter((a) => a.durationMinutes === null);
 
-  const completedTodayTypes = useMemo(() => {
+  const completedTodayCounts = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
-    if (!todayEntry) return new Set<string>();
-    return new Set(todayEntry.activities.map((a) => a.type));
+    const counts = new Map<string, number>();
+    if (!todayEntry) return counts;
+    todayEntry.activities.forEach((a) => {
+      counts.set(a.type, (counts.get(a.type) || 0) + 1);
+    });
+    return counts;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey]);
 
@@ -139,7 +143,8 @@ export default function PageToday() {
         <ActivityCard
           activity={activity}
           onClick={() => handleActivityClick(activity)}
-          completedToday={completedTodayTypes.has(activity.type)}
+          completedToday={completedTodayCounts.has(activity.type)}
+          completedCount={completedTodayCounts.get(activity.type) || 0}
         />
         {editMode && (
           <div className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center"
