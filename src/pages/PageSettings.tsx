@@ -137,6 +137,29 @@ function importPraFile(file: PraFile, currentLang: string): void {
   }
 }
 
+// Strip // comments from JSONC before parsing
+function parseJsonc(text: string): unknown {
+  const stripped = text.replace(/^\s*\/\/.*$/gm, '');
+  return JSON.parse(stripped);
+}
+
+// Generate readable .pra file with comments
+function generatePraFileContent(data: PraFile): string {
+  const date = new Date().toLocaleString();
+  const lines: string[] = [];
+  lines.push(`// PRA ${data.type === 'backup' ? 'Backup' : 'Config'}`);
+  lines.push(`// ${date}`);
+  lines.push(`// Profile: ${data.name || 'default'}`);
+  lines.push(`// Language: ${data.language}, Theme: ${data.theme}`);
+  if (data.type === 'backup' && data.history) {
+    const total = data.history.reduce((s, d) => s + d.activities.length, 0);
+    lines.push(`// Activities: ${data.activities.length} types, ${total} records`);
+  }
+  lines.push('');
+  lines.push(JSON.stringify(data, null, 2));
+  return lines.join('\n');
+}
+
 function downloadFile(content: string, filename: string, mimeType = 'text/markdown;charset=utf-8') {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
@@ -179,14 +202,14 @@ export default function PageSettings() {
 
   const handleExportBackup = useCallback(() => {
     const backup = generateBackup(language, theme, name);
-    const json = JSON.stringify(backup, null, 2);
-    downloadFile(json, `pra-backup-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
+    const content = generatePraFileContent(backup);
+    downloadFile(content, `pra-backup-${new Date().toISOString().split('T')[0]}.pra`, 'application/json;charset=utf-8');
   }, [language, theme, name]);
 
   const handleExportConfig = useCallback(() => {
     const config = generateConfigExport(language, theme, name);
-    const json = JSON.stringify(config, null, 2);
-    downloadFile(json, `pra-config-${language}-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
+    const content = generatePraFileContent(config);
+    downloadFile(content, `pra-config-${language}-${new Date().toISOString().split('T')[0]}.pra`, 'application/json;charset=utf-8');
   }, [language, theme, name]);
 
   const backupInputRef = useRef<HTMLInputElement>(null);
@@ -197,7 +220,7 @@ export default function PageSettings() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const praFile = JSON.parse(event.target?.result as string) as PraFile;
+        const praFile = parseJsonc(event.target?.result as string) as PraFile;
         if (!praFile.version || !Array.isArray(praFile.activities)) throw new Error('Invalid');
         importPraFile(praFile, language);
         setImportStatus('success');
@@ -254,7 +277,7 @@ export default function PageSettings() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const praFile = JSON.parse(event.target?.result as string) as PraFile;
+        const praFile = parseJsonc(event.target?.result as string) as PraFile;
         if (!praFile.version || !Array.isArray(praFile.activities)) throw new Error('Invalid');
         praFile.type = 'config'; // force config mode (no history import)
         importPraFile(praFile, language);
@@ -321,7 +344,7 @@ export default function PageSettings() {
                   style={{ borderColor: 'var(--accent-border)', color: 'var(--accent-text)' }}
                 >
                   {t.settings.backupImport}
-                  <input ref={backupInputRef} type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
+                  <input ref={backupInputRef} type="file" accept=".pra,.json" onChange={handleImportBackup} className="hidden" />
                 </label>
               </div>
             </div>
@@ -342,7 +365,7 @@ export default function PageSettings() {
                            text-themed-secondary hover:border-themed-medium transition-colors"
                 >
                   {t.settings.importConfig}
-                  <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportConfig} className="hidden" />
+                  <input ref={fileInputRef} type="file" accept=".pra,.json" onChange={handleImportConfig} className="hidden" />
                 </label>
               </div>
             </div>
