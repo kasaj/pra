@@ -37,7 +37,7 @@ export const translations = {
       variant: 'Varianta',
       planned: 'Plán',
       actual: 'Skutečnost',
-      rating: 'Hodnocení',
+      rating: 'Stav',
       note: 'Poznámka',
       deleteSelected: 'Smazat vybrané',
       selected: 'vybráno',
@@ -80,13 +80,11 @@ export const translations = {
     flow: {
       howFeelNow: 'Jak se teď cítím?',
       whatShifted: 'Co se posunulo?',
-      optional: '(volitelné)',
-      notePlaceholder: 'Poznámka (volitelné)...',
+      notePlaceholder: 'Poznámka...',
       start: 'Začít',
       continue: 'Pokračovat',
       finish: 'Dokončit',
       record: 'Zaznamenat',
-      ratingOptional: 'Hodnocení (volitelné)',
     },
     // Timer
     timer: {
@@ -196,7 +194,7 @@ export const translations = {
       variant: 'Variant',
       planned: 'Planned',
       actual: 'Actual',
-      rating: 'Rating',
+      rating: 'State',
       note: 'Note',
       deleteSelected: 'Delete selected',
       selected: 'selected',
@@ -239,13 +237,11 @@ export const translations = {
     flow: {
       howFeelNow: 'How do I feel now?',
       whatShifted: 'What shifted?',
-      optional: '(optional)',
-      notePlaceholder: 'Note (optional)...',
+      notePlaceholder: 'Note...',
       start: 'Start',
       continue: 'Continue',
       finish: 'Finish',
       record: 'Record',
-      ratingOptional: 'Rating (optional)',
     },
     // Timer
     timer: {

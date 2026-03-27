@@ -32,14 +32,14 @@ function formatDuration(seconds: number): string {
 function generateHistoryMarkdown(data: DayEntry[], lang: string): string {
   const t = lang === 'cs'
     ? {
-        date: 'Datum', activity: 'Aktivita', duration: 'Čas', rating: 'Hodnocení', note: 'Poznámka',
+        date: 'Datum', activity: 'Aktivita', duration: 'Čas', rating: 'Stav', note: 'Poznámka',
         summary: 'Shrnutí', totalActivities: 'Celkem aktivit', totalTime: 'Celkový čas',
-        avgRating: 'Průměrné hodnocení', weeklyTitle: 'Týdenní přehled', records: 'Záznamy'
+        avgRating: 'Průměrný stav', weeklyTitle: 'Týdenní přehled', records: 'Záznamy'
       }
     : {
-        date: 'Date', activity: 'Activity', duration: 'Duration', rating: 'Rating', note: 'Note',
+        date: 'Date', activity: 'Activity', duration: 'Duration', rating: 'State', note: 'Note',
         summary: 'Summary', totalActivities: 'Total activities', totalTime: 'Total time',
-        avgRating: 'Average rating', weeklyTitle: 'Weekly overview', records: 'Records'
+        avgRating: 'Average state', weeklyTitle: 'Weekly overview', records: 'Records'
       };
 
   // Calculate statistics

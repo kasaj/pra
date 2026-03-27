@@ -119,36 +119,26 @@ export default function ActivityFlow({ activity, onClose }: ActivityFlowProps) {
               </p>
 
               {activity.variants && activity.variants.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="font-serif text-sm text-themed-faint text-center">
-                    {t.flow.optional}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {activity.variants.map((variant) => (
-                      <button
-                        key={variant}
-                        onClick={() => handleVariantClick(variant)}
-                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                          selectedVariant === variant
-                            ? 'bg-themed-accent border-themed-accent text-themed-accent'
-                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                        }`}
-                      >
-                        {variant}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {activity.variants.map((variant) => (
+                    <button
+                      key={variant}
+                      onClick={() => handleVariantClick(variant)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        selectedVariant === variant
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >
+                      {variant}
+                    </button>
+                  ))}
                 </div>
               )}
 
               <div className="space-y-6 pt-4">
-                <div className="space-y-3">
-                  <h3 className="font-serif text-sm text-themed-faint text-center">
-                    {t.flow.ratingOptional}
-                  </h3>
-                  <div className="flex justify-center">
-                    <StarRating value={rating} onChange={setRating} size="lg" />
-                  </div>
+                <div className="flex justify-center">
+                  <StarRating value={rating} onChange={setRating} size="lg" />
                 </div>
 
                 <textarea
@@ -175,25 +165,20 @@ export default function ActivityFlow({ activity, onClose }: ActivityFlowProps) {
               </p>
 
               {activity.variants && activity.variants.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="font-serif text-sm text-themed-faint text-center">
-                    {t.flow.optional}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {activity.variants.map((variant) => (
-                      <button
-                        key={variant}
-                        onClick={() => handleVariantClick(variant)}
-                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                          selectedVariant === variant
-                            ? 'bg-themed-accent border-themed-accent text-themed-accent'
-                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                        }`}
-                      >
-                        {variant}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {activity.variants.map((variant) => (
+                    <button
+                      key={variant}
+                      onClick={() => handleVariantClick(variant)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        selectedVariant === variant
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >
+                      {variant}
+                    </button>
+                  ))}
                 </div>
               )}
 
@@ -201,7 +186,6 @@ export default function ActivityFlow({ activity, onClose }: ActivityFlowProps) {
                 <h3 className="font-serif text-lg text-themed-secondary text-center">
                   {t.flow.howFeelNow}
                 </h3>
-                <p className="text-center text-themed-faint text-sm">{t.flow.optional}</p>
 
                 <div className="flex justify-center py-2">
                   <StarRating value={ratingBefore} onChange={setRatingBefore} size="lg" />
@@ -238,8 +222,6 @@ export default function ActivityFlow({ activity, onClose }: ActivityFlowProps) {
               <h3 className="font-serif text-2xl text-themed-primary text-center">
                 {t.flow.whatShifted}
               </h3>
-              <p className="text-center text-themed-faint text-sm">{t.flow.optional}</p>
-
               <div className="flex justify-center py-4">
                 <StarRating value={ratingAfter} onChange={setRatingAfter} size="lg" />
               </div>
