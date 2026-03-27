@@ -213,10 +213,25 @@ export default function PageTime() {
 
   // Trend data (day/week/month)
   const trendData = useMemo(() => {
-    const result: Array<{ day: string; avgRating: number; count: number }> = [];
+    const result: Array<{ day: string; avgRating: number; count: number; minutes: number }> = [];
+
+    // Helper: compute stats for a set of activities
+    const computeStats = (activities: Activity[]) => {
+      let count = activities.length;
+      let totalSecs = 0;
+      const ratings: number[] = [];
+      activities.forEach((a) => {
+        totalSecs += a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60);
+        if (a.ratingAfter) ratings.push(a.ratingAfter);
+        else if (a.rating) ratings.push(a.rating);
+      });
+      const avgRating = ratings.length > 0
+        ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
+        : 0;
+      return { count, avgRating, minutes: Math.round(totalSecs / 60) };
+    };
 
     if (trendRange === 'day') {
-      // Today's activities individually (or last day with data)
       const todayStr = new Date().toISOString().split('T')[0];
       const dayEntry = data.find((d) => d.date === todayStr) || (data.length > 0 ? data[0] : null);
       if (dayEntry) {
@@ -225,14 +240,11 @@ export default function PageTime() {
           .sort((a, b) => new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime())
           .forEach((a) => {
             const time = new Date(a.startedAt).toLocaleTimeString(language === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-            let rating = 0;
-            if (a.ratingAfter) rating = a.ratingAfter;
-            else if (a.rating) rating = a.rating;
-            result.push({ day: time, avgRating: rating, count: 1 });
+            const stats = computeStats([a]);
+            result.push({ day: time, ...stats });
           });
       }
     } else if (trendRange === 'all') {
-      // All data aggregated by week from first entry to today
       const today = new Date();
       const firstDate = data.length > 0 ? new Date(data[data.length - 1].date) : today;
       const totalDays = Math.max(7, Math.ceil((today.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
@@ -244,27 +256,18 @@ export default function PageTime() {
         const weekStart = new Date(weekEnd);
         weekStart.setDate(weekEnd.getDate() - 6);
 
-        let count = 0;
-        const ratings: number[] = [];
+        const allActivities: Activity[] = [];
         for (let d = 0; d < 7; d++) {
           const date = new Date(weekStart);
           date.setDate(weekStart.getDate() + d);
           const dateStr = date.toISOString().split('T')[0];
           const dayEntry = data.find((de) => de.date === dateStr);
-          if (dayEntry) {
-            count += dayEntry.activities.length;
-            dayEntry.activities.forEach((a) => {
-              if (a.ratingAfter) ratings.push(a.ratingAfter);
-              else if (a.rating) ratings.push(a.rating);
-            });
-          }
+          if (dayEntry) allActivities.push(...dayEntry.activities);
         }
 
-        const avgRating = ratings.length > 0
-          ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
-          : 0;
+        const stats = computeStats(allActivities);
         const label = `${weekStart.getDate()}.${weekStart.getMonth() + 1}`;
-        result.push({ day: label, avgRating, count });
+        result.push({ day: label, ...stats });
       }
     } else {
       const today = new Date();
@@ -278,24 +281,12 @@ export default function PageTime() {
         const dateStr = date.toISOString().split('T')[0];
         const dayEntry = data.find((d) => d.date === dateStr);
 
-        let avgRating = 0;
-        let count = 0;
-        if (dayEntry) {
-          count = dayEntry.activities.length;
-          const ratings: number[] = [];
-          dayEntry.activities.forEach((a) => {
-            if (a.ratingAfter) ratings.push(a.ratingAfter);
-            else if (a.rating) ratings.push(a.rating);
-          });
-          if (ratings.length > 0) {
-            avgRating = Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10;
-          }
-        }
+        const stats = dayEntry ? computeStats(dayEntry.activities) : { count: 0, avgRating: 0, minutes: 0 };
 
         const dayName = trendRange === 'week'
           ? date.toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'short' })
           : `${date.getDate()}.${date.getMonth() + 1}`;
-        result.push({ day: dayName, avgRating, count });
+        result.push({ day: dayName, ...stats });
       }
     }
 
@@ -448,12 +439,16 @@ export default function PageTime() {
             <AreaChart data={trendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradCount" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={colors.barEmpty} stopOpacity={0.6} />
-                  <stop offset="95%" stopColor={colors.barEmpty} stopOpacity={0.05} />
+                  <stop offset="5%" stopColor={colors.barEmpty} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={colors.barEmpty} stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gradRating" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={colors.barHigh} stopOpacity={0.5} />
-                  <stop offset="95%" stopColor={colors.barHigh} stopOpacity={0.05} />
+                  <stop offset="5%" stopColor={colors.barHigh} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={colors.barHigh} stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="gradMinutes" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colors.before} stopOpacity={0.3} />
+                  <stop offset="95%" stopColor={colors.before} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis
@@ -464,7 +459,8 @@ export default function PageTime() {
                 interval={trendRange === 'all' ? Math.max(1, Math.floor(trendData.length / 8)) : trendRange === 'month' ? 4 : trendRange === 'day' ? 2 : 0}
               />
               <YAxis yAxisId="rating" domain={[0, 5]} hide />
-              <YAxis yAxisId="count" orientation="right" hide />
+              <YAxis yAxisId="count" hide />
+              <YAxis yAxisId="minutes" hide />
               <Tooltip
                 contentStyle={{
                   backgroundColor: colors.tooltipBg,
@@ -474,8 +470,18 @@ export default function PageTime() {
                 }}
                 formatter={(value: number, name: string) => {
                   if (name === 'avgRating') return [value || '-', t.time.rating];
+                  if (name === 'minutes') return [`${value} min`, language === 'cs' ? 'Čas' : 'Time'];
                   return [value, language === 'cs' ? 'Aktivit' : 'Activities'];
                 }}
+              />
+              <Area
+                yAxisId="minutes"
+                type="monotone"
+                dataKey="minutes"
+                stroke={colors.before}
+                fill="url(#gradMinutes)"
+                strokeWidth={1.5}
+                dot={false}
               />
               <Area
                 yAxisId="count"
@@ -483,7 +489,8 @@ export default function PageTime() {
                 dataKey="count"
                 stroke={colors.barEmpty}
                 fill="url(#gradCount)"
-                strokeWidth={2}
+                strokeWidth={1.5}
+                dot={false}
               />
               <Area
                 yAxisId="rating"
@@ -492,13 +499,18 @@ export default function PageTime() {
                 stroke={colors.barHigh}
                 fill="url(#gradRating)"
                 strokeWidth={2}
+                dot={false}
               />
             </AreaChart>
           </ResponsiveContainer>
-          <div className="flex justify-center gap-6 mt-2 text-xs text-themed-faint">
+          <div className="flex justify-center gap-4 mt-2 text-xs text-themed-faint">
             <span className="flex items-center gap-1">
               <span className="w-4 h-0.5 rounded" style={{ backgroundColor: colors.barEmpty }} />
               {language === 'cs' ? 'Aktivit' : 'Activities'}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-4 h-0.5 rounded" style={{ backgroundColor: colors.before }} />
+              {language === 'cs' ? 'Čas' : 'Time'}
             </span>
             <span className="flex items-center gap-1">
               <span className="w-4 h-0.5 rounded" style={{ backgroundColor: colors.barHigh }} />
