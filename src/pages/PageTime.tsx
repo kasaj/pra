@@ -124,13 +124,18 @@ function ActivityCalendar({ data, language, onDayClick }: {
 
         {/* Day detail */}
         {selectedDay && (() => {
-          const ratings: number[] = [];
+          const allRatings: number[] = [];
           selectedDay.activities.forEach((a) => {
-            const r = a.ratingAfter || a.rating;
-            if (r) ratings.push(r);
+            const comments = getActivityComments(a);
+            comments.forEach((c) => { if (c.rating) allRatings.push(c.rating); });
+            // Fallback to legacy ratings
+            if (comments.length === 0 || !comments.some(c => c.rating)) {
+              const r = a.ratingAfter || a.rating;
+              if (r) allRatings.push(r);
+            }
           });
-          const avgRating = ratings.length > 0
-            ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
+          const avgRating = allRatings.length > 0
+            ? Math.round((allRatings.reduce((s, r) => s + r, 0) / allRatings.length) * 10) / 10
             : null;
           return (
           <div className="mt-4 pt-3 border-t border-themed">
@@ -153,6 +158,16 @@ function ActivityCalendar({ data, language, onDayClick }: {
                   const rawDef = getActivityByType(act.type);
                   const def = rawDef ? getTranslatedActivity(rawDef, t) : null;
                   const time = new Date(act.startedAt).toLocaleTimeString(language === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+                  // Activity avg rating from comments
+                  const actComments = getActivityComments(act);
+                  const actRatings = actComments.filter(c => c.rating).map(c => c.rating!);
+                  if (actRatings.length === 0) {
+                    const r = act.ratingAfter || act.rating;
+                    if (r) actRatings.push(r);
+                  }
+                  const actAvg = actRatings.length > 0
+                    ? Math.round((actRatings.reduce((s, r) => s + r, 0) / actRatings.length) * 10) / 10
+                    : null;
                   return (
                     <button
                       key={act.id}
@@ -162,10 +177,8 @@ function ActivityCalendar({ data, language, onDayClick }: {
                       <span className="text-xs text-themed-faint w-10">{time}</span>
                       <span className="text-base">{def?.emoji}</span>
                       <span className="text-sm text-themed-primary truncate flex-1">{def?.name}</span>
-                      {act.ratingAfter ? (
-                        <span className="text-xs text-themed-muted">{act.ratingBefore || '-'}→{act.ratingAfter}</span>
-                      ) : act.rating ? (
-                        <span className="text-xs text-themed-ochre">{'★'.repeat(act.rating)}</span>
+                      {actAvg !== null ? (
+                        <span className="text-xs text-themed-ochre">{'★'.repeat(Math.round(actAvg))}</span>
                       ) : null}
                     </button>
                   );

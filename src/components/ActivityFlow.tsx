@@ -30,11 +30,7 @@ function toLocalDatetime(isoStr: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function formatCommentTime(isoStr: string, lang: string): string {
-  return new Date(isoStr).toLocaleTimeString(lang === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-}
-
-function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewRating, onAdd, onUpdate, onUpdateRating, lang, t }: {
+function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewRating, onAdd, onUpdate, onUpdateRating, onUpdateTime, onDelete, lang: _lang, t }: {
   comments: ActivityComment[];
   newComment: string;
   setNewComment: (v: string) => void;
@@ -43,6 +39,8 @@ function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewR
   onAdd: () => void;
   onUpdate?: (commentId: string, text: string) => void;
   onUpdateRating?: (commentId: string, rating: Rating) => void;
+  onUpdateTime?: (commentId: string, isoTime: string) => void;
+  onDelete?: (commentId: string) => void;
   lang: string;
   t: ReturnType<typeof useLanguage>['t'];
 }) {
@@ -73,35 +71,48 @@ function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewR
       </div>
       {comments.map((comment) => (
         <div key={comment.id} className="space-y-1">
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-themed-faint">
-              {formatCommentTime(comment.createdAt, lang)}
-              {comment.updatedAt && ` (${formatCommentTime(comment.updatedAt, lang)})`}
-            </div>
-            {comment.rating && (
-              <span className="text-xs text-themed-ochre">{'★'.repeat(comment.rating)}</span>
-            )}
-          </div>
-          <div className="flex items-start gap-2">
-            <textarea
-              defaultValue={comment.text}
-              onBlur={(e) => {
-                if (e.target.value !== comment.text && onUpdate) {
-                  onUpdate(comment.id, e.target.value);
+          <div className="flex items-center gap-2">
+            <input
+              type="time"
+              defaultValue={new Date(comment.createdAt).toTimeString().slice(0, 5)}
+              onChange={(e) => {
+                if (e.target.value && onUpdateTime) {
+                  const d = new Date(comment.createdAt);
+                  const [h, m] = e.target.value.split(':').map(Number);
+                  d.setHours(h, m);
+                  onUpdateTime(comment.id, d.toISOString());
                 }
               }}
-              className="flex-1 p-3 rounded-xl bg-themed-input border border-themed
-                       focus:outline-none focus:border-themed-accent resize-none h-16
-                       text-themed-primary text-sm"
+              className="text-xs text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted w-14 cursor-pointer"
             />
-            <div className="flex flex-col items-center pt-1">
-              <StarRating
-                value={comment.rating || null}
-                onChange={(r) => onUpdateRating && onUpdateRating(comment.id, r)}
-                size="xs"
-              />
-            </div>
+            <StarRating
+              value={comment.rating || null}
+              onChange={(r) => onUpdateRating && onUpdateRating(comment.id, r)}
+              size="xs"
+            />
+            <div className="flex-1" />
+            {onDelete && (
+              <button
+                onClick={() => onDelete(comment.id)}
+                className="text-themed-faint hover:text-themed-warn transition-colors p-0.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
+          <textarea
+            defaultValue={comment.text}
+            onBlur={(e) => {
+              if (e.target.value !== comment.text && onUpdate) {
+                onUpdate(comment.id, e.target.value);
+              }
+            }}
+            className="w-full p-3 rounded-xl bg-themed-input border border-themed
+                     focus:outline-none focus:border-themed-accent resize-none h-16
+                     text-themed-primary text-sm"
+          />
         </div>
       ))}
     </div>
@@ -122,7 +133,7 @@ interface ActivityFlowProps {
   onCreateLinked?: () => void;
 }
 
-export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment, onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked }: ActivityFlowProps) {
+export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment: _onUpdateComment, onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked }: ActivityFlowProps) {
   const { t, language } = useLanguage();
   const isTimed = activity.durationMinutes !== null;
   const isEditing = !!existingActivity;
@@ -193,37 +204,51 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     setNewComment('');
   }, [newComment, newCommentRating, isEditing, onAddComment, ensureSaved, localComments]);
 
-  const handleUpdateCommentRating = useCallback((commentId: string, r: Rating) => {
-    setLocalComments((prev) => prev.map((c) =>
-      c.id === commentId ? { ...c, rating: r, updatedAt: new Date().toISOString() } : c
-    ));
-    // Persist
-    if (isEditing && savedIdRef.current) {
-      // For editing, update directly
-    }
-    const updated = localComments.map((c) =>
-      c.id === commentId ? { ...c, rating: r, updatedAt: new Date().toISOString() } : c
-    );
+  const persistComments = useCallback((updated: ActivityComment[]) => {
     if (savedIdRef.current) {
       updateActivityById(savedIdRef.current, { comments: updated });
     } else if (isEditing && existingActivity) {
       updateActivityById(existingActivity.id, { comments: updated });
     }
-  }, [isEditing, existingActivity, localComments]);
+  }, [isEditing, existingActivity]);
+
+  const handleUpdateCommentRating = useCallback((commentId: string, r: Rating) => {
+    setLocalComments((prev) => {
+      const updated = prev.map((c) =>
+        c.id === commentId ? { ...c, rating: r, updatedAt: new Date().toISOString() } : c
+      );
+      persistComments(updated);
+      return updated;
+    });
+  }, [persistComments]);
+
+  const handleUpdateCommentTime = useCallback((commentId: string, isoTime: string) => {
+    setLocalComments((prev) => {
+      const updated = prev.map((c) =>
+        c.id === commentId ? { ...c, createdAt: isoTime } : c
+      );
+      persistComments(updated);
+      return updated;
+    });
+  }, [persistComments]);
+
+  const handleDeleteComment = useCallback((commentId: string) => {
+    setLocalComments((prev) => {
+      const updated = prev.filter((c) => c.id !== commentId);
+      persistComments(updated);
+      return updated;
+    });
+  }, [persistComments]);
 
   const handleUpdateComment = useCallback((commentId: string, text: string) => {
-    setLocalComments((prev) => prev.map((c) =>
-      c.id === commentId ? { ...c, text, updatedAt: new Date().toISOString() } : c
-    ));
-    if (isEditing && onUpdateComment) {
-      onUpdateComment(commentId, text);
-    } else if (savedIdRef.current) {
-      const updated = localComments.map((c) =>
+    setLocalComments((prev) => {
+      const updated = prev.map((c) =>
         c.id === commentId ? { ...c, text, updatedAt: new Date().toISOString() } : c
       );
-      updateActivityById(savedIdRef.current, { comments: updated });
-    }
-  }, [isEditing, onUpdateComment, localComments]);
+      persistComments(updated);
+      return updated;
+    });
+  }, [persistComments]);
 
   // Save rating/variant changes on close
   const handleClose = useCallback(() => {
@@ -378,6 +403,8 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 onAdd={handleAddNewComment}
                 onUpdate={handleUpdateComment}
                 onUpdateRating={handleUpdateCommentRating}
+                onUpdateTime={handleUpdateCommentTime}
+                onDelete={handleDeleteComment}
                 lang={language}
                 t={t}
               />
@@ -488,6 +515,8 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 onAdd={handleAddNewComment}
                 onUpdate={handleUpdateComment}
                 onUpdateRating={handleUpdateCommentRating}
+                onUpdateTime={handleUpdateCommentTime}
+                onDelete={handleDeleteComment}
                 lang={language}
                 t={t}
               />
