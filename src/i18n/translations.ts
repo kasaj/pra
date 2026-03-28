@@ -24,7 +24,7 @@ export const translations = {
     // Time page
     time: {
       title: 'Čas',
-      subtitle: 'Historie a vývoj',
+      subtitle: 'Vědomý prostor',
       noRecords: 'Zatím žádné záznamy.',
       startHint: 'Začni první aktivitou na stránce Dnes.',
       chartTitle: 'Vývoj stavu',
@@ -75,7 +75,7 @@ export const translations = {
     // Info page
     info: {
       title: 'Info',
-      subtitle: 'Kontext a záměr',
+      subtitle: 'Vědomý prostor',
       intro1: 'Aplikace vychází z přesvědčení, že člověk potřebuje ukotvenou přesahující podstatu (samobyti) a schopnost pustit se s proudem života namísto lpění na pomíjivosti.',
       intro2: 'Kvalita vědomí se nebuduje informacemi, ale opakovanou praxí malých kroků, které sledují přirozenou posloupnost:',
       sequence: 'myšlenka → slovo → čin → zvyk → charakter → osud',
@@ -206,7 +206,7 @@ export const translations = {
     // Time page
     time: {
       title: 'Time',
-      subtitle: 'History and progress',
+      subtitle: 'Conscious space',
       noRecords: 'No records yet.',
       startHint: 'Start with your first activity on Today page.',
       chartTitle: 'State progress',
@@ -257,7 +257,7 @@ export const translations = {
     // Info page
     info: {
       title: 'Info',
-      subtitle: 'Context and intent',
+      subtitle: 'Conscious space',
       intro1: 'The app is based on the belief that a person needs a grounded transcending essence (self-being) and the ability to go with the flow of life instead of clinging to impermanence.',
       intro2: 'The quality of consciousness is not built by information, but by repeated practice of small steps that follow a natural sequence:',
       sequence: 'thought → word → action → habit → character → destiny',
