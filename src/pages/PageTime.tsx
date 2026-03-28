@@ -300,65 +300,39 @@ function ActivityRow({ activity, allData, lang, selected, onToggleSelect, onClic
   const chainAvg = getChainAvgRating(activity, allData);
 
   return (
-    <div className="py-3 flex items-start gap-3">
+    <div className="py-2 flex items-start gap-2">
       <button
         onClick={onToggleSelect}
-        className={`mt-1 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+        className={`mt-1 w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
           selected
             ? 'bg-themed-accent border-themed-accent'
             : 'border-themed-medium hover:border-themed-accent'
         }`}
       >
         {selected && (
-          <svg className="w-3 h-3 text-themed-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-2.5 h-2.5 text-themed-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
           </svg>
         )}
       </button>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={onClickEdit}>
-          <div className="text-themed-faint text-xs w-12 flex-shrink-0">
-            {formatTime(activity.startedAt, lang)}
-          </div>
-
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <span className="text-lg">{def?.emoji}</span>
-            <span className="text-themed-primary font-medium truncate">{def?.name}</span>
-          </div>
-
-          {actualTime && (
-            <div className="text-themed-faint text-sm">
-              {actualTime}
-            </div>
-          )}
-
-          {chainAvg !== null && (
-            <div className="text-lg flex-shrink-0">
-              {moodEmoji(chainAvg)}
-            </div>
-          )}
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={onClickEdit}>
+        {/* Row 1: time, activity emoji, avg mood emoji */}
+        <div className="flex items-center gap-2">
+          <span className="text-themed-faint text-xs">{formatTime(activity.startedAt, lang)}</span>
+          <span className="text-sm">{def?.emoji}</span>
+          {chainAvg !== null && <span className="text-sm">{moodEmoji(chainAvg)}</span>}
+          {actualTime && <span className="text-themed-faint text-xs">{actualTime}</span>}
         </div>
 
-        {/* Last two comments with mood+name prefix on first */}
-        {lastTwo.length > 0 && (
-          <div className="mt-1 ml-12 space-y-0.5">
-            {lastTwo.map((c, i) => (
-              <div key={`${c.id}-${c.rating || 0}`} className="flex items-baseline gap-2 text-sm">
-                {i === 0 && chainAvg !== null && (
-                  <span className="text-xs flex-shrink-0">{moodEmoji(chainAvg)}{def?.emoji}</span>
-                )}
-                <span className="text-themed-faint text-xs flex-shrink-0">
-                  {formatTime(c.updatedAt || c.createdAt, lang)}
-                </span>
-                {c.rating && <span className="text-xs flex-shrink-0">{moodEmoji(c.rating)}</span>}
-                {c.text && (
-                  <span className="text-themed-muted italic truncate">"{c.text}"</span>
-                )}
-              </div>
-            ))}
+        {/* Row 2+: last two comments */}
+        {lastTwo.map((c) => (
+          <div key={`${c.id}-${c.rating || 0}`} className="flex items-baseline gap-1.5 text-sm mt-0.5">
+            <span className="text-themed-faint text-xs flex-shrink-0">{formatTime(c.updatedAt || c.createdAt, lang)}</span>
+            {c.rating && <span className="text-xs flex-shrink-0">{moodEmoji(c.rating)}</span>}
+            {c.text && <span className="text-themed-muted italic truncate">"{c.text}"</span>}
           </div>
-        )}
+        ))}
 
 
         {/* Navigation links and + button */}
