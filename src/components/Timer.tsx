@@ -145,16 +145,22 @@ export default function Timer({ durationMinutes, onComplete, onCancel, note }: T
       </div>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
-        {isCompleted ? (
-          <button
-            onClick={() => onComplete(totalSeconds)}
-            className="w-full px-4 py-3 rounded-xl transition-colors font-medium"
-            style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
-          >
-            {t.flow.finish}
-          </button>
-        ) : (
+        <button
+          onClick={() => onComplete(totalSeconds - secondsLeft)}
+          className="w-full px-4 py-3 rounded-xl transition-colors font-medium"
+          style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
+        >
+          {t.flow.finish}
+        </button>
+        {!isCompleted && (
           <>
+            <button
+              onClick={handleFinishEarly}
+              className="w-full px-4 py-2 rounded-xl border transition-colors"
+              style={{ borderColor: 'var(--accent-border)', color: 'var(--accent-text)' }}
+            >
+              {t.timer.finishEarly}
+            </button>
             <div className="flex gap-3">
               <button
                 onClick={togglePause}
@@ -169,13 +175,6 @@ export default function Timer({ durationMinutes, onComplete, onCancel, note }: T
                 {t.timer.cancel}
               </button>
             </div>
-            <button
-              onClick={handleFinishEarly}
-              className="w-full px-4 py-2 rounded-xl border transition-colors"
-              style={{ borderColor: 'var(--accent-border)', color: 'var(--accent-text)' }}
-            >
-              {t.timer.finishEarly}
-            </button>
           </>
         )}
       </div>
