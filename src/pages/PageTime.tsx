@@ -834,6 +834,17 @@ export default function PageTime() {
         </div>
       </section>
 
+      {/* Overall mood */}
+      <div className="card flex justify-center py-4 mb-6">
+        <div className="flex gap-1.5 text-2xl">
+          {loadMoodScale().map(({ value: v, emoji: e }) => (
+            <span key={v} className={v === Math.round(summaryStats.overallMood) ? 'opacity-100' : 'grayscale opacity-30'}>
+              {e}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Calendar */}
       <ActivityCalendar
         data={data}
@@ -845,15 +856,6 @@ export default function PageTime() {
       {/* Running stats */}
       <section className="mb-6">
         <h2 className="font-serif text-base text-themed-secondary mb-3">{t.time.runningTitle}</h2>
-        <div className="card flex justify-center py-4 mb-3">
-          <div className="flex gap-1.5 text-2xl">
-            {loadMoodScale().map(({ value: v, emoji: e }) => (
-              <span key={v} className={v === Math.round(summaryStats.overallMood) ? 'opacity-100' : 'grayscale opacity-30'}>
-                {e}
-              </span>
-            ))}
-          </div>
-        </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">
