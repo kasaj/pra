@@ -29,6 +29,7 @@ interface PraFile {
   notes?: { cs: Record<string, string>; en: Record<string, string> };
   userModified?: string[];
   sessionStart?: string;
+  activityStats?: Record<string, { count: number; totalSeconds: number }>;
 }
 
 function generateBackup(lang: string, currentTheme: string, profileName: string): PraFile {
@@ -50,6 +51,16 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
   let userModified: string[] = [];
   try { const s = localStorage.getItem('pra_user_modified_activities'); if (s) userModified = JSON.parse(s); } catch {}
 
+  // Compute per-activity stats from history
+  const activityStats: Record<string, { count: number; totalSeconds: number }> = {};
+  history.forEach((day) => {
+    day.activities.forEach((a) => {
+      if (!activityStats[a.type]) activityStats[a.type] = { count: 0, totalSeconds: 0 };
+      activityStats[a.type].count++;
+      activityStats[a.type].totalSeconds += a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60);
+    });
+  });
+
   return {
     type: 'backup',
     version: 1,
@@ -63,6 +74,7 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
     notes: { cs: loadNotes('cs'), en: loadNotes('en') },
     userModified,
     sessionStart: localStorage.getItem('pra_session_start') || undefined,
+    activityStats,
   } as PraFile;
 }
 
@@ -179,6 +191,14 @@ function generatePraFileContent(data: PraFile): string {
   if (data.type === 'backup' && data.history) {
     const total = data.history.reduce((s, d) => s + d.activities.length, 0);
     lines.push(`// Activities: ${data.activities.length} types, ${data.history.length} days, ${total} records`);
+    if (data.activityStats) {
+      Object.entries(data.activityStats).forEach(([type, s]) => {
+        const h = Math.floor(s.totalSeconds / 3600);
+        const m = Math.floor((s.totalSeconds % 3600) / 60);
+        const time = h > 0 ? `${h}h ${m}m` : `${m}m`;
+        lines.push(`//   ${type}: ${s.count}x, ${time}`);
+      });
+    }
   }
   lines.push('');
   lines.push(JSON.stringify(data, null, 2));
