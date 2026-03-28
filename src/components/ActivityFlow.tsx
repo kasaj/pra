@@ -180,6 +180,25 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
   // Save rating/variant changes on close
   const handleClose = useCallback(() => {
+    // Auto-save pending comment text
+    if (newComment.trim()) {
+      const comment: ActivityComment = {
+        id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+        text: newComment.trim(),
+        createdAt: new Date().toISOString(),
+      };
+      const updatedComments = [comment, ...localComments];
+      if (isEditing && onAddComment) {
+        onAddComment(newComment.trim());
+      } else if (savedIdRef.current) {
+        updateActivityById(savedIdRef.current, { comments: updatedComments });
+      } else {
+        // New record not yet saved — ensure saved first, then add comment
+        const id = ensureSaved();
+        updateActivityById(id, { comments: updatedComments });
+      }
+    }
+
     if (isEditing && existingActivity && onUpdateExisting) {
       if (isTimed) {
         onUpdateExisting(existingActivity.id, {
@@ -210,7 +229,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
       }
     }
     onClose();
-  }, [isEditing, existingActivity, onUpdateExisting, isTimed, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose]);
+  }, [isEditing, existingActivity, onUpdateExisting, isTimed, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose, newComment, localComments, onAddComment, ensureSaved]);
 
   const handleVariantClick = (variant: string) => {
     if (selectedVariant === variant) {
