@@ -736,14 +736,6 @@ export default function PageTime() {
         </section>
       )}
 
-      {/* Calendar as date navigator */}
-      <ActivityCalendar
-        data={data}
-        language={language}
-        selectedDate={calendarDate}
-        onDayClick={setCalendarDate}
-      />
-
       {/* Records */}
       <section className="mb-6">
         <div className="flex items-center justify-between mb-3">
@@ -841,6 +833,14 @@ export default function PageTime() {
           )}
         </div>
       </section>
+
+      {/* Calendar */}
+      <ActivityCalendar
+        data={data}
+        language={language}
+        selectedDate={calendarDate}
+        onDayClick={setCalendarDate}
+      />
 
       {/* Running stats */}
       <section className="mb-6">
