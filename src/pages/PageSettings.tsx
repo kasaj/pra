@@ -174,35 +174,8 @@ function importPraFile(file: PraFile, currentLang: string): void {
   }
 }
 
-// Strip // comments from JSONC before parsing
-function parseJsonc(text: string): unknown {
-  const stripped = text.replace(/^\s*\/\/.*$/gm, '');
-  return JSON.parse(stripped);
-}
-
-// Generate readable .pra file with comments
 function generatePraFileContent(data: PraFile): string {
-  const date = new Date().toLocaleString();
-  const lines: string[] = [];
-  lines.push(`// PRA ${data.type === 'backup' ? 'Backup' : 'Config'}`);
-  lines.push(`// ${date}`);
-  lines.push(`// Profile: ${data.name || 'default'}`);
-  lines.push(`// Language: ${data.language}, Theme: ${data.theme}`);
-  if (data.type === 'backup' && data.history) {
-    const total = data.history.reduce((s, d) => s + d.activities.length, 0);
-    lines.push(`// Activities: ${data.activities.length} types, ${data.history.length} days, ${total} records`);
-    if (data.activityStats) {
-      Object.entries(data.activityStats).forEach(([type, s]) => {
-        const h = Math.floor(s.totalSeconds / 3600);
-        const m = Math.floor((s.totalSeconds % 3600) / 60);
-        const time = h > 0 ? `${h}h ${m}m` : `${m}m`;
-        lines.push(`//   ${type}: ${s.count}x, ${time}`);
-      });
-    }
-  }
-  lines.push('');
-  lines.push(JSON.stringify(data, null, 2));
-  return lines.join('\n');
+  return JSON.stringify(data, null, 2);
 }
 
 async function downloadFile(content: string, filename: string, mimeType = 'application/json') {
@@ -286,7 +259,7 @@ export default function PageSettings() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const praFile = parseJsonc(event.target?.result as string) as PraFile;
+        const praFile = JSON.parse(event.target?.result as string) as PraFile;
         if (!praFile.version || !Array.isArray(praFile.activities)) throw new Error('Invalid');
         importPraFile(praFile, language);
         setImportStatus('success');
@@ -343,7 +316,7 @@ export default function PageSettings() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const praFile = parseJsonc(event.target?.result as string) as PraFile;
+        const praFile = JSON.parse(event.target?.result as string) as PraFile;
         if (!praFile.version || !Array.isArray(praFile.activities)) throw new Error('Invalid');
         praFile.type = 'config'; // force config mode (no history import)
         importPraFile(praFile, language);
