@@ -16,9 +16,9 @@ import {
   Tooltip,
 } from 'recharts';
 
-const MOOD_EMOJIS: Record<number, string> = { 1: '😰', 2: '😞', 3: '😐', 4: '🙂', 5: '😄', 6: '🤩' };
+const MOOD_EMOJIS: Record<number, string> = { 0: '😡', 1: '😰', 2: '😞', 3: '😐', 4: '🙂', 5: '😄', 6: '🤩' };
 function moodEmoji(rating: number): string {
-  return MOOD_EMOJIS[Math.round(Math.min(6, Math.max(1, rating)))] || '😐';
+  return MOOD_EMOJIS[Math.round(Math.min(6, Math.max(0, rating)))] || '😐';
 }
 
 /** Compute avg rating from comments of activity + all linked activities */
@@ -198,7 +198,7 @@ function ActivityCalendar({ data, language, onDayClick }: {
                   const time = new Date(act.startedAt).toLocaleTimeString(language === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
                   // Activity avg rating from comments
                   const actComments = getActivityComments(act);
-                  const actRatings = actComments.filter(c => c.rating).map(c => c.rating!);
+                  const actRatings: number[] = actComments.filter(c => c.rating != null).map(c => c.rating as number);
                   if (actRatings.length === 0) {
                     const r = act.ratingAfter || act.rating;
                     if (r) actRatings.push(r);
@@ -371,7 +371,7 @@ function ActivityRow({ activity, allData, lang, selected, onToggleSelect, onClic
             {c.rating && (
               <div className="flex gap-px flex-shrink-0 ml-1" style={{ fontSize: '0.55rem' }}>
                 {[
-                  { v: 1, e: '😰' }, { v: 2, e: '😞' }, { v: 3, e: '😐' },
+                  { v: 0, e: '😡' }, { v: 1, e: '😰' }, { v: 2, e: '😞' }, { v: 3, e: '😐' },
                   { v: 4, e: '🙂' }, { v: 5, e: '😄' }, { v: 6, e: '🤩' },
                 ].map(({ v, e }) => (
                   <span key={v} className={v === c.rating ? 'opacity-100' : 'grayscale opacity-30'}>{e}</span>

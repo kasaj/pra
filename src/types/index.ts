@@ -7,7 +7,7 @@ export type ActivityType =
   | 'vyzva'
   | string; // Pro vlastní aktivity
 
-export type Rating = 1 | 2 | 3 | 4 | 5 | 6;
+export type Rating = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface ActivityDefinition {
   type: ActivityType;

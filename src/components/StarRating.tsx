@@ -1,6 +1,7 @@
 import { Rating } from '../types';
 
 const MOOD_SCALE: { value: Rating; emoji: string }[] = [
+  { value: 0, emoji: '😡' },
   { value: 1, emoji: '😰' },
   { value: 2, emoji: '😞' },
   { value: 3, emoji: '😐' },

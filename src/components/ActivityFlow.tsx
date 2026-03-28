@@ -369,14 +369,14 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
               className="text-center text-xs text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
             />
             {(() => {
-              const rated = localComments.filter(c => c.rating).map(c => c.rating!);
+              const rated: number[] = localComments.filter(c => c.rating != null).map(c => c.rating as number);
               if (rated.length === 0) return null;
               const avg = Math.round((rated.reduce((s, r) => s + r, 0) / rated.length) * 10) / 10;
-              const rounded = Math.round(Math.min(6, Math.max(1, avg)));
+              const rounded = Math.round(Math.min(6, Math.max(0, avg)));
               return (
                 <div className="flex gap-0.5 text-sm">
                   {[
-                    { v: 1, e: '😰' }, { v: 2, e: '😞' }, { v: 3, e: '😐' },
+                    { v: 0, e: '😡' }, { v: 1, e: '😰' }, { v: 2, e: '😞' }, { v: 3, e: '😐' },
                     { v: 4, e: '🙂' }, { v: 5, e: '😄' }, { v: 6, e: '🤩' },
                   ].map(({ v, e }) => (
                     <span key={v} className={v === rounded ? 'opacity-100' : 'grayscale opacity-30'}>{e}</span>
