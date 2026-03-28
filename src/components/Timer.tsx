@@ -28,9 +28,10 @@ interface TimerProps {
   durationMinutes: number;
   onComplete: (elapsedSeconds: number) => void;
   onCancel: () => void;
+  note?: string;
 }
 
-export default function Timer({ durationMinutes, onComplete, onCancel }: TimerProps) {
+export default function Timer({ durationMinutes, onComplete, onCancel, note }: TimerProps) {
   const { t } = useLanguage();
   const totalSeconds = durationMinutes * 60;
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
@@ -102,6 +103,12 @@ export default function Timer({ durationMinutes, onComplete, onCancel }: TimerPr
 
   return (
     <div className="flex flex-col items-center py-8">
+      {note && (
+        <p className="text-center text-themed-muted leading-relaxed mb-6 px-4 italic">
+          {note}
+        </p>
+      )}
+
       <div className="relative w-48 h-48 mb-8">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
           <circle
@@ -138,6 +145,13 @@ export default function Timer({ durationMinutes, onComplete, onCancel }: TimerPr
       </div>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
+        <button
+          onClick={handleFinishEarly}
+          className="w-full px-4 py-3 rounded-xl transition-colors font-medium"
+          style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
+        >
+          {t.flow.finish}
+        </button>
         <div className="flex gap-3">
           <button
             onClick={togglePause}
@@ -152,13 +166,6 @@ export default function Timer({ durationMinutes, onComplete, onCancel }: TimerPr
             {t.timer.cancel}
           </button>
         </div>
-        <button
-          onClick={handleFinishEarly}
-          className="w-full px-4 py-2 rounded-xl transition-colors"
-          style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
-        >
-          {t.timer.finishEarly}
-        </button>
       </div>
     </div>
   );

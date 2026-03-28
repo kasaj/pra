@@ -77,6 +77,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
   const handleTimerComplete = (elapsedSeconds: number) => {
     actualDurationRef.current = elapsedSeconds;
+    if (!noteAfter && noteBefore) setNoteAfter(noteBefore);
     setTimedStep('rating-after');
   };
 
@@ -274,6 +275,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
               durationMinutes={activity.durationMinutes}
               onComplete={handleTimerComplete}
               onCancel={onClose}
+              note={noteBefore}
             />
           )}
 
