@@ -149,29 +149,35 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
         )}
 
         {/* Navigation links and + button */}
-        <div className="mt-1 ml-12 flex items-center gap-2">
+        <div className="mt-1 ml-12 flex items-center gap-1.5">
           {activity.linkedFromId && (
             <button
               onClick={() => onNavigate(activity.linkedFromId!)}
-              className="text-xs text-themed-accent-solid hover:underline flex items-center gap-0.5"
+              className="w-6 h-6 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
+              title={t.time.linkedFrom}
             >
-              ‹ {t.time.linkedFrom}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
           )}
           {activity.linkedActivityIds && activity.linkedActivityIds.length > 0 && (
             <button
               onClick={() => onNavigate(activity.linkedActivityIds![activity.linkedActivityIds!.length - 1])}
-              className="text-xs text-themed-accent-solid hover:underline flex items-center gap-0.5"
+              className="w-6 h-6 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
+              title={t.time.linkedTo}
             >
-              {t.time.linkedTo} ›
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           )}
           <button
             onClick={onCreateLinked}
-            className="text-xs text-themed-faint hover:text-themed-accent-solid transition-colors flex items-center"
+            className="w-6 h-6 rounded-full bg-themed-input flex items-center justify-center text-themed-faint hover:text-themed-accent-solid transition-colors"
             title={t.time.createLinked}
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
@@ -334,11 +340,15 @@ export default function PageTime() {
     setSelectedIds(new Set());
   }, [selectedIds]);
 
-  const allActivityIds = useMemo(() => {
-    const ids: string[] = [];
-    data.forEach((day) => day.activities.forEach((a) => ids.push(a.id)));
-    return ids;
+  // Flat list of all activities sorted by time (newest first)
+  const allActivitiesFlat = useMemo(() => {
+    const flat: Activity[] = [];
+    data.forEach((day) => flat.push(...day.activities));
+    flat.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+    return flat;
   }, [data]);
+
+  const allActivityIds = useMemo(() => allActivitiesFlat.map((a) => a.id), [allActivitiesFlat]);
 
   const handleSelectAll = useCallback(() => {
     if (selectedIds.size === allActivityIds.length) setSelectedIds(new Set());
@@ -355,6 +365,18 @@ export default function PageTime() {
     const found = findActivityById(targetId);
     if (found) setEditingRecord(found.activity);
   }, []);
+
+  const handleNavigatePrev = useCallback(() => {
+    if (!editingRecord) return;
+    const idx = allActivitiesFlat.findIndex((a) => a.id === editingRecord.id);
+    if (idx > 0) setEditingRecord(allActivitiesFlat[idx - 1]);
+  }, [editingRecord, allActivitiesFlat]);
+
+  const handleNavigateNext = useCallback(() => {
+    if (!editingRecord) return;
+    const idx = allActivitiesFlat.findIndex((a) => a.id === editingRecord.id);
+    if (idx < allActivitiesFlat.length - 1) setEditingRecord(allActivitiesFlat[idx + 1]);
+  }, [editingRecord, allActivitiesFlat]);
 
   const handleAddComment = useCallback((activityId: string, text: string) => {
     const found = findActivityById(activityId);
@@ -664,6 +686,7 @@ export default function PageTime() {
         const def = getActivityByType(editingRecord.type);
         const translated = def ? getTranslatedActivity(def, t) : null;
         if (!translated) return null;
+        const idx = allActivitiesFlat.findIndex((a) => a.id === editingRecord.id);
         return (
           <ActivityFlow
             activity={translated}
@@ -681,6 +704,8 @@ export default function PageTime() {
               const found = findActivityById(targetId);
               if (found) setEditingRecord(found.activity);
             }}
+            onNavigatePrev={idx > 0 ? handleNavigatePrev : undefined}
+            onNavigateNext={idx < allActivitiesFlat.length - 1 ? handleNavigateNext : undefined}
           />
         );
       })()}

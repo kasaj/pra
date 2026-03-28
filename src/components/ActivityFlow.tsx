@@ -11,6 +11,58 @@ function formatCommentTime(isoStr: string, lang: string): string {
   return new Date(isoStr).toLocaleTimeString(lang === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 }
 
+function CommentsBlock({ comments, newComment, setNewComment, onAdd, onUpdate, lang, t }: {
+  comments: ActivityComment[];
+  newComment: string;
+  setNewComment: (v: string) => void;
+  onAdd: () => void;
+  onUpdate?: (commentId: string, text: string) => void;
+  lang: string;
+  t: ReturnType<typeof useLanguage>['t'];
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <input
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder={t.time.commentPlaceholder}
+          className="flex-1 p-3 rounded-xl bg-themed-input border border-themed
+                   focus:outline-none focus:border-themed-accent
+                   text-themed-primary placeholder:text-themed-faint text-sm"
+          onKeyDown={(e) => { if (e.key === 'Enter') onAdd(); }}
+        />
+        <button
+          onClick={onAdd}
+          className="px-4 py-2 rounded-xl text-sm transition-colors"
+          style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
+        >
+          +
+        </button>
+      </div>
+      {comments.map((comment) => (
+        <div key={comment.id} className="space-y-1">
+          <div className="text-xs text-themed-faint">
+            {formatCommentTime(comment.createdAt, lang)}
+            {comment.updatedAt && ` (${formatCommentTime(comment.updatedAt, lang)})`}
+          </div>
+          <textarea
+            defaultValue={comment.text}
+            onBlur={(e) => {
+              if (e.target.value !== comment.text && onUpdate) {
+                onUpdate(comment.id, e.target.value);
+              }
+            }}
+            className="w-full p-3 rounded-xl bg-themed-input border border-themed
+                     focus:outline-none focus:border-themed-accent resize-none h-16
+                     text-themed-primary text-sm"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 interface ActivityFlowProps {
   activity: ActivityDefinition;
   onClose: () => void;
@@ -20,9 +72,11 @@ interface ActivityFlowProps {
   onAddComment?: (text: string) => void;
   onUpdateComment?: (commentId: string, text: string) => void;
   onNavigateLinked?: (targetId: string) => void;
+  onNavigatePrev?: () => void;
+  onNavigateNext?: () => void;
 }
 
-export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment, onNavigateLinked }: ActivityFlowProps) {
+export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment, onNavigateLinked: _onNavigateLinked, onNavigatePrev, onNavigateNext }: ActivityFlowProps) {
   const { t, language } = useLanguage();
   const isTimed = activity.durationMinutes !== null;
   const isEditing = !!existingActivity;
@@ -156,24 +210,27 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     <div className="fixed inset-0 bg-themed-base z-50 flex flex-col">
       <div className="p-4 border-b border-themed">
         <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Linked navigation */}
-            {isEditing && existingActivity?.linkedFromId && onNavigateLinked && (
+          <div className="flex items-center gap-2">
+            {isEditing && onNavigatePrev && (
               <button
-                onClick={() => onNavigateLinked(existingActivity.linkedFromId!)}
-                className="text-themed-accent-solid p-1"
+                onClick={onNavigatePrev}
+                className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
               >
-                ‹
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
             )}
             <span className="text-3xl">{activity.emoji}</span>
             <h2 className="font-serif text-xl text-themed-primary">{activity.name}</h2>
-            {isEditing && existingActivity?.linkedActivityIds && existingActivity.linkedActivityIds.length > 0 && onNavigateLinked && (
+            {isEditing && onNavigateNext && (
               <button
-                onClick={() => onNavigateLinked(existingActivity.linkedActivityIds![existingActivity.linkedActivityIds!.length - 1])}
-                className="text-themed-accent-solid p-1"
+                onClick={onNavigateNext}
+                className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
               >
-                ›
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             )}
           </div>
@@ -226,6 +283,18 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 <div className="flex justify-center">
                   <StarRating value={rating} onChange={setRating} size="lg" />
                 </div>
+
+                {isEditing && activity.description && onAddComment && (
+                  <CommentsBlock
+                    comments={existingComments}
+                    newComment={newComment}
+                    setNewComment={setNewComment}
+                    onAdd={handleAddNewComment}
+                    onUpdate={onUpdateComment}
+                    lang={language}
+                    t={t}
+                  />
+                )}
 
                 <textarea
                   value={note}
@@ -342,6 +411,18 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 <StarRating value={ratingAfter} onChange={setRatingAfter} size="lg" />
               </div>
 
+              {isEditing && activity.description && onAddComment && (
+                <CommentsBlock
+                  comments={existingComments}
+                  newComment={newComment}
+                  setNewComment={setNewComment}
+                  onAdd={handleAddNewComment}
+                  onUpdate={onUpdateComment}
+                  lang={language}
+                  t={t}
+                />
+              )}
+
               <textarea
                 value={noteAfter}
                 onChange={(e) => setNoteAfter(e.target.value)}
@@ -357,51 +438,6 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
             </div>
           )}
 
-          {/* Comments section - shown in edit mode */}
-          {isEditing && onAddComment && (
-            <div className="border-t border-themed mt-6 pt-6 space-y-4">
-              {/* Add new comment */}
-              <div className="flex gap-2">
-                <input
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder={t.time.commentPlaceholder}
-                  className="flex-1 p-3 rounded-xl bg-themed-input border border-themed
-                           focus:outline-none focus:border-themed-accent
-                           text-themed-primary placeholder:text-themed-faint text-sm"
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleAddNewComment(); }}
-                />
-                <button
-                  onClick={handleAddNewComment}
-                  className="px-4 py-2 rounded-xl text-sm transition-colors"
-                  style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
-                >
-                  +
-                </button>
-              </div>
-
-              {/* Existing comments */}
-              {existingComments.map((comment) => (
-                <div key={comment.id} className="space-y-1">
-                  <div className="text-xs text-themed-faint">
-                    {formatCommentTime(comment.createdAt, language)}
-                    {comment.updatedAt && ` (${formatCommentTime(comment.updatedAt, language)})`}
-                  </div>
-                  <textarea
-                    defaultValue={comment.text}
-                    onBlur={(e) => {
-                      if (e.target.value !== comment.text && onUpdateComment) {
-                        onUpdateComment(comment.id, e.target.value);
-                      }
-                    }}
-                    className="w-full p-3 rounded-xl bg-themed-input border border-themed
-                             focus:outline-none focus:border-themed-accent resize-none h-16
-                             text-themed-primary text-sm"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>
