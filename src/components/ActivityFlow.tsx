@@ -34,52 +34,74 @@ function formatCommentTime(isoStr: string, lang: string): string {
   return new Date(isoStr).toLocaleTimeString(lang === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 }
 
-function CommentsBlock({ comments, newComment, setNewComment, onAdd, onUpdate, lang, t }: {
+function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewRating, onAdd, onUpdate, onUpdateRating, lang, t }: {
   comments: ActivityComment[];
   newComment: string;
   setNewComment: (v: string) => void;
+  newRating: Rating | null;
+  setNewRating: (r: Rating) => void;
   onAdd: () => void;
   onUpdate?: (commentId: string, text: string) => void;
+  onUpdateRating?: (commentId: string, rating: Rating) => void;
   lang: string;
   t: ReturnType<typeof useLanguage>['t'];
 }) {
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder={t.time.commentPlaceholder}
-          className="flex-1 p-3 rounded-xl bg-themed-input border border-themed
-                   focus:outline-none focus:border-themed-accent resize-none h-14
-                   text-themed-primary placeholder:text-themed-faint text-sm"
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onAdd(); } }}
-        />
-        <button
-          onClick={onAdd}
-          className="px-4 rounded-xl text-sm transition-colors self-stretch"
-          style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
-        >
-          +
-        </button>
+      <div className="space-y-2">
+        <div className="flex justify-center">
+          <StarRating value={newRating} onChange={setNewRating} size="sm" />
+        </div>
+        <div className="flex gap-2">
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder={t.time.commentPlaceholder}
+            className="flex-1 p-3 rounded-xl bg-themed-input border border-themed
+                     focus:outline-none focus:border-themed-accent resize-none h-14
+                     text-themed-primary placeholder:text-themed-faint text-sm"
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onAdd(); } }}
+          />
+          <button
+            onClick={onAdd}
+            className="px-4 rounded-xl text-sm transition-colors self-stretch"
+            style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
+          >
+            +
+          </button>
+        </div>
       </div>
       {comments.map((comment) => (
         <div key={comment.id} className="space-y-1">
-          <div className="text-xs text-themed-faint">
-            {formatCommentTime(comment.createdAt, lang)}
-            {comment.updatedAt && ` (${formatCommentTime(comment.updatedAt, lang)})`}
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-themed-faint">
+              {formatCommentTime(comment.createdAt, lang)}
+              {comment.updatedAt && ` (${formatCommentTime(comment.updatedAt, lang)})`}
+            </div>
+            {comment.rating && (
+              <span className="text-xs text-themed-ochre">{'★'.repeat(comment.rating)}</span>
+            )}
           </div>
-          <textarea
-            defaultValue={comment.text}
-            onBlur={(e) => {
-              if (e.target.value !== comment.text && onUpdate) {
-                onUpdate(comment.id, e.target.value);
-              }
-            }}
-            className="w-full p-3 rounded-xl bg-themed-input border border-themed
-                     focus:outline-none focus:border-themed-accent resize-none h-16
-                     text-themed-primary text-sm"
-          />
+          <div className="flex items-start gap-2">
+            <textarea
+              defaultValue={comment.text}
+              onBlur={(e) => {
+                if (e.target.value !== comment.text && onUpdate) {
+                  onUpdate(comment.id, e.target.value);
+                }
+              }}
+              className="flex-1 p-3 rounded-xl bg-themed-input border border-themed
+                       focus:outline-none focus:border-themed-accent resize-none h-16
+                       text-themed-primary text-sm"
+            />
+            <div className="flex flex-col items-center pt-1">
+              <StarRating
+                value={comment.rating || null}
+                onChange={(r) => onUpdateRating && onUpdateRating(comment.id, r)}
+                size="xs"
+              />
+            </div>
+          </div>
         </div>
       ))}
     </div>
@@ -107,10 +129,9 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
   const [timedStep, setTimedStep] = useState<TimedFlowStep>(isEditing ? 'rating-after' : 'rating-before');
   const [selectedVariant, setSelectedVariant] = useState<string | null>(existingActivity?.selectedVariant || null);
-  const [ratingBefore, setRatingBefore] = useState<Rating | null>(existingActivity?.ratingBefore || null);
-  const [ratingAfter, setRatingAfter] = useState<Rating | null>(existingActivity?.ratingAfter || existingActivity?.ratingBefore || null);
-
-  const [rating, setRating] = useState<Rating | null>(existingActivity?.rating || null);
+  const ratingBefore = existingActivity?.ratingBefore || null;
+  const ratingAfter = existingActivity?.ratingAfter || null;
+  const rating = existingActivity?.rating || null;
 
   const [startedAt, setStartedAt] = useState(existingActivity?.startedAt || new Date().toISOString());
   const actualDurationRef = useRef<number>(existingActivity?.actualDurationSeconds || 0);
@@ -118,6 +139,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
   const savedIdRef = useRef<string | null>(existingActivity?.id || null);
 
   const [newComment, setNewComment] = useState('');
+  const [newCommentRating, setNewCommentRating] = useState<Rating | null>(null);
   const [localComments, setLocalComments] = useState<ActivityComment[]>(
     () => existingActivity ? getActivityComments(existingActivity) : []
   );
@@ -147,18 +169,19 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
   }, [activity, startedAt, isTimed, selectedVariant, ratingBefore, ratingAfter, rating]);
 
   const handleAddNewComment = useCallback(() => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() && !newCommentRating) return;
 
     const comment: ActivityComment = {
       id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       text: newComment.trim(),
       createdAt: new Date().toISOString(),
+      rating: newCommentRating || undefined,
     };
 
     setLocalComments((prev) => [comment, ...prev]);
+    setNewCommentRating(null);
 
     if (isEditing && onAddComment) {
-      // Editing existing record - use parent callback
       onAddComment(newComment.trim());
     } else {
       // New record - ensure saved, then update comments
@@ -168,7 +191,25 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     }
 
     setNewComment('');
-  }, [newComment, isEditing, onAddComment, ensureSaved, localComments]);
+  }, [newComment, newCommentRating, isEditing, onAddComment, ensureSaved, localComments]);
+
+  const handleUpdateCommentRating = useCallback((commentId: string, r: Rating) => {
+    setLocalComments((prev) => prev.map((c) =>
+      c.id === commentId ? { ...c, rating: r, updatedAt: new Date().toISOString() } : c
+    ));
+    // Persist
+    if (isEditing && savedIdRef.current) {
+      // For editing, update directly
+    }
+    const updated = localComments.map((c) =>
+      c.id === commentId ? { ...c, rating: r, updatedAt: new Date().toISOString() } : c
+    );
+    if (savedIdRef.current) {
+      updateActivityById(savedIdRef.current, { comments: updated });
+    } else if (isEditing && existingActivity) {
+      updateActivityById(existingActivity.id, { comments: updated });
+    }
+  }, [isEditing, existingActivity, localComments]);
 
   const handleUpdateComment = useCallback((commentId: string, text: string) => {
     setLocalComments((prev) => prev.map((c) =>
@@ -186,59 +227,31 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
   // Save rating/variant changes on close
   const handleClose = useCallback(() => {
-    // Auto-save pending comment text
-    if (newComment.trim()) {
-      const comment: ActivityComment = {
-        id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-        text: newComment.trim(),
-        createdAt: new Date().toISOString(),
-      };
-      const updatedComments = [comment, ...localComments];
-      if (isEditing && onAddComment) {
-        onAddComment(newComment.trim());
-      } else if (savedIdRef.current) {
-        updateActivityById(savedIdRef.current, { comments: updatedComments });
-      } else {
-        // New record not yet saved — ensure saved first, then add comment
-        const id = ensureSaved();
-        updateActivityById(id, { comments: updatedComments });
-      }
-    }
+    // Build final comments list including any pending text/rating
+    const finalComments: ActivityComment[] = (newComment.trim() || newCommentRating)
+      ? [{ id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`, text: newComment.trim(), createdAt: new Date().toISOString(), rating: newCommentRating || undefined } as ActivityComment, ...localComments]
+      : localComments;
 
     if (isEditing && existingActivity && onUpdateExisting) {
-      if (isTimed) {
-        onUpdateExisting(existingActivity.id, {
-          startedAt,
-          selectedVariant: selectedVariant || undefined,
-          ratingBefore: ratingBefore || undefined,
-          ratingAfter: ratingAfter || undefined,
-        });
-      } else {
-        onUpdateExisting(existingActivity.id, {
-          startedAt,
-          selectedVariant: selectedVariant || undefined,
-          rating: rating || undefined,
-        });
-      }
+      onUpdateExisting(existingActivity.id, {
+        startedAt,
+        selectedVariant: selectedVariant || undefined,
+        comments: finalComments.length > 0 ? finalComments : undefined,
+      });
     } else if (savedIdRef.current) {
-      if (isTimed) {
-        updateActivityById(savedIdRef.current, {
-          startedAt,
-          selectedVariant: selectedVariant || undefined,
-          ratingBefore: ratingBefore || undefined,
-          ratingAfter: ratingAfter || undefined,
-          actualDurationSeconds: actualDurationRef.current || (activity.durationMinutes || 0) * 60,
-        });
-      } else {
-        updateActivityById(savedIdRef.current, {
-          startedAt,
-          selectedVariant: selectedVariant || undefined,
-          rating: rating || undefined,
-        });
-      }
+      updateActivityById(savedIdRef.current, {
+        startedAt,
+        selectedVariant: selectedVariant || undefined,
+        comments: finalComments.length > 0 ? finalComments : undefined,
+        actualDurationSeconds: isTimed ? (actualDurationRef.current || (activity.durationMinutes || 0) * 60) : undefined,
+      });
+    } else if (finalComments.length > 0) {
+      // New record not saved yet but has pending comment — save now
+      const id = ensureSaved();
+      updateActivityById(id, { comments: finalComments });
     }
     onClose();
-  }, [isEditing, existingActivity, onUpdateExisting, isTimed, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose, newComment, localComments, onAddComment, ensureSaved, startedAt]);
+  }, [isEditing, existingActivity, onUpdateExisting, isTimed, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose, newComment, newCommentRating, localComments, onAddComment, ensureSaved, startedAt]);
 
   const handleVariantClick = (variant: string) => {
     if (selectedVariant === variant) {
@@ -356,16 +369,15 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 </div>
               )}
 
-              <div className="flex justify-center">
-                <StarRating value={rating} onChange={setRating} size="lg" />
-              </div>
-
               <CommentsBlock
                 comments={localComments}
                 newComment={newComment}
                 setNewComment={setNewComment}
+                newRating={newCommentRating}
+                setNewRating={setNewCommentRating}
                 onAdd={handleAddNewComment}
                 onUpdate={handleUpdateComment}
+                onUpdateRating={handleUpdateCommentRating}
                 lang={language}
                 t={t}
               />
@@ -402,16 +414,15 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   {t.flow.howFeelNow}
                 </h3>
 
-                <div className="flex justify-center py-2">
-                  <StarRating value={ratingBefore} onChange={setRatingBefore} size="lg" />
-                </div>
-
                 <CommentsBlock
                   comments={localComments}
                   newComment={newComment}
                   setNewComment={setNewComment}
+                  newRating={newCommentRating}
+                  setNewRating={setNewCommentRating}
                   onAdd={handleAddNewComment}
                   onUpdate={handleUpdateComment}
+                  onUpdateRating={handleUpdateCommentRating}
                   lang={language}
                   t={t}
                 />
@@ -468,16 +479,15 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 </div>
               )}
 
-              <div className="flex justify-center py-4">
-                <StarRating value={ratingAfter} onChange={setRatingAfter} size="lg" />
-              </div>
-
               <CommentsBlock
                 comments={localComments}
                 newComment={newComment}
                 setNewComment={setNewComment}
+                newRating={newCommentRating}
+                setNewRating={setNewCommentRating}
                 onAdd={handleAddNewComment}
                 onUpdate={handleUpdateComment}
+                onUpdateRating={handleUpdateCommentRating}
                 lang={language}
                 t={t}
               />

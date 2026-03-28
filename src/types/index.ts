@@ -7,6 +7,8 @@ export type ActivityType =
   | 'vyzva'
   | string; // Pro vlastní aktivity
 
+export type Rating = 1 | 2 | 3 | 4 | 5;
+
 export interface ActivityDefinition {
   type: ActivityType;
   name: string;
@@ -52,7 +54,5 @@ export interface UserSettings {
   language: 'cs' | 'en';
   name?: string;
 }
-
-export type Rating = 1 | 2 | 3 | 4 | 5;
 
 export type Page = 'today' | 'time' | 'info' | 'settings';

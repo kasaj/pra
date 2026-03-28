@@ -3,11 +3,12 @@ import { Rating } from '../types';
 interface StarRatingProps {
   value: Rating | null;
   onChange: (rating: Rating) => void;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 }
 
 export default function StarRating({ value, onChange, size = 'md' }: StarRatingProps) {
   const sizeClasses = {
+    xs: 'text-xs gap-0.5',
     sm: 'text-xl gap-1',
     md: 'text-2xl gap-2',
     lg: 'text-3xl gap-3',
