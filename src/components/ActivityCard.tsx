@@ -38,16 +38,7 @@ export default function ActivityCard({ activity, onClick, completedToday, comple
         {(completedYesterday || (totalSeconds || 0) > 0) && (
           <span className="flex items-center gap-1 opacity-40">
             {completedYesterday && (
-              <>
-                <span className="w-4 h-4 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--text-faint)' }}>
-                  <svg className="w-2.5 h-2.5" style={{ color: 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </span>
-                {(yesterdayCount || 0) > 1 && (
-                  <span className="text-xs text-themed-faint">{yesterdayCount}</span>
-                )}
-              </>
+              <span className="text-xs text-themed-faint">{yesterdayCount || 0}x</span>
             )}
             {(totalSeconds || 0) > 0 && (
               <span className="text-xs text-themed-faint">{formatTotalTime(totalSeconds || 0)}</span>
