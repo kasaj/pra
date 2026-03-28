@@ -1,5 +1,14 @@
 import { Rating } from '../types';
 
+const MOOD_SCALE: { value: Rating; emoji: string }[] = [
+  { value: 1, emoji: '😰' },
+  { value: 2, emoji: '😞' },
+  { value: 3, emoji: '😐' },
+  { value: 4, emoji: '🙂' },
+  { value: 5, emoji: '😄' },
+  { value: 6, emoji: '🤩' },
+];
+
 interface StarRatingProps {
   value: Rating | null;
   onChange: (rating: Rating) => void;
@@ -9,23 +18,23 @@ interface StarRatingProps {
 export default function StarRating({ value, onChange, size = 'md' }: StarRatingProps) {
   const sizeClasses = {
     xs: 'text-xs gap-0.5',
-    sm: 'text-xl gap-1',
-    md: 'text-2xl gap-2',
-    lg: 'text-3xl gap-3',
+    sm: 'text-lg gap-1',
+    md: 'text-xl gap-1.5',
+    lg: 'text-2xl gap-2',
   };
 
   return (
     <div className={`flex ${sizeClasses[size]}`}>
-      {([1, 2, 3, 4, 5] as Rating[]).map((star) => (
+      {MOOD_SCALE.map(({ value: v, emoji }) => (
         <button
-          key={star}
+          key={v}
           type="button"
-          onClick={() => onChange(star)}
+          onClick={() => onChange(v)}
           className={`transition-transform hover:scale-110 ${
-            value && star <= value ? 'opacity-100' : 'opacity-30'
+            value && v <= value ? 'opacity-100' : 'opacity-30'
           }`}
         >
-          <span className="text-themed-ochre">&#9733;</span>
+          {emoji}
         </button>
       ))}
     </div>

@@ -16,6 +16,11 @@ import {
   Tooltip,
 } from 'recharts';
 
+const MOOD_EMOJIS: Record<number, string> = { 1: '😰', 2: '😞', 3: '😐', 4: '🙂', 5: '😄', 6: '🤩' };
+function moodEmoji(rating: number): string {
+  return MOOD_EMOJIS[Math.round(Math.min(6, Math.max(1, rating)))] || '😐';
+}
+
 function ActivityCalendar({ data, language, onDayClick }: {
   data: DayEntry[];
   language: string;
@@ -144,9 +149,9 @@ function ActivityCalendar({ data, language, onDayClick }: {
                 {new Date(selectedDay.date).toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
               </div>
               {avgRating !== null && (
-                <div className="flex items-center gap-1 text-themed-ochre text-sm">
-                  {'★'.repeat(Math.round(avgRating))}
-                  <span className="text-xs text-themed-faint ml-1">{avgRating}</span>
+                <div className="flex items-center gap-1 text-sm">
+                  <span>{moodEmoji(avgRating)}</span>
+                  <span className="text-xs text-themed-faint">{avgRating}</span>
                 </div>
               )}
             </div>
@@ -178,7 +183,7 @@ function ActivityCalendar({ data, language, onDayClick }: {
                       <span className="text-base">{def?.emoji}</span>
                       <span className="text-sm text-themed-primary truncate flex-1">{def?.name}</span>
                       {actAvg !== null ? (
-                        <span className="text-xs text-themed-ochre">{'★'.repeat(Math.round(actAvg))}</span>
+                        <span className="text-xs">{moodEmoji(actAvg)}</span>
                       ) : null}
                     </button>
                   );
@@ -299,12 +304,12 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
             {isTimed ? (
               (activity.ratingBefore || activity.ratingAfter) ? (
                 <span className="text-themed-muted">
-                  {activity.ratingBefore || '-'}→{activity.ratingAfter || '-'}
+                  {activity.ratingBefore ? moodEmoji(activity.ratingBefore) : '-'}→{activity.ratingAfter ? moodEmoji(activity.ratingAfter) : '-'}
                 </span>
               ) : null
             ) : (
               activity.rating && (
-                <span className="text-themed-ochre">{'★'.repeat(activity.rating)}</span>
+                <span>{moodEmoji(activity.rating)}</span>
               )
             )}
           </div>
@@ -318,6 +323,7 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
                 <span className="text-themed-faint text-xs flex-shrink-0">
                   {formatTime(c.updatedAt || c.createdAt, lang)}
                 </span>
+                {c.rating && <span className="text-xs flex-shrink-0">{moodEmoji(c.rating)}</span>}
                 <span className="text-themed-muted italic truncate">"{c.text}"</span>
               </div>
             ))}
