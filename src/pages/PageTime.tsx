@@ -416,7 +416,7 @@ export default function PageTime() {
 
   // Trend data (day/week/month) - non-cumulative per period
   const trendData = useMemo(() => {
-    const result: Array<{ day: string; avgRating: number; count: number; minutes: number }> = [];
+    const result: Array<{ day: string; avgRating: number | null; count: number; minutes: number }> = [];
 
     const computeStats = (activities: Activity[]) => {
       const count = activities.length;
@@ -429,7 +429,7 @@ export default function PageTime() {
       });
       const avgRating = ratings.length > 0
         ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
-        : 0;
+        : null;
       return { count, avgRating, minutes: Math.round(totalSecs / 60) };
     };
 
@@ -663,7 +663,11 @@ export default function PageTime() {
                 dataKey="avgRating"
                 stroke={colors.barHigh}
                 strokeWidth={2}
-                dot={{ r: 3, fill: colors.barHigh }}
+                dot={(props: Record<string, unknown>) => {
+                  const { cx, cy, value } = props as { cx: number; cy: number; value: number | null };
+                  if (value === null || value === undefined) return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={3} fill={colors.barEmpty} opacity={0.4} />;
+                  return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={3} fill={colors.barHigh} />;
+                }}
                 connectNulls={false}
               />
             </ComposedChart>
@@ -833,6 +837,7 @@ export default function PageTime() {
         const idx = allActivitiesFlat.findIndex((a) => a.id === editingRecord.id);
         return (
           <ActivityFlow
+            key={editingRecord.id}
             activity={translated}
             existingActivity={editingRecord}
             onUpdateExisting={(id, updates) => {
