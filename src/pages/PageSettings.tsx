@@ -29,7 +29,7 @@ interface PraFile {
   notes?: { cs: Record<string, string>; en: Record<string, string> };
   userModified?: string[];
   sessionStart?: string;
-  activityStats?: Record<string, { count: number; totalSeconds: number; avgRating?: number }>;
+  activityStats?: Record<string, { count: number; totalSeconds: number; avgRating?: number; avgMood?: number }>;
 }
 
 function generateBackup(lang: string, currentTheme: string, profileName: string): PraFile {
@@ -52,24 +52,41 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
   try { const s = localStorage.getItem('pra_user_modified_activities'); if (s) userModified = JSON.parse(s); } catch {}
 
   // Compute per-activity stats from history
-  const activityStats: Record<string, { count: number; totalSeconds: number; avgRating?: number }> = {};
+  const activityStats: Record<string, { count: number; totalSeconds: number; avgRating?: number; avgMood?: number }> = {};
   const ratingAccum: Record<string, { sum: number; count: number }> = {};
+  const moodAccum: Record<string, { sum: number; count: number }> = {};
   history.forEach((day) => {
     day.activities.forEach((a) => {
       if (!activityStats[a.type]) activityStats[a.type] = { count: 0, totalSeconds: 0 };
       activityStats[a.type].count++;
       activityStats[a.type].totalSeconds += a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60);
+      // Legacy rating
       const r = a.ratingAfter || a.rating;
       if (r) {
         if (!ratingAccum[a.type]) ratingAccum[a.type] = { sum: 0, count: 0 };
         ratingAccum[a.type].sum += r;
         ratingAccum[a.type].count++;
       }
+      // Comment-based mood
+      if (a.comments) {
+        a.comments.forEach((c) => {
+          if (c.rating) {
+            if (!moodAccum[a.type]) moodAccum[a.type] = { sum: 0, count: 0 };
+            moodAccum[a.type].sum += c.rating;
+            moodAccum[a.type].count++;
+          }
+        });
+      }
     });
   });
   Object.entries(ratingAccum).forEach(([type, { sum, count }]) => {
     if (activityStats[type]) {
       activityStats[type].avgRating = Math.round((sum / count) * 10) / 10;
+    }
+  });
+  Object.entries(moodAccum).forEach(([type, { sum, count }]) => {
+    if (activityStats[type]) {
+      activityStats[type].avgMood = Math.round((sum / count) * 10) / 10;
     }
   });
 
