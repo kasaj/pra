@@ -12,18 +12,14 @@
         "name": "Vyrovnání - Pauza",
         "description": "Na pár minut se vědomě zastavit, vnímat, pobýt sám se sebou...",
         "variants": [
-          "Dýchání nosem",
-          "Dlouhý výdech sss (uklidnění)",
+          "Dech nosem",
           "Sken těla",
           "Slunce",
           "Pozorování",
-          "Stabilizace",
           "Klid gesta 👌 NLP",
-          "Jsem dobrý, poklepání ramena NLP",
-          "Do pěsti 🤜 napětí NLP",
           "Energie života",
-          "Kontakt se zemí",
-          "Tiché zastavení"
+          "Kontakt se zemí, stabilizace",
+          "Zastavení, pokoj"
         ]
       },
       "en": {
@@ -123,17 +119,20 @@
         "name": "Komentář - Informace",
         "description": "Vědomá sebereflexe, kotvení, záměr, poznámka",
         "variants": [
+          "Probuzení",
           "Záměr",
           "Spánek 8h",
           "Fail",
           "Slast",
           "Strast",
+          "Jsem dobrý, poklepání ramena NLP",
           "Poznámka",
           "Zkušenost",
           "Myšlenka",
           "Pocit",
           "Strach",
-          "Únava"
+          "Únava",
+          "Usínání"
         ]
       },
       "en": {
@@ -195,13 +194,12 @@
         "name": "Výzvy - Integrace",
         "description": "Vědomé čelení tomu, čemu se vyhýbám, malý krok středem, konkrétní akce k růstu",
         "variants": [
+          "Dlouhý výdech sss (uklidnění)",
           "Konfrontace strachu",
-          "Přijetí bolesti",
-          "Přiznání si pocitu",
+          "Přijetí bolesti, pocitu",
           "Vůle jen pozorovat",
           "Klid gesta 👌 NLP",
-          "Jsem dobý, poklepání ramena NLP",
-          "Do pěsti 🤜 napětí NLP",
+          "Napětí do pěsti 🤜 NLP",
           "Nový návyk",
           "Hlavně se nepo",
           "Selhání je výhrou",
