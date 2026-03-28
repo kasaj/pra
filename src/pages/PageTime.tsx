@@ -457,7 +457,7 @@ export default function PageTime() {
         const dateStr = date.toISOString().split('T')[0];
         const dayEntry = data.find((d) => d.date === dateStr);
 
-        const stats = dayEntry ? computeStats(dayEntry.activities) : { count: 0, avgRating: 0, minutes: 0 };
+        const stats = dayEntry ? computeStats(dayEntry.activities) : { count: 0, avgRating: null, minutes: 0 };
 
         const dayName = trendRange === 'week'
           ? date.toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'short' })
@@ -656,6 +656,7 @@ export default function PageTime() {
                 fill={colors.barEmpty}
                 opacity={0.5}
                 radius={[3, 3, 0, 0]}
+                maxBarSize={trendRange === 'month' ? 8 : trendRange === 'week' ? 30 : 20}
               />
               <Line
                 yAxisId="rating"
@@ -665,8 +666,9 @@ export default function PageTime() {
                 strokeWidth={2}
                 dot={(props: Record<string, unknown>) => {
                   const { cx, cy, value } = props as { cx: number; cy: number; value: number | null };
-                  if (value === null || value === undefined) return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={3} fill={colors.barEmpty} opacity={0.4} />;
-                  return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={3} fill={colors.barHigh} />;
+                  const r = trendRange === 'month' ? 2 : 3;
+                  if (value === null || value === undefined) return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={r} fill={colors.barEmpty} opacity={0.4} />;
+                  return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={r} fill={colors.barHigh} />;
                 }}
                 connectNulls={false}
               />

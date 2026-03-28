@@ -293,6 +293,13 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-md mx-auto p-4">
+          {isEditing && existingActivity && (
+            <div className="text-center text-xs text-themed-faint mb-2">
+              {new Date(existingActivity.startedAt).toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+              {' '}
+              {new Date(existingActivity.startedAt).toLocaleTimeString(language === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          )}
           {/* Nečasové aktivity */}
           {!isTimed && (
             <div className="space-y-6 py-6">
