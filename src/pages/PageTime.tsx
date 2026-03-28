@@ -850,6 +850,7 @@ export default function PageTime() {
             }}
             onNavigatePrev={idx > 0 ? handleNavigatePrev : undefined}
             onNavigateNext={idx < allActivitiesFlat.length - 1 ? handleNavigateNext : undefined}
+            onCreateLinked={() => handleCreateLinked(editingRecord)}
           />
         );
       })()}

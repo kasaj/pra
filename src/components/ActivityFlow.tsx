@@ -91,9 +91,10 @@ interface ActivityFlowProps {
   onNavigateLinked?: (targetId: string) => void;
   onNavigatePrev?: () => void;
   onNavigateNext?: () => void;
+  onCreateLinked?: () => void;
 }
 
-export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment, onNavigateLinked: _onNavigateLinked, onNavigatePrev, onNavigateNext }: ActivityFlowProps) {
+export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment, onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked }: ActivityFlowProps) {
   const { t, language } = useLanguage();
   const isTimed = activity.durationMinutes !== null;
   const isEditing = !!existingActivity;
@@ -242,9 +243,9 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
       <div className="p-4 border-b border-themed">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isEditing && onNavigatePrev && (
+            {isEditing && existingActivity?.linkedFromId && onNavigateLinked && (
               <button
-                onClick={onNavigatePrev}
+                onClick={() => onNavigateLinked(existingActivity.linkedFromId!)}
                 className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -254,9 +255,9 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
             )}
             <span className="text-3xl">{activity.emoji}</span>
             <h2 className="font-serif text-xl text-themed-primary">{activity.name}</h2>
-            {isEditing && onNavigateNext && (
+            {isEditing && existingActivity?.linkedActivityIds && existingActivity.linkedActivityIds.length > 0 && onNavigateLinked && (
               <button
-                onClick={onNavigateNext}
+                onClick={() => onNavigateLinked(existingActivity.linkedActivityIds![existingActivity.linkedActivityIds!.length - 1])}
                 className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -266,6 +267,13 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
             )}
           </div>
           <div className="flex items-center gap-1">
+            {isEditing && onCreateLinked && (
+              <button onClick={() => { handleClose(); onCreateLinked(); }} className="text-themed-faint hover:text-themed-accent-solid p-2" title={t.time.createLinked}>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            )}
             {onEdit && (
               <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-2">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
