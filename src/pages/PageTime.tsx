@@ -124,9 +124,11 @@ function ActivityCalendar({ data, language, onDayClick }: {
 
         {/* Day detail */}
         {selectedDay && (() => {
-          const ratings = selectedDay.activities
-            .map((a) => a.ratingAfter || a.rating)
-            .filter((r): r is number => r != null);
+          const ratings: number[] = [];
+          selectedDay.activities.forEach((a) => {
+            const r = a.ratingAfter || a.rating;
+            if (r) ratings.push(r);
+          });
           const avgRating = ratings.length > 0
             ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
             : null;
@@ -170,7 +172,8 @@ function ActivityCalendar({ data, language, onDayClick }: {
                 })}
             </div>
           </div>
-        )}
+          );
+        })()}
       </div>
     </section>
   );
