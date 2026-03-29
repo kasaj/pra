@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
 import { loadSettings, saveSettings } from '../utils/settings';
 import { loadAllData, saveAllData } from '../utils/storage';
-import { loadActivities, saveActivities } from '../utils/activities';
+import { loadActivities, saveActivities, markActivityModified } from '../utils/activities';
 import { DayEntry, ActivityDefinition } from '../types';
 import { loadMoodScale, saveMoodScale, getDefaultMoodScale, MoodScaleItem } from '../utils/moodScale';
 import { Theme, loadTheme, saveTheme } from '../utils/theme';
@@ -722,6 +722,7 @@ export default function PageSettings() {
                   activities.forEach(a => {
                     if (a.properties && a.properties.length > 0) {
                       a.properties = undefined;
+                      markActivityModified(a.type);
                       changed = true;
                     }
                   });

@@ -99,7 +99,8 @@ export const getTranslatedActivity = (
   if (!activityTrans) {
     return activity;
   }
-  const properties = 'variants' in activityTrans ? [...(activityTrans as unknown as { variants: readonly string[] }).variants] : activity.properties;
+  // Keep user's properties from stored definition - translation only provides name/description
+  const properties = activity.properties;
   return {
     ...activity,
     name: activityTrans.name,

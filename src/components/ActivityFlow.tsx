@@ -2,8 +2,8 @@ import { useState, useRef, useCallback } from 'react';
 import { Activity, ActivityDefinition, ActivityComment, Rating } from '../types';
 import { useLanguage } from '../i18n';
 import { generateId, addActivity, updateActivityById, getDayEntry, getTodayDate } from '../utils/storage';
-import { loadActivities, saveActivities } from '../utils/activities';
-import { addToRegistry } from '../utils/variantRegistry';
+import { loadActivities, saveActivities, markActivityModified } from '../utils/activities';
+import { addToRegistry, loadVariantRegistry } from '../utils/variantRegistry';
 import { loadMoodScale } from '../utils/moodScale';
 import StarRating from './StarRating';
 import Timer from './Timer';
@@ -150,6 +150,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
   const [localVariants, setLocalVariants] = useState<string[]>(activity.properties || []);
   const [newVariantText, setNewVariantText] = useState('');
   const [editingVariants, setEditingVariants] = useState(false);
+  const [showVariantRegistry, setShowVariantRegistry] = useState(false);
 
   const [startedAt, setStartedAt] = useState(existingActivity?.startedAt || new Date().toISOString());
   const actualDurationRef = useRef<number>(existingActivity?.actualDurationSeconds || 0);
@@ -309,6 +310,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     if (idx >= 0) {
       all[idx] = { ...all[idx], properties: updated };
       saveActivities(all);
+      markActivityModified(activity.type);
     }
   }, [activity.type]);
 
@@ -440,7 +442,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {activity.description}
               </p>
 
-              {(localVariants.length > 0 || editingVariants) && (
+              {(localVariants.length > 0 || editingVariants) && (<>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {localVariants.map((variant) => (
                     <div key={variant} className="relative">
@@ -482,8 +484,38 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   >
                     {editingVariants ? '✓' : '✎'}
                   </button>
+                  {editingVariants && (
+                    <button
+                      onClick={() => setShowVariantRegistry(!showVariantRegistry)}
+                      className={`px-2 py-1.5 text-xs rounded-full border transition-colors ${
+                        showVariantRegistry ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                      }`}
+                    >
+                      {showVariantRegistry ? '▲' : '▼'}
+                    </button>
+                  )}
                 </div>
-              )}
+                {editingVariants && showVariantRegistry && (() => {
+                  const registry = loadVariantRegistry().filter(v => !localVariants.includes(v));
+                  return registry.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 justify-center mt-2">
+                      {registry.map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => {
+                            const updated = [...localVariants, v];
+                            setLocalVariants(updated);
+                            persistVariants(updated);
+                          }}
+                          className="px-3 py-1.5 text-xs rounded-full border border-dashed border-themed text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid transition-colors"
+                        >
+                          + {v}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
+              </>)}
 
               <CommentsBlock
                 comments={localComments}
@@ -509,7 +541,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {activity.description}
               </p>
 
-              {(localVariants.length > 0 || editingVariants) && (
+              {(localVariants.length > 0 || editingVariants) && (<>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {localVariants.map((variant) => (
                     <div key={variant} className="relative">
@@ -551,8 +583,38 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   >
                     {editingVariants ? '✓' : '✎'}
                   </button>
+                  {editingVariants && (
+                    <button
+                      onClick={() => setShowVariantRegistry(!showVariantRegistry)}
+                      className={`px-2 py-1.5 text-xs rounded-full border transition-colors ${
+                        showVariantRegistry ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                      }`}
+                    >
+                      {showVariantRegistry ? '▲' : '▼'}
+                    </button>
+                  )}
                 </div>
-              )}
+                {editingVariants && showVariantRegistry && (() => {
+                  const registry = loadVariantRegistry().filter(v => !localVariants.includes(v));
+                  return registry.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 justify-center mt-2">
+                      {registry.map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => {
+                            const updated = [...localVariants, v];
+                            setLocalVariants(updated);
+                            persistVariants(updated);
+                          }}
+                          className="px-3 py-1.5 text-xs rounded-full border border-dashed border-themed text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid transition-colors"
+                        >
+                          + {v}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
+              </>)}
 
               <div className="pt-4 space-y-4">
                 <h3 className="font-serif text-lg text-themed-secondary text-center">
@@ -606,7 +668,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {t.flow.whatShifted}
               </h3>
 
-              {(localVariants.length > 0 || editingVariants) && (
+              {(localVariants.length > 0 || editingVariants) && (<>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {localVariants.map((variant) => (
                     <div key={variant} className="relative">
@@ -648,8 +710,38 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   >
                     {editingVariants ? '✓' : '✎'}
                   </button>
+                  {editingVariants && (
+                    <button
+                      onClick={() => setShowVariantRegistry(!showVariantRegistry)}
+                      className={`px-2 py-1.5 text-xs rounded-full border transition-colors ${
+                        showVariantRegistry ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                      }`}
+                    >
+                      {showVariantRegistry ? '▲' : '▼'}
+                    </button>
+                  )}
                 </div>
-              )}
+                {editingVariants && showVariantRegistry && (() => {
+                  const registry = loadVariantRegistry().filter(v => !localVariants.includes(v));
+                  return registry.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 justify-center mt-2">
+                      {registry.map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => {
+                            const updated = [...localVariants, v];
+                            setLocalVariants(updated);
+                            persistVariants(updated);
+                          }}
+                          className="px-3 py-1.5 text-xs rounded-full border border-dashed border-themed text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid transition-colors"
+                        >
+                          + {v}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
+              </>)}
 
               <CommentsBlock
                 comments={localComments}
