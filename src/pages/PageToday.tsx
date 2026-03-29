@@ -42,8 +42,7 @@ export default function PageToday() {
         rating: rating || undefined,
       }],
     });
-    setMoodRating(null);
-    setMoodComment('');
+    if (rating) setMoodRating(rating);
     setRefreshKey((k) => k + 1);
   }, []);
 
