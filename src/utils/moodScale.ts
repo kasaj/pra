@@ -1,18 +1,20 @@
 export interface MoodScaleItem {
   value: number;
   emoji: string;
+  labelCs?: string;
+  labelEn?: string;
 }
 
 const STORAGE_KEY = 'pra_mood_scale';
 
 const DEFAULT_SCALE: MoodScaleItem[] = [
-  { value: 1, emoji: '😡' },
-  { value: 2, emoji: '😰' },
-  { value: 3, emoji: '😞' },
-  { value: 4, emoji: '😐' },
-  { value: 5, emoji: '🙂' },
-  { value: 6, emoji: '😄' },
-  { value: 7, emoji: '🤩' },
+  { value: 1, emoji: '😡', labelCs: 'Vztek', labelEn: 'Anger' },
+  { value: 2, emoji: '😟', labelCs: 'Úzkost', labelEn: 'Anxiety' },
+  { value: 3, emoji: '😕', labelCs: 'Sklíčenost', labelEn: 'Gloom' },
+  { value: 4, emoji: '😐', labelCs: 'Neutrál', labelEn: 'Neutral' },
+  { value: 5, emoji: '🙂', labelCs: 'Pohoda', labelEn: 'Fine' },
+  { value: 6, emoji: '😊', labelCs: 'Radost', labelEn: 'Joy' },
+  { value: 7, emoji: '😄', labelCs: 'Nadšení', labelEn: 'Excitement' },
 ];
 
 export function loadMoodScale(): MoodScaleItem[] {

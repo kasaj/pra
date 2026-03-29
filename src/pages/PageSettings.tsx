@@ -600,9 +600,9 @@ export default function PageSettings() {
           <h2 className="font-serif text-lg text-themed-primary mb-4">
             {t.settings.moodScale}
           </h2>
-          <div className="flex items-center justify-between gap-1">
+          <div className="flex items-stretch justify-between gap-1">
             {moodScale.map((item, idx) => (
-              <div key={item.value} className="flex flex-col items-center gap-0.5">
+              <div key={item.value} className="flex flex-col items-center gap-0.5 flex-1">
                 {editingMoodIdx === idx ? (
                   <input
                     autoFocus
@@ -630,6 +630,9 @@ export default function PageSettings() {
                   </button>
                 )}
                 <span className="text-xs text-themed-faint">{item.value}</span>
+                <span className="text-xs text-themed-muted text-center leading-tight" style={{ fontSize: '0.6rem' }}>
+                  {language === 'cs' ? item.labelCs : item.labelEn}
+                </span>
               </div>
             ))}
           </div>
