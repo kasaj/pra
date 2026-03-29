@@ -42,6 +42,11 @@ export default function ActivityCard({ activity, onClick, completedToday, comple
           </span>
         )}
 
+        {/* Session count (when >1) */}
+        {(completedCount || 0) > 1 && (
+          <span className="text-xs font-medium text-themed-accent-solid">{completedCount}</span>
+        )}
+
         {/* Duration badge for timed */}
         {activity.durationMinutes && (
           <span className="text-sm text-themed-accent-solid bg-themed-accent px-2 py-0.5 rounded-full">
@@ -50,17 +55,12 @@ export default function ActivityCard({ activity, onClick, completedToday, comple
         )}
 
         {/* Session check - always last */}
-        <span className="flex items-center gap-1">
-          <span className={`w-5 h-5 rounded-full flex items-center justify-center ${
-            completedToday ? '' : 'opacity-20'
-          }`} style={{ backgroundColor: completedToday ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
-            <svg className="w-3 h-3" style={{ color: completedToday ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          </span>
-          {(completedCount || 0) > 1 && (
-            <span className="text-xs font-medium text-themed-accent-solid">{completedCount}</span>
-          )}
+        <span className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${
+          completedToday ? '' : 'opacity-20'
+        }`} style={{ backgroundColor: completedToday ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
+          <svg className="w-3 h-3" style={{ color: completedToday ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+          </svg>
         </span>
       </div>
     </button>
