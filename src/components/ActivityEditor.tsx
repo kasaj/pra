@@ -170,30 +170,29 @@ export default function ActivityEditor({ activity, onSave, onDelete, onClose }: 
 
           <div>
             <label className="block text-sm text-themed-muted mb-2">{t.editor.variants}</label>
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-2">
               {variants.map((v) => (
                 <div key={v} className="relative">
-                  <span className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted inline-block">
-                    {v}
-                  </span>
                   <button
                     onClick={() => handleRemoveVariant(v)}
-                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-themed-warn text-white flex items-center justify-center text-xs"
-                  >×</button>
+                    className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted hover:border-themed-accent transition-colors"
+                  >
+                    {v}
+                    <span className="ml-1.5 text-themed-faint">×</span>
+                  </button>
                 </div>
               ))}
+              <input
+                type="text"
+                value={newVariant}
+                onChange={(e) => setNewVariant(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddVariant(); } }}
+                onBlur={() => { if (newVariant.trim()) handleAddVariant(); }}
+                placeholder="+"
+                className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input
+                         text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
+              />
             </div>
-            <input
-              type="text"
-              value={newVariant}
-              onChange={(e) => setNewVariant(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddVariant(); } }}
-              onBlur={() => { if (newVariant.trim()) handleAddVariant(); }}
-              placeholder={t.editor.variantsPlaceholder}
-              className="w-full p-3 rounded-xl bg-themed-input border border-themed
-                       focus:outline-none focus:border-themed-accent
-                       text-themed-primary placeholder:text-themed-faint"
-            />
           </div>
         </div>
 
