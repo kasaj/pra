@@ -345,12 +345,35 @@ export default function PageTime() {
 
     const toHM = (s: number) => ({ hours: Math.floor(s / 3600), minutes: Math.floor((s % 3600) / 60) });
     const firstDate = data.length > 0 ? data[data.length - 1].date : null;
+    const activeDays = data.filter(d => d.activities.length > 0).length;
+    const avgPerDay = activeDays > 0 ? Math.round(totalActivities / activeDays * 10) / 10 : 0;
+
+    // Most active activity type
+    const typeCounts = new Map<string, number>();
+    data.forEach(d => d.activities.forEach(a => typeCounts.set(a.type, (typeCounts.get(a.type) || 0) + 1)));
+    const topType = [...typeCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+
+    // Streak: consecutive days with activities
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const ds = d.toISOString().split('T')[0];
+      if (data.find(e => e.date === ds && e.activities.length > 0)) streak++;
+      else break;
+    }
 
     return {
       totalActivities, totalSeconds, ...toHM(totalSeconds),
       todayActivities, today: toHM(todaySeconds),
       overallMood,
       firstDate,
+      activeDays,
+      avgPerDay,
+      topType: topType ? topType[0] : null,
+      topTypeCount: topType ? topType[1] : 0,
+      streak,
     };
   }, [data]);
 
@@ -371,6 +394,42 @@ export default function PageTime() {
       : '0';
     return { display, percent };
   }, [summaryStats.firstDate, summaryStats.totalSeconds, now]);
+
+  // Stats for the selected calendar day
+  const selectedDayStats = useMemo(() => {
+    const dayEntry = calendarDate ? data.find(d => d.date === calendarDate) : null;
+    if (!dayEntry || dayEntry.activities.length === 0) return null;
+
+    const acts = dayEntry.activities;
+    let secs = 0;
+    const ratings: number[] = [];
+    const typeCounts = new Map<string, number>();
+
+    acts.forEach(a => {
+      secs += a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60);
+      typeCounts.set(a.type, (typeCounts.get(a.type) || 0) + 1);
+      const comments = getActivityComments(a);
+      const cr = comments.filter(c => c.rating != null).map(c => c.rating!);
+      if (cr.length > 0) ratings.push(...cr);
+      else { const r = a.ratingAfter ?? a.rating; if (r != null) ratings.push(r); }
+    });
+
+    const avgMood = ratings.length > 0
+      ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
+      : null;
+    const topType = [...typeCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+    const uniqueTypes = typeCounts.size;
+    const mins = Math.round(secs / 60);
+
+    return {
+      count: acts.length,
+      minutes: mins,
+      avgMood,
+      topType: topType[0],
+      topTypeCount: topType[1],
+      uniqueTypes,
+    };
+  }, [data, calendarDate]);
 
   // Trend data (day/week/month) - non-cumulative per period
   const trendData = useMemo(() => {
@@ -834,6 +893,25 @@ export default function PageTime() {
       {/* Running stats */}
       <section className="mb-6">
         <h2 className="font-serif text-base text-themed-secondary mb-3">{t.time.runningTitle}</h2>
+
+        {/* Day-specific stats when calendar date selected */}
+        {selectedDayStats && calendarDate && (
+          <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="card text-center py-3">
+              <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.count}</div>
+              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Aktivit' : 'Activities'}</div>
+            </div>
+            <div className="card text-center py-3">
+              <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.minutes} min</div>
+              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Čas' : 'Time'}</div>
+            </div>
+            <div className="card text-center py-3">
+              <div className="text-2xl">{selectedDayStats.avgMood ? getMoodEmoji(selectedDayStats.avgMood) : '😐'}</div>
+              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Nálada' : 'Mood'}</div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">
@@ -850,6 +928,14 @@ export default function PageTime() {
             <div className="text-xs text-themed-faint mt-1">{t.time.todayTime} / {t.time.totalTime}</div>
           </div>
           <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-themed-accent-solid">{summaryStats.streak}</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Dní v řadě' : 'Day streak'}</div>
+          </div>
+          <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-themed-accent-solid">{summaryStats.avgPerDay}</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Ø za den' : 'Ø per day'}</div>
+          </div>
+          <div className="card text-center py-3">
             <div className="text-xl font-mono text-themed-accent-solid tracking-wider">{elapsed.display}</div>
             <div className="text-xs text-themed-faint mt-1">{t.time.activeDays}</div>
           </div>
@@ -857,6 +943,15 @@ export default function PageTime() {
             <div className="text-2xl font-serif text-themed-accent-solid">{elapsed.percent}%</div>
             <div className="text-xs text-themed-faint mt-1">{t.time.practiceRatio}</div>
           </div>
+          {summaryStats.topType && (
+            <div className="card text-center py-3 col-span-2">
+              <div className="text-2xl">
+                {(() => { const d = getActivityByType(summaryStats.topType!); return d ? `${d.emoji} ${getTranslatedActivity(d, t).name}` : summaryStats.topType; })()}
+                <span className="text-base text-themed-faint ml-2">×{summaryStats.topTypeCount}</span>
+              </div>
+              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Nejčastější aktivita' : 'Most frequent activity'}</div>
+            </div>
+          )}
         </div>
       </section>
 
