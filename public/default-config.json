@@ -5,43 +5,6 @@
   "theme": "modern",
   "activities": [
     {
-      "type": "sobe",
-      "emoji": "🧍‍♂️",
-      "durationMinutes": 1,
-      "cs": {
-        "name": "Vyrovnání - Pauza",
-        "description": "Na pár minut se vědomě zastavit, vnímat, pobýt sám se sebou...",
-        "properties": [
-          "Dech nosem",
-          "Sken těla",
-          "Slunce",
-          "Pozorování",
-          "Klid gesta 👌",
-          "Energie života",
-          "Kontakt se zemí",
-          "Zastavení"
-        ]
-      },
-      "en": {
-        "name": "Pause",
-        "description": "Consciously stop for a few minutes, observe, be present with yourself...",
-        "properties": [
-          "Nose breathing",
-          "Long exhale sss (calming)",
-          "Body scan",
-          "Sun",
-          "Observation",
-          "Stabilization",
-          "Calm gesture 👌 NLP",
-          "Good - shoulder tap NLP",
-          "Into fist 🤜 releasing tension NLP",
-          "Life energy",
-          "Contact with earth",
-          "Silent pause"
-        ]
-      }
-    },
-    {
       "type": "pohyb",
       "emoji": "🏃‍♂️",
       "durationMinutes": 30,
@@ -107,6 +70,43 @@
           "Feeling happiness",
           "Observing thoughts",
           "Focused breathing"
+        ]
+      }
+    },
+    {
+      "type": "sobe",
+      "emoji": "🧍‍♂️",
+      "durationMinutes": 1,
+      "cs": {
+        "name": "Vyrovnání - Pauza",
+        "description": "Na pár minut se vědomě zastavit, vnímat, pobýt sám se sebou...",
+        "properties": [
+          "Dech nosem",
+          "Sken těla",
+          "Slunce",
+          "Pozorování",
+          "Klid gesta 👌",
+          "Energie života",
+          "Kontakt se zemí",
+          "Zastavení"
+        ]
+      },
+      "en": {
+        "name": "Pause",
+        "description": "Consciously stop for a few minutes, observe, be present with yourself...",
+        "properties": [
+          "Nose breathing",
+          "Long exhale sss (calming)",
+          "Body scan",
+          "Sun",
+          "Observation",
+          "Stabilization",
+          "Calm gesture 👌 NLP",
+          "Good - shoulder tap NLP",
+          "Into fist 🤜 releasing tension NLP",
+          "Life energy",
+          "Contact with earth",
+          "Silent pause"
         ]
       }
     },
