@@ -648,13 +648,8 @@ export default function PageTime() {
                 stroke={colors.barHigh}
                 strokeWidth={2.5}
                 fill="url(#moodGradient)"
-                connectNulls={false}
-                dot={(props: Record<string, unknown>) => {
-                  const { cx, cy, value, index } = props as { cx: number; cy: number; value: number | null; index: number };
-                  if (value === null || value === undefined) return <g key={`dot-${index}`} />;
-                  const r = trendRange === 'month' ? 3 : 4;
-                  return <circle key={`dot-${index}`} cx={cx} cy={cy} r={r} fill={colors.barHigh} stroke="white" strokeWidth={1.5} />;
-                }}
+                connectNulls
+                dot={false}
                 activeDot={false}
               />
             </ComposedChart>
