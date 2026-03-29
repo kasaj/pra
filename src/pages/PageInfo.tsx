@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
 import { getCachedConfig, ConfigInfo, ConfigQuote } from '../utils/config';
 
@@ -27,14 +27,21 @@ function saveNotesForLang(lang: string, notes: InfoNotes): void {
 function NoteField({ value, onChange, placeholder }: {
   value: string; onChange: (v: string) => void; placeholder: string;
 }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const autoResize = () => {
+    const el = ref.current;
+    if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+  };
+  useEffect(autoResize, [value]);
   return (
     <textarea
+      ref={ref}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => { onChange(e.target.value); autoResize(); }}
       placeholder={placeholder}
       className="w-full p-3 mt-3 rounded-xl bg-themed-input border border-themed
-               focus:outline-none focus:border-themed-accent resize-none h-16
-               text-themed-primary placeholder:text-themed-faint text-sm"
+               focus:outline-none focus:border-themed-accent resize-none min-h-[4rem]
+               text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
     />
   );
 }
