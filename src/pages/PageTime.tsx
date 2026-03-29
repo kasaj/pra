@@ -753,7 +753,6 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
       {/* Records */}
       <section className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-serif text-base text-themed-secondary">{t.time.recordsTitle}</h2>
           <div className="flex items-center gap-2">
             <div className="flex gap-1 bg-themed-input rounded-lg p-0.5">
               {(['date', 'score'] as const).map((s) => (
@@ -880,7 +879,6 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
 
       {/* Running stats */}
       <section className="mb-6">
-        <h2 className="font-serif text-base text-themed-secondary mb-3">{t.time.runningTitle}</h2>
 
         {/* Day-specific stats (selected day or today) */}
         <div className="grid grid-cols-3 gap-3 mb-3">
