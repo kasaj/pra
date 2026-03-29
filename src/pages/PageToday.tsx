@@ -369,7 +369,7 @@ export default function PageToday() {
       )}
 
       {/* Action toolbar above bottom nav */}
-      <div className="fixed bottom-14 left-0 right-0 z-40 flex justify-center">
+      <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center">
         <div className="flex items-center gap-3 px-4 py-2 rounded-full shadow-lg" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
           <button
             onClick={() => {
