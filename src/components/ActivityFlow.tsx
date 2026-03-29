@@ -61,7 +61,6 @@ function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewR
             className="w-full p-3 rounded-xl bg-themed-input border border-themed
                      focus:outline-none focus:border-themed-accent resize-none h-14
                      text-themed-primary placeholder:text-themed-faint text-base"
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onAdd(); } }}
           />
         </div>
       </div>
