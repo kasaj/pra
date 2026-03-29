@@ -348,10 +348,10 @@ export default function PageTime() {
     const activeDays = data.filter(d => d.activities.length > 0).length;
     const avgPerDay = activeDays > 0 ? Math.round(totalActivities / activeDays * 10) / 10 : 0;
 
-    // Most active activity type
+    // Top 3 activity types
     const typeCounts = new Map<string, number>();
     data.forEach(d => d.activities.forEach(a => typeCounts.set(a.type, (typeCounts.get(a.type) || 0) + 1)));
-    const topType = [...typeCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+    const top3 = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
 
     // Streak: consecutive days with activities
     let streak = 0;
@@ -371,8 +371,7 @@ export default function PageTime() {
       firstDate,
       activeDays,
       avgPerDay,
-      topType: topType ? topType[0] : null,
-      topTypeCount: topType ? topType[1] : 0,
+      top3,
       streak,
     };
   }, [data]);
@@ -395,10 +394,11 @@ export default function PageTime() {
     return { display, percent };
   }, [summaryStats.firstDate, summaryStats.totalSeconds, now]);
 
-  // Stats for the selected calendar day
+  // Stats for the selected calendar day (or today)
   const selectedDayStats = useMemo(() => {
-    const dayEntry = calendarDate ? data.find(d => d.date === calendarDate) : null;
-    if (!dayEntry || dayEntry.activities.length === 0) return null;
+    const targetDate = calendarDate || new Date().toISOString().split('T')[0];
+    const dayEntry = data.find(d => d.date === targetDate);
+    if (!dayEntry || dayEntry.activities.length === 0) return { count: 0, minutes: 0, avgMood: null, topType: null, topTypeCount: 0, uniqueTypes: 0 };
 
     const acts = dayEntry.activities;
     let secs = 0;
@@ -887,30 +887,30 @@ export default function PageTime() {
         data={data}
         language={language}
         selectedDate={calendarDate}
-        onDayClick={setCalendarDate}
+        onDayClick={useCallback((date: string | null) => {
+          setCalendarDate(date);
+        }, [])}
       />
 
       {/* Running stats */}
       <section className="mb-6">
         <h2 className="font-serif text-base text-themed-secondary mb-3">{t.time.runningTitle}</h2>
 
-        {/* Day-specific stats when calendar date selected */}
-        {selectedDayStats && calendarDate && (
-          <div className="grid grid-cols-3 gap-3 mb-3">
-            <div className="card text-center py-3">
-              <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.count}</div>
-              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Aktivit' : 'Activities'}</div>
-            </div>
-            <div className="card text-center py-3">
-              <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.minutes} min</div>
-              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Čas' : 'Time'}</div>
-            </div>
-            <div className="card text-center py-3">
-              <div className="text-2xl">{selectedDayStats.avgMood ? getMoodEmoji(selectedDayStats.avgMood) : '😐'}</div>
-              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Nálada' : 'Mood'}</div>
-            </div>
+        {/* Day-specific stats (selected day or today) */}
+        <div className="grid grid-cols-3 gap-3 mb-3">
+          <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.count}</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Aktivit' : 'Activities'}</div>
           </div>
-        )}
+          <div className="card text-center py-3">
+            <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.minutes} min</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Čas' : 'Time'}</div>
+          </div>
+          <div className="card text-center py-3">
+            <div className="text-2xl">{selectedDayStats.avgMood ? getMoodEmoji(selectedDayStats.avgMood) : '😐'}</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Nálada' : 'Mood'}</div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="card text-center py-3">
@@ -943,15 +943,18 @@ export default function PageTime() {
             <div className="text-2xl font-serif text-themed-accent-solid">{elapsed.percent}%</div>
             <div className="text-xs text-themed-faint mt-1">{t.time.practiceRatio}</div>
           </div>
-          {summaryStats.topType && (
-            <div className="card text-center py-3 col-span-2">
-              <div className="text-2xl">
-                {(() => { const d = getActivityByType(summaryStats.topType!); return d ? `${d.emoji} ${getTranslatedActivity(d, t).name}` : summaryStats.topType; })()}
-                <span className="text-base text-themed-faint ml-2">×{summaryStats.topTypeCount}</span>
+          {summaryStats.top3.map(([type, count], i) => {
+            const d = getActivityByType(type);
+            const translated = d ? getTranslatedActivity(d, t) : null;
+            return (
+              <div key={type} className="card text-center py-3">
+                <div className="text-2xl font-serif text-themed-accent-solid">
+                  {translated ? translated.emoji : ''} <span className="text-base">×{count}</span>
+                </div>
+                <div className="text-xs text-themed-faint mt-1">{translated?.name || type} {i === 0 ? (language === 'cs' ? '(top)' : '(top)') : ''}</div>
               </div>
-              <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Nejčastější aktivita' : 'Most frequent activity'}</div>
-            </div>
-          )}
+            );
+          })}
         </div>
       </section>
 
