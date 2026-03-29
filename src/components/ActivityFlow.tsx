@@ -412,7 +412,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
               onChange={(e) => {
                 if (e.target.value) setStartedAt(new Date(e.target.value).toISOString());
               }}
-              className="text-center text-xs text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
+              className="text-center text-sm text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer w-48"
             />
             {(() => {
               const rated: number[] = localComments.filter(c => c.rating != null).map(c => c.rating as number);
