@@ -213,9 +213,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     setActivities(current);
   }, [activities]);
 
-  const handleAddNew = () => {
-    setShowNewActivity(true);
-  };
 
   const renderActivityWithControls = (activity: ActivityDefinition, index: number, total: number) => (
     <div key={activity.type} className="relative flex items-center gap-2">
@@ -363,18 +360,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             renderActivityWithControls(activity, index, translatedActivities.length)
           )}
 
-          {editMode && (
-            <button
-              onClick={handleAddNew}
-              className="w-full p-3 rounded-xl border-2 border-dashed border-themed-medium
-                       text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid
-                       transition-colors flex items-center justify-center gap-2 text-sm"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          )}
         </div>
       </section>
 

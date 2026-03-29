@@ -301,6 +301,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
   const [data, setData] = useState(() => loadAllData());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [trendRange, setTrendRange] = useState<'day' | 'week' | 'month'>('day');
+  const [showView, setShowView] = useState<'chart' | 'calendar'>('chart');
   const [recordSort, setRecordSort] = useState<'date' | 'score'>('date');
   const [calendarDate, setCalendarDate] = useState<string | null>(null); // null = all, string = YYYY-MM-DD filter
   const [editingRecord, setEditingRecord] = useState<Activity | null>(null);
@@ -615,28 +616,55 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
         <p className="text-themed-faint mt-1">{t.time.subtitle}</p>
       </header>
 
-      {/* Trend Section */}
+      {/* Chart / Calendar toggle */}
       <section className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-serif text-base text-themed-secondary">
-            {trendRange === 'day' ? t.time.dailyTrend : trendRange === 'week' ? t.time.weeklyTrend : t.time.monthlyTrend}
-          </h2>
           <div className="flex gap-1 bg-themed-input rounded-lg p-0.5">
-            {(['day', 'week', 'month'] as const).map((r) => (
+            {(['chart', 'calendar'] as const).map((v) => (
               <button
-                key={r}
-                onClick={() => setTrendRange(r)}
+                key={v}
+                onClick={() => setShowView(v)}
                 className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                  trendRange === r
+                  showView === v
                     ? 'bg-themed-card text-themed-accent shadow-sm'
                     : 'text-themed-faint hover:text-themed-secondary'
                 }`}
               >
-                {r === 'day' ? t.time.trendDay : r === 'week' ? t.time.trendWeek : t.time.trendMonth}
+                {v === 'chart' ? (language === 'cs' ? 'Graf' : 'Chart') : (language === 'cs' ? 'Kalendář' : 'Calendar')}
               </button>
             ))}
           </div>
+          {showView === 'chart' && (
+            <div className="flex gap-1 bg-themed-input rounded-lg p-0.5">
+              {(['day', 'week', 'month'] as const).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setTrendRange(r)}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                    trendRange === r
+                      ? 'bg-themed-card text-themed-accent shadow-sm'
+                      : 'text-themed-faint hover:text-themed-secondary'
+                  }`}
+                >
+                  {r === 'day' ? t.time.trendDay : r === 'week' ? t.time.trendWeek : t.time.trendMonth}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
+        {showView === 'calendar' && (
+          <ActivityCalendar
+            data={data}
+            language={language}
+            selectedDate={calendarDate}
+            onDayClick={useCallback((date: string | null) => {
+              setCalendarDate(date);
+            }, [])}
+          />
+        )}
+
+        {showView === 'chart' && (
         <div className="card">
           <ResponsiveContainer width="100%" height={trendRange === 'month' ? 200 : 180}>
             <ComposedChart data={trendData} margin={{ top: 15, right: 10, left: 0, bottom: 0 }}>
@@ -723,6 +751,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
             </span>
           </div>
         </div>
+        )}
       </section>
 
       {/* Records */}
@@ -853,16 +882,6 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
         </div>
       </section>
 
-      {/* Calendar */}
-      <ActivityCalendar
-        data={data}
-        language={language}
-        selectedDate={calendarDate}
-        onDayClick={useCallback((date: string | null) => {
-          setCalendarDate(date);
-        }, [])}
-      />
-
       {/* Running stats */}
       <section className="mb-6">
         <h2 className="font-serif text-base text-themed-secondary mb-3">{t.time.runningTitle}</h2>
@@ -937,6 +956,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
           })}
         </div>
       </section>
+
 
       {editingRecord && (() => {
         const def = getActivityByType(editingRecord.type);
