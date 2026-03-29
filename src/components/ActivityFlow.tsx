@@ -133,7 +133,7 @@ interface ActivityFlowProps {
   onCreateLinked?: () => void;
 }
 
-export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment: _onUpdateComment, onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked }: ActivityFlowProps) {
+export default function ActivityFlow({ activity, onClose, onEdit: _onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment: _onUpdateComment, onNavigateLinked: _onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked: _onCreateLinked }: ActivityFlowProps) {
   const { t, language } = useLanguage();
   const isTimed = activity.durationMinutes !== null;
   const isEditing = !!existingActivity;
@@ -275,7 +275,6 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
       updateActivityById(id, { comments: finalComments });
     }
     onClose();
-    window.scrollTo(0, 0);
   }, [isEditing, existingActivity, onUpdateExisting, isTimed, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose, newComment, newCommentRating, localComments, onAddComment, ensureSaved, startedAt]);
 
   const persistVariants = useCallback((updated: string[]) => {
@@ -681,59 +680,20 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
         </div>
       </div>
 
-      <div className="px-4 py-3 border-t border-themed">
-        <div className="max-w-md mx-auto">
-          {/* Row 1: nav + actions */}
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-1">
-              {isEditing && existingActivity?.linkedFromId && onNavigateLinked && (
-                <button
-                  onClick={() => onNavigateLinked(existingActivity.linkedFromId!)}
-                  className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-              )}
-              {isEditing && existingActivity?.linkedActivityIds && existingActivity.linkedActivityIds.length > 0 && onNavigateLinked && (
-                <button
-                  onClick={() => onNavigateLinked(existingActivity.linkedActivityIds![existingActivity.linkedActivityIds!.length - 1])}
-                  className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              )}
-              {isEditing && onCreateLinked && (
-                <button onClick={() => { handleClose(); onCreateLinked(); }} className="text-themed-faint hover:text-themed-accent-solid p-2" title={t.time.createLinked}>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-1">
-              {onEdit && (
-                <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-2">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-              )}
-              <button onClick={handleClose} className="text-themed-faint hover:text-themed-muted p-2">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          {/* Row 2: name centered */}
-          <div className="flex items-center justify-center gap-2 mt-1">
-            <span className="text-2xl">{activity.emoji}</span>
-            <h2 className="font-serif text-lg text-themed-primary">{activity.name}</h2>
+      <div className="px-4 py-4 border-t border-themed">
+        <div className="max-w-md mx-auto flex flex-col items-center gap-2">
+          <button
+            onClick={handleClose}
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-colors"
+            style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5m7-7l-7 7 7 7" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">{activity.emoji}</span>
+            <span className="font-serif text-sm text-themed-muted">{activity.name}</span>
           </div>
         </div>
       </div>
