@@ -239,7 +239,6 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
           <div className="flex items-center gap-1.5">
             <span className="text-themed-faint text-xs">{formatTime(activity.startedAt, lang)}</span>
             <span className="text-sm">{def?.emoji}</span>
-            {actualTime && <span className="text-themed-faint text-xs">{actualTime}</span>}
           </div>
           <div className="flex items-center gap-2">
             {linkCount > 0 && (
@@ -247,6 +246,7 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
                 {linkCount}
               </span>
             )}
+            {actualTime && <span className="text-themed-faint text-xs">{actualTime}</span>}
             {activity.linkedFromId && (
               <button
                 onClick={(e) => { e.stopPropagation(); onNavigate(activity.linkedFromId!); }}
@@ -713,7 +713,17 @@ export default function PageTime() {
         <div className="card">
           {recordSort === 'date' ? (
             // Sort by date (grouped by day), filtered by calendar
-            (calendarDate ? data.filter(d => d.date === calendarDate) : data.slice(0, 10)).map((day, dayIndex) => (
+            (calendarDate ? data.filter(d => d.date === calendarDate) : (() => {
+              // Default: show days containing the last 10 activities
+              let remaining = 10;
+              const result: DayEntry[] = [];
+              for (const day of data) {
+                if (remaining <= 0) break;
+                result.push(day);
+                remaining -= day.activities.length;
+              }
+              return result;
+            })()).map((day, dayIndex) => (
               <div key={day.date}>
                 <div className={`py-2 px-1 text-sm font-medium text-themed-muted capitalize flex items-center justify-between ${
                   dayIndex > 0 ? 'border-t-2 border-themed mt-2' : ''
