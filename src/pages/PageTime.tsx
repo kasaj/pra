@@ -361,7 +361,6 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
     // Top 3 activity types
     const typeCounts = new Map<string, number>();
     data.forEach(d => d.activities.forEach(a => typeCounts.set(a.type, (typeCounts.get(a.type) || 0) + 1)));
-    const top3 = [...typeCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2);
 
     // Streak: consecutive days with activities
     let streak = 0;
@@ -381,7 +380,6 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
       firstDate,
       activeDays,
       avgPerDay,
-      top3,
       streak,
     };
   }, [data]);
@@ -658,9 +656,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
             data={data}
             language={language}
             selectedDate={calendarDate}
-            onDayClick={useCallback((date: string | null) => {
-              setCalendarDate(date);
-            }, [])}
+            onDayClick={setCalendarDate}
           />
         )}
 
@@ -942,18 +938,6 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
             <div className="text-2xl font-serif text-themed-accent-solid">{elapsed.percent}%</div>
             <div className="text-xs text-themed-faint mt-1">{t.time.practiceRatio}</div>
           </div>
-          {summaryStats.top3.map(([type, count], i) => {
-            const d = getActivityByType(type);
-            const translated = d ? getTranslatedActivity(d, t) : null;
-            return (
-              <div key={type} className="card text-center py-3">
-                <div className="text-2xl font-serif text-themed-accent-solid">
-                  {translated ? translated.emoji : ''} <span className="text-base">×{count}</span>
-                </div>
-                <div className="text-xs text-themed-faint mt-1">{translated?.name || type} {i === 0 ? (language === 'cs' ? '(top)' : '(top)') : ''}</div>
-              </div>
-            );
-          })}
         </div>
       </section>
 
