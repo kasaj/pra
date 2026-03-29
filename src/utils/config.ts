@@ -33,6 +33,7 @@ export interface ConfigActivity {
   type: string;
   emoji: string;
   durationMinutes: number | null;
+  core?: boolean;
   cs: { name: string; description: string; variants?: string[] };
   en: { name: string; description: string; variants?: string[] };
 }

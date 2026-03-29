@@ -8,7 +8,7 @@ import {
   getTranslatedActivity,
   markActivityModified,
 } from '../utils/activities';
-import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity } from '../utils/storage';
+import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById } from '../utils/storage';
 import ActivityCard from '../components/ActivityCard';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
@@ -29,8 +29,18 @@ export default function PageToday() {
   const saveMoodEntry = useCallback((rating: Rating | null, text: string) => {
     if (!rating && !text.trim()) return;
     const now = new Date().toISOString();
+    const id = generateId();
+
+    // Find previous nalada in current session to auto-link
+    const ss = localStorage.getItem('pra_session_start') || now;
+    const todayEntry = getDayEntry(getTodayDate());
+    const prevInSession = todayEntry?.activities
+      .filter(a => a.type === 'nalada' && new Date(a.completedAt || a.startedAt) >= new Date(ss))
+      .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime())
+      [0];
+
     addActivity({
-      id: generateId(),
+      id,
       type: 'nalada',
       startedAt: now,
       completedAt: now,
@@ -41,14 +51,22 @@ export default function PageToday() {
         createdAt: now,
         rating: rating || undefined,
       }],
+      linkedFromId: prevInSession?.id,
     });
+
+    if (prevInSession) {
+      updateActivityById(prevInSession.id, {
+        linkedActivityIds: [...(prevInSession.linkedActivityIds || []), id],
+      });
+    }
+
     if (rating) setMoodRating(rating);
     setRefreshKey((k) => k + 1);
   }, []);
 
-  // Translate activities for display - depends on language to ensure re-render on language change
+  // Translate activities for display - filter out core activities
   const translatedActivities = useMemo(() =>
-    activities.map(a => getTranslatedActivity(a, t)),
+    activities.filter(a => !a.core).map(a => getTranslatedActivity(a, t)),
     [activities, t, language]
   );
 
@@ -315,8 +333,19 @@ export default function PageToday() {
 
       {/* Quick mood */}
       <div className="card mb-4 p-3">
-        <div className="flex justify-center mb-2">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-themed-faint">
+              {totalCountPerActivity.get('nalada') || 0}
+            </span>
+            {completedTodayCounts.has('nalada') && (
+              <span className="text-xs text-themed-accent-solid">
+                {completedTodayCounts.get('nalada')}×
+              </span>
+            )}
+          </div>
           <StarRating value={moodRating} onChange={(r) => saveMoodEntry(r, '')} size="md" />
+          <div />
         </div>
         <textarea
           value={moodComment}

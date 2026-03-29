@@ -174,6 +174,7 @@ const getDefaultFromConfig = (lang?: string): ActivityDefinition[] => {
       name: localized.name,
       description: localized.description,
       variants: localized.variants,
+      core: item.core,
     };
   });
 };
