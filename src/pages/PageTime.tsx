@@ -286,6 +286,13 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
               <span className="text-themed-faint text-xs flex-shrink-0">{formatTime(c.updatedAt || c.createdAt, lang)}</span>
               {c.text && <span className="text-themed-muted italic truncate">"{c.text}"</span>}
             </div>
+            {c.rating != null && (
+              <div className="flex gap-px flex-shrink-0 ml-1" style={{ fontSize: '0.55rem' }}>
+                {loadMoodScale().map(({ value: v, emoji: e }) => (
+                  <span key={v} className={v === c.rating ? 'opacity-100' : 'grayscale opacity-30'}>{e}</span>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
