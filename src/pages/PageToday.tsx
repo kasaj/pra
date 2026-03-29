@@ -28,6 +28,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const moodRatingRef = useRef<Rating | null>(null);
   const moodCommentRef = useRef('');
+  const moodTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const setMoodRatingSync = (r: Rating | null) => {
     moodRatingRef.current = r;
@@ -75,6 +76,9 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
     setMoodRatingSync(null);
     setMoodCommentSync('');
+    if (moodTextareaRef.current) {
+      moodTextareaRef.current.style.height = 'auto';
+    }
     setRefreshKey((k) => k + 1);
   }, []);
 
@@ -311,6 +315,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     </span>
                   </div>
                   <textarea
+                    ref={moodTextareaRef}
                     value={moodComment}
                     onChange={(e) => {
                       setMoodCommentSync(e.target.value);
