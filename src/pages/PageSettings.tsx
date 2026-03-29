@@ -644,27 +644,6 @@ export default function PageSettings() {
           </button>
         </section>
 
-        {/* New Session */}
-        <section className="card">
-          <button
-            onClick={() => {
-              const now = new Date().toISOString();
-              localStorage.setItem('pra_session_start', now);
-              window.location.reload();
-            }}
-            className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
-          >
-            <svg className="w-5 h-5" style={{ color: '#22c55e' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            <div>
-              <div className="font-medium" style={{ color: '#22c55e' }}>{t.settings.newSession}</div>
-              <div className="text-sm text-themed-faint">{t.settings.newSessionDesc}</div>
-            </div>
-          </button>
-        </section>
-
         {/* Sync */}
         <section className="card">
           <button
