@@ -68,7 +68,7 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <span className="text-[0.65rem] font-medium text-themed-primary capitalize">{monthName}</span>
+          <span className="text-xs font-medium text-themed-primary capitalize">{monthName}</span>
           <button onClick={handleNext} className="w-5 h-5 flex items-center justify-center text-themed-muted hover:text-themed-accent-solid">
             <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -78,7 +78,7 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
 
         <div className="grid grid-cols-7 gap-0 text-center">
           {weekDays.map((d) => (
-            <div key={d} className="text-[0.5rem] text-themed-faint leading-tight">{d}</div>
+            <div key={d} className="text-xs text-themed-faint leading-tight">{d}</div>
           ))}
           {days.map((day, i) => {
             if (day === null) return <div key={`e-${i}`} />;
@@ -98,7 +98,7 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
               <button
                 key={day}
                 onClick={() => handleDayClick(day)}
-                className={`h-6 rounded-sm text-[0.6rem] flex items-center justify-center transition-colors relative ${
+                className={`h-7 rounded-sm text-xs flex items-center justify-center transition-colors relative ${
                   isSelected ? 'ring-1 ring-offset-0' : ''
                 } ${isToday ? 'font-bold' : ''} ${
                   count > 0 ? 'text-themed-primary' : 'text-themed-faint'
