@@ -218,7 +218,11 @@ export const mergeWithConfig = (existing: ActivityDefinition[]): ActivityDefinit
     changed = true;
   }
 
-  if (changed) saveActivities(merged);
+  if (changed) {
+    saveActivities(merged);
+    // Signal registry to rebuild on next load
+    localStorage.setItem('pra_variant_registry_dirty', '1');
+  }
   return merged;
 };
 

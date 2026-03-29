@@ -1,8 +1,14 @@
 import { loadActivities, saveActivities } from './activities';
 
 const STORAGE_KEY = 'pra_variant_registry';
+const DIRTY_KEY = 'pra_variant_registry_dirty';
 
 export function loadVariantRegistry(): string[] {
+  // Rebuild if flagged dirty (e.g. after config merge)
+  if (localStorage.getItem(DIRTY_KEY)) {
+    localStorage.removeItem(DIRTY_KEY);
+    return rebuildRegistry();
+  }
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -10,7 +16,6 @@ export function loadVariantRegistry(): string[] {
       if (Array.isArray(parsed)) return parsed;
     }
   } catch { /* default */ }
-  // Initialize from all existing activity variants
   return rebuildRegistry();
 }
 

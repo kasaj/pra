@@ -7,7 +7,7 @@ import { DayEntry, ActivityDefinition } from '../types';
 import { loadMoodScale, saveMoodScale, getDefaultMoodScale, MoodScaleItem } from '../utils/moodScale';
 import { Theme, loadTheme, saveTheme } from '../utils/theme';
 import { getCachedConfig } from '../utils/config';
-import { loadVariantRegistry, removeFromRegistry } from '../utils/variantRegistry';
+import { loadVariantRegistry, removeFromRegistry, saveVariantRegistry, rebuildRegistry } from '../utils/variantRegistry';
 
 interface ExportActivity {
   type: string;
@@ -33,6 +33,7 @@ interface PraFile {
   sessionStart?: string;
   activityStats?: Record<string, { count: number; totalSeconds: number; avgRating?: number; avgMood?: number; totalLinks?: number }>;
   moodScale?: MoodScaleItem[];
+  variantRegistry?: string[];
 }
 
 function generateBackup(lang: string, currentTheme: string, profileName: string): PraFile {
@@ -110,6 +111,7 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
     userModified,
     sessionStart: localStorage.getItem('pra_session_start') || undefined,
     moodScale: loadMoodScale(),
+    variantRegistry: loadVariantRegistry(),
     activityStats,
   } as PraFile;
 }
@@ -248,6 +250,15 @@ function importPraFile(file: PraFile, currentLang: string): void {
   // Mood scale
   if (file.moodScale && Array.isArray(file.moodScale) && file.moodScale.length > 0) {
     saveMoodScale(file.moodScale);
+  }
+  // Variant registry
+  if (file.variantRegistry && Array.isArray(file.variantRegistry)) {
+    // Merge imported registry with rebuilt from activities
+    const current = rebuildRegistry();
+    const merged = [...new Set([...current, ...file.variantRegistry])];
+    saveVariantRegistry(merged);
+  } else {
+    rebuildRegistry();
   }
 }
 
