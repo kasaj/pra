@@ -24,7 +24,6 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
   selectedDate: string | null;
   onDayClick: (date: string | null) => void;
 }) {
-  const { t } = useLanguage();
   const [viewDate, setViewDate] = useState(() => new Date());
 
   const activityMap = useMemo(() => {
@@ -62,25 +61,24 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
 
   return (
     <section className="mb-6">
-      <h2 className="font-serif text-base text-themed-secondary mb-3">{t.time.calendarTitle}</h2>
-      <div className="card">
-        <div className="flex items-center justify-between mb-3">
-          <button onClick={handlePrev} className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="card p-2">
+        <div className="flex items-center justify-between mb-1">
+          <button onClick={handlePrev} className="w-6 h-6 rounded-full flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <span className="font-serif text-themed-primary capitalize">{monthName}</span>
-          <button onClick={handleNext} className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <span className="text-xs font-medium text-themed-primary capitalize">{monthName}</span>
+          <button onClick={handleNext} className="w-6 h-6 rounded-full flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center">
+        <div className="grid grid-cols-7 gap-0.5 text-center">
           {weekDays.map((d) => (
-            <div key={d} className="text-xs text-themed-faint py-1">{d}</div>
+            <div key={d} className="text-[0.6rem] text-themed-faint">{d}</div>
           ))}
           {days.map((day, i) => {
             if (day === null) return <div key={`e-${i}`} />;
@@ -90,7 +88,6 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
             const isToday = dateStr === todayStr;
             const isSelected = selectedDate === dateStr;
 
-            // Color intensity based on activity count
             let bgStyle: React.CSSProperties = {};
             if (count > 0) {
               const opacity = Math.min(0.2 + count * 0.15, 0.9);
@@ -101,8 +98,8 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
               <button
                 key={day}
                 onClick={() => handleDayClick(day)}
-                className={`aspect-square rounded-lg text-sm flex items-center justify-center transition-colors relative ${
-                  isSelected ? 'ring-2 ring-offset-1' : ''
+                className={`aspect-square rounded text-xs flex items-center justify-center transition-colors relative ${
+                  isSelected ? 'ring-1 ring-offset-0.5' : ''
                 } ${isToday ? 'font-bold' : ''} ${
                   count > 0 ? 'text-themed-primary' : 'text-themed-faint'
                 }`}
@@ -113,13 +110,12 @@ function ActivityCalendar({ data, language, selectedDate, onDayClick }: {
               >
                 {day}
                 {isToday && (
-                  <span className="absolute bottom-0.5 w-1 h-1 rounded-full" style={{ backgroundColor: 'var(--accent-solid)' }} />
+                  <span className="absolute bottom-0 w-0.5 h-0.5 rounded-full" style={{ backgroundColor: 'var(--accent-solid)' }} />
                 )}
               </button>
             );
           })}
         </div>
-
       </div>
     </section>
   );
