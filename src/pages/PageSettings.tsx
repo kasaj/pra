@@ -611,7 +611,7 @@ export default function PageSettings() {
         {/* Variant registry */}
         <section className="card">
           <h2 className="font-serif text-lg text-themed-primary mb-4">
-            {language === 'cs' ? 'Registr variant' : 'Variant Registry'}
+            {language === 'cs' ? 'Vlastnosti' : 'Properties'}
           </h2>
           {variantRegistry.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -630,8 +630,14 @@ export default function PageSettings() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-themed-faint">{language === 'cs' ? 'Žádné varianty' : 'No variants'}</p>
+            <p className="text-sm text-themed-faint">{language === 'cs' ? 'Žádné vlastnosti' : 'No properties'}</p>
           )}
+          <button
+            onClick={() => { const rebuilt = rebuildRegistry(); setVariantRegistry(rebuilt); }}
+            className="text-xs text-themed-faint hover:text-themed-muted mt-3"
+          >
+            Reset
+          </button>
         </section>
 
         {/* Mood scale */}
