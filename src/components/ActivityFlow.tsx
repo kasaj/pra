@@ -327,6 +327,20 @@ export default function ActivityFlow({ activity, onClose, onEdit: _onEdit, exist
 
   const handleTimerComplete = (elapsedSeconds: number) => {
     actualDurationRef.current = elapsedSeconds;
+    // Save current rating as comment before resetting for after-rating
+    if (newCommentRating || newComment.trim()) {
+      const comment: ActivityComment = {
+        id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+        text: newComment.trim(),
+        createdAt: new Date().toISOString(),
+        rating: newCommentRating || undefined,
+      };
+      setLocalComments((prev) => [comment, ...prev]);
+      const id = ensureSaved();
+      updateActivityById(id, { comments: [comment, ...localComments] });
+    }
+    setNewCommentRating(null);
+    setNewComment('');
     setTimedStep('rating-after');
   };
 
