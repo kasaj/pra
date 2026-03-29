@@ -352,57 +352,6 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
   return (
     <div className="fixed inset-0 bg-themed-base z-50 flex flex-col">
-      <div className="p-4 border-b border-themed">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {isEditing && existingActivity?.linkedFromId && onNavigateLinked && (
-              <button
-                onClick={() => onNavigateLinked(existingActivity.linkedFromId!)}
-                className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
-            <span className="text-3xl">{activity.emoji}</span>
-            <h2 className="font-serif text-xl text-themed-primary">{activity.name}</h2>
-            {isEditing && existingActivity?.linkedActivityIds && existingActivity.linkedActivityIds.length > 0 && onNavigateLinked && (
-              <button
-                onClick={() => onNavigateLinked(existingActivity.linkedActivityIds![existingActivity.linkedActivityIds!.length - 1])}
-                className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            {isEditing && onCreateLinked && (
-              <button onClick={() => { handleClose(); onCreateLinked(); }} className="text-themed-faint hover:text-themed-accent-solid p-2" title={t.time.createLinked}>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            )}
-            {onEdit && (
-              <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-            )}
-            <button onClick={handleClose} className="text-themed-faint hover:text-themed-muted p-2">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="flex-1 overflow-auto">
         <div className="max-w-md mx-auto p-4">
           <div className="flex flex-col items-center gap-1 mb-2">
@@ -748,6 +697,57 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
               />
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="p-4 border-t border-themed">
+        <div className="max-w-md mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {isEditing && existingActivity?.linkedFromId && onNavigateLinked && (
+              <button
+                onClick={() => onNavigateLinked(existingActivity.linkedFromId!)}
+                className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+            <span className="text-3xl">{activity.emoji}</span>
+            <h2 className="font-serif text-xl text-themed-primary">{activity.name}</h2>
+            {isEditing && existingActivity?.linkedActivityIds && existingActivity.linkedActivityIds.length > 0 && onNavigateLinked && (
+              <button
+                onClick={() => onNavigateLinked(existingActivity.linkedActivityIds![existingActivity.linkedActivityIds!.length - 1])}
+                className="w-8 h-8 rounded-full bg-themed-input flex items-center justify-center text-themed-muted hover:text-themed-accent-solid transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            {isEditing && onCreateLinked && (
+              <button onClick={() => { handleClose(); onCreateLinked(); }} className="text-themed-faint hover:text-themed-accent-solid p-2" title={t.time.createLinked}>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            )}
+            {onEdit && (
+              <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+            )}
+            <button onClick={handleClose} className="text-themed-faint hover:text-themed-muted p-2">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
