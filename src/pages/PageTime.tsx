@@ -7,9 +7,8 @@ import { Activity, ActivityComment, DayEntry } from '../types';
 import { loadMoodScale, getMoodEmoji } from '../utils/moodScale';
 import ActivityFlow from '../components/ActivityFlow';
 import {
-  LineChart,
-  Line,
   ComposedChart,
+  Area,
   Bar,
   XAxis,
   YAxis,
@@ -448,32 +447,6 @@ export default function PageTime() {
     return result;
   }, [data, language, trendRange]);
 
-  const chartData = useMemo(() => {
-    return data
-      .slice(0, 30)
-      .reverse()
-      .map((day) => {
-        const timedActivities = day.activities.filter(
-          (a) => a.durationMinutes !== null && a.ratingBefore && a.ratingAfter
-        );
-
-        if (timedActivities.length === 0) return null;
-
-        const avgBefore =
-          timedActivities.reduce((sum, a) => sum + (a.ratingBefore || 0), 0) /
-          timedActivities.length;
-        const avgAfter =
-          timedActivities.reduce((sum, a) => sum + (a.ratingAfter ?? 0), 0) /
-          timedActivities.length;
-
-        return {
-          date: day.date.slice(5),
-          before: Math.round(avgBefore * 10) / 10,
-          after: Math.round(avgAfter * 10) / 10,
-        };
-      })
-      .filter(Boolean);
-  }, [data]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -607,8 +580,15 @@ export default function PageTime() {
           </div>
         </div>
         <div className="card">
-          <ResponsiveContainer width="100%" height={trendRange === 'month' ? 180 : 160}>
-            <ComposedChart data={trendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height={trendRange === 'month' ? 200 : 180}>
+            <ComposedChart data={trendData} margin={{ top: 15, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={colors.barHigh} stopOpacity={0.4} />
+                  <stop offset="50%" stopColor={colors.barMid} stopOpacity={0.15} />
+                  <stop offset="100%" stopColor={colors.barLow} stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
               <XAxis
                 dataKey="day"
                 tick={{ fontSize: trendRange === 'month' ? 9 : trendRange === 'day' ? 9 : 11, fill: colors.tick }}
@@ -616,8 +596,28 @@ export default function PageTime() {
                 tickLine={false}
                 interval={trendRange === 'month' ? 4 : trendRange === 'day' ? 1 : 0}
               />
-              <YAxis yAxisId="count" hide />
-              <YAxis yAxisId="rating" domain={[1, 7]} hide />
+              <YAxis
+                yAxisId="count"
+                hide
+              />
+              <YAxis
+                yAxisId="rating"
+                domain={[1, 7]}
+                ticks={[1, 4, 7]}
+                tick={({ x, y, payload }: { x: number; y: number; payload: { value: number } }) => {
+                  const scale = loadMoodScale();
+                  const item = scale.find(s => s.value === payload.value);
+                  return (
+                    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12}>
+                      {item?.emoji || ''}
+                    </text>
+                  );
+                }}
+                axisLine={false}
+                tickLine={false}
+                width={28}
+                orientation="left"
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: colors.tooltipBg,
@@ -626,7 +626,10 @@ export default function PageTime() {
                   fontSize: '12px',
                 }}
                 formatter={(value: number, name: string) => {
-                  if (name === 'avgRating') return [value || '-', t.time.rating];
+                  if (name === 'avgRating') {
+                    const emoji = value ? getMoodEmoji(value) : '-';
+                    return [`${emoji} ${value || '-'}`, t.time.rating];
+                  }
                   return [value, language === 'cs' ? 'Počet' : 'Count'];
                 }}
               />
@@ -634,87 +637,45 @@ export default function PageTime() {
                 yAxisId="count"
                 dataKey="count"
                 fill={colors.barEmpty}
-                opacity={0.5}
-                radius={[3, 3, 0, 0]}
-                maxBarSize={trendRange === 'month' ? 8 : trendRange === 'week' ? 30 : 20}
+                opacity={0.3}
+                radius={[2, 2, 0, 0]}
+                maxBarSize={trendRange === 'month' ? 6 : trendRange === 'week' ? 24 : 16}
               />
-              <Line
+              <Area
                 yAxisId="rating"
                 type="monotone"
                 dataKey="avgRating"
                 stroke={colors.barHigh}
-                strokeWidth={2}
-                dot={(props: Record<string, unknown>) => {
-                  const { cx, cy, value } = props as { cx: number; cy: number; value: number | null };
-                  const r = trendRange === 'month' ? 2 : 3;
-                  if (value === null || value === undefined) return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={r} fill={colors.barEmpty} opacity={0.4} />;
-                  return <circle key={`dot-${cx}`} cx={cx} cy={cy} r={r} fill={colors.barHigh} />;
-                }}
+                strokeWidth={2.5}
+                fill="url(#moodGradient)"
                 connectNulls={false}
+                dot={(props: Record<string, unknown>) => {
+                  const { cx, cy, value, index } = props as { cx: number; cy: number; value: number | null; index: number };
+                  if (value === null || value === undefined) return <g key={`dot-${index}`} />;
+                  const emoji = getMoodEmoji(value);
+                  const size = trendRange === 'month' ? 10 : 14;
+                  return (
+                    <text key={`dot-${index}`} x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={size}>
+                      {emoji}
+                    </text>
+                  );
+                }}
+                activeDot={false}
               />
             </ComposedChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-2 text-xs text-themed-faint">
             <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded-sm opacity-50" style={{ backgroundColor: colors.barEmpty }} />
+              <span className="w-3 h-3 rounded-sm opacity-30" style={{ backgroundColor: colors.barEmpty }} />
               {language === 'cs' ? 'Počet' : 'Count'}
             </span>
             <span className="flex items-center gap-1">
-              <span className="w-4 h-0.5 rounded" style={{ backgroundColor: colors.barHigh }} />
+              <span className="w-4 h-2 rounded-sm" style={{ background: `linear-gradient(to top, ${colors.barLow}33, ${colors.barHigh}66)` }} />
               {t.time.rating}
             </span>
           </div>
         </div>
       </section>
-
-      {chartData.length > 1 && (
-        <section className="mb-6">
-          <h2 className="font-serif text-base text-themed-secondary mb-3">{t.time.chartTitle}</h2>
-          <div className="card">
-            <ResponsiveContainer width="100%" height={180}>
-              <LineChart data={chartData}>
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11, fill: colors.tick }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  domain={[1, 7]}
-                  tick={{ fontSize: 11, fill: colors.tick }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={25}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: colors.tooltipBg,
-                    border: `1px solid ${colors.tooltipBorder}`,
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="before"
-                  stroke={colors.before}
-                  strokeWidth={2}
-                  dot={false}
-                  name={t.time.before}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="after"
-                  stroke={colors.after}
-                  strokeWidth={2}
-                  dot={false}
-                  name={t.time.after}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-      )}
 
       {/* Records */}
       <section className="mb-6">
