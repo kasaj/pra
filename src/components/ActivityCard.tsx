@@ -20,7 +20,7 @@ function formatTotalTime(seconds: number): string {
   return `${m}m`;
 }
 
-export default function ActivityCard({ activity, onClick, completedToday, completedCount, completedYesterday: _completedYesterday, yesterdayCount: _yesterdayCount, totalCount, totalSeconds }: ActivityCardProps) {
+export default function ActivityCard({ activity, onClick, completedToday, completedCount, completedYesterday: _completedYesterday, yesterdayCount: _yesterdayCount, totalSeconds }: ActivityCardProps) {
   const { t } = useLanguage();
 
   return (
@@ -35,22 +35,21 @@ export default function ActivityCard({ activity, onClick, completedToday, comple
         <span className="text-2xl">{activity.emoji}</span>
         <span className="font-serif text-themed-primary flex-1">{activity.name}</span>
 
-        {/* Total stats: count for moments, time for timed */}
-        {activity.durationMinutes ? (
-          (totalSeconds || 0) > 0 && (
-            <span className="text-xs text-themed-faint opacity-50">
-              {formatTotalTime(totalSeconds || 0)}
-            </span>
-          )
-        ) : (
-          (totalCount || 0) > 0 && (
-            <span className="text-xs text-themed-faint opacity-50">
-              {totalCount}
-            </span>
-          )
+        {/* Total time for timed activities */}
+        {activity.durationMinutes && (totalSeconds || 0) > 0 && (
+          <span className="text-xs text-themed-faint opacity-50">
+            {formatTotalTime(totalSeconds || 0)}
+          </span>
         )}
 
-        {/* Session check */}
+        {/* Duration badge for timed */}
+        {activity.durationMinutes && (
+          <span className="text-sm text-themed-accent-solid bg-themed-accent px-2 py-0.5 rounded-full">
+            {activity.durationMinutes} {t.today.min}
+          </span>
+        )}
+
+        {/* Session check - always last */}
         <span className="flex items-center gap-1">
           <span className={`w-5 h-5 rounded-full flex items-center justify-center ${
             completedToday ? '' : 'opacity-20'
@@ -63,12 +62,6 @@ export default function ActivityCard({ activity, onClick, completedToday, comple
             <span className="text-xs font-medium text-themed-accent-solid">{completedCount}</span>
           )}
         </span>
-
-        {activity.durationMinutes && (
-          <span className="text-sm text-themed-accent-solid bg-themed-accent px-2 py-0.5 rounded-full">
-            {activity.durationMinutes} {t.today.min}
-          </span>
-        )}
       </div>
     </button>
   );
