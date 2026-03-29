@@ -13,7 +13,7 @@ function isUserModified(): boolean {
   return localStorage.getItem(MODIFIED_KEY) === '1';
 }
 
-function markModified(): void {
+export function markModified(): void {
   localStorage.setItem(MODIFIED_KEY, '1');
 }
 

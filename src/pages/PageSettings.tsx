@@ -7,7 +7,7 @@ import { DayEntry, ActivityDefinition } from '../types';
 import { loadMoodScale, saveMoodScale, getDefaultMoodScale, MoodScaleItem } from '../utils/moodScale';
 import { Theme, loadTheme, saveTheme } from '../utils/theme';
 import { getCachedConfig } from '../utils/config';
-import { loadVariantRegistry, removeFromRegistry, addToRegistry, saveVariantRegistry, rebuildRegistry } from '../utils/variantRegistry';
+import { loadVariantRegistry, removeFromRegistry, addToRegistry, saveVariantRegistry, rebuildRegistry, markModified as markRegistryModified } from '../utils/variantRegistry';
 
 interface ExportActivity {
   type: string;
@@ -266,6 +266,7 @@ function importPraFile(file: PraFile, currentLang: string): void {
     const current = rebuildRegistry();
     const merged = [...new Set([...current, ...file.properties])];
     saveVariantRegistry(merged);
+    markRegistryModified();
   } else {
     rebuildRegistry();
   }
@@ -721,6 +722,7 @@ export default function PageSettings() {
               <button
                 onClick={() => {
                   saveVariantRegistry([]);
+                  markRegistryModified();
                   setVariantRegistry([]);
                 }}
                 className="text-xs text-themed-faint hover:text-themed-warn"

@@ -16,10 +16,10 @@
           "Sken těla",
           "Slunce",
           "Pozorování",
-          "Klid gesta 👌 NLP",
+          "Klid gesta 👌",
           "Energie života",
-          "Kontakt se zemí, stabilizace",
-          "Zastavení, pokoj"
+          "Kontakt se zemí",
+          "Zastavení"
         ]
       },
       "en": {
@@ -86,9 +86,8 @@
           "Imaginace",
           "Kontemplace",
           "Jídlo",
-          "Káva",
+          "Čaj",
           "Tai-chi",
-          "Body & Mind",
           "Procítění štěstí",
           "Pozorování myšlenek",
           "Soustředěné dýchání"
@@ -125,7 +124,6 @@
           "Fail",
           "Slast",
           "Strast",
-          "Jsem dobrý, poklepání ramena NLP",
           "Poznámka",
           "Zkušenost",
           "Myšlenka",
@@ -196,12 +194,10 @@
         "properties": [
           "Dlouhý výdech sss (uklidnění)",
           "Konfrontace strachu",
-          "Přijetí bolesti, pocitu",
+          "Přijetí bolesti nebo pocitu",
           "Vůle jen pozorovat",
-          "Klid gesta 👌 NLP",
-          "Napětí do pěsti 🤜 NLP",
+          "Klid gesta 👌",
           "Nový návyk",
-          "Hlavně se nepo",
           "Selhání je výhrou",
           "Malý krok v chaosu"
         ]
@@ -258,8 +254,7 @@
       "New habit", "Note", "Observation", "Pleasure", "Push-ups",
       "Sharing", "Sleep 8h", "Small step in chaos", "Society", "Sport",
       "Tai-chi", "Thought", "Understanding", "Walk", "Will to just observe",
-      "Work", "Yoga",
-      "☕️", "❤️", "🌞", "🍲", "🏃‍♂️", "🤗", "👫"
+      "Work", "Yoga", "☕️", "❤️", "🌞", "🍲", "🏃‍♂️", "🤗", "👫"
     ]
   },
   "moodScale": [
