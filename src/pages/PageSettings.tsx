@@ -436,6 +436,7 @@ export default function PageSettings() {
     <div className="page-container">
       <header className="mb-6">
         <h1 className="font-serif text-3xl text-themed-primary">{t.settings.title}</h1>
+        <p className="text-themed-faint mt-1">{t.today.subtitle}</p>
       </header>
 
       <div className="space-y-6">
@@ -446,9 +447,6 @@ export default function PageSettings() {
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-themed-muted mb-2">
-                {t.settings.name}
-              </label>
               <input
                 type="text"
                 value={name}
