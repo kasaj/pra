@@ -156,12 +156,6 @@ function formatTime(isoStr: string, lang: string): string {
   return date.toLocaleTimeString(lang === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 }
 
-function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  if (mins === 0) return `${secs}s`;
-  return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
-}
 
 /** Get all comments from an activity (including legacy note fields) */
 function getActivityComments(activity: Activity): ActivityComment[] {
@@ -190,6 +184,7 @@ interface ActivityRowProps {
   activity: Activity;
   lang: string;
   selected: boolean;
+  sessionNumber?: number;
   onToggleSelect: () => void;
   onClickEdit: () => void;
   onCreateLinked: () => void;
@@ -197,12 +192,13 @@ interface ActivityRowProps {
   t: ReturnType<typeof useLanguage>['t'];
 }
 
-function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, onCreateLinked, onNavigate, t }: ActivityRowProps) {
+function ActivityRow({ activity, lang, selected, sessionNumber, onToggleSelect, onClickEdit, onCreateLinked, onNavigate, t }: ActivityRowProps) {
   const rawDef = getActivityByType(activity.type);
   const def = rawDef ? getTranslatedActivity(rawDef, t) : rawDef;
-  const actualTime = activity.actualDurationSeconds
-    ? formatDuration(activity.actualDurationSeconds)
-    : `${activity.durationMinutes || 1}m`;
+  const durationMin = activity.actualDurationSeconds
+    ? Math.max(1, Math.round(activity.actualDurationSeconds / 60))
+    : (activity.durationMinutes || 1);
+  const actualTime = `${durationMin} min`;
 
   const comments = getActivityComments(activity);
   const lastTwo = comments.slice(-2);
@@ -231,6 +227,9 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
           <div className="flex items-center gap-1.5">
             <span className="text-themed-faint text-xs">{formatTime(activity.startedAt, lang)}</span>
             <span className="text-sm">{def?.emoji}</span>
+            {sessionNumber != null && (
+              <span className="text-xs text-themed-faint">{lang === 'cs' ? 'Relace' : 'Session'}: {sessionNumber}</span>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {linkCount > 0 && (
@@ -238,7 +237,6 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
                 {linkCount}
               </span>
             )}
-            <span className="text-themed-faint text-xs">{actualTime}</span>
             {activity.linkedFromId && (
               <button
                 onClick={(e) => { e.stopPropagation(); onNavigate(activity.linkedFromId!); }}
@@ -267,6 +265,7 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
+            <span className="text-themed-faint text-xs">{actualTime}</span>
           </div>
         </div>
 
@@ -470,6 +469,41 @@ export default function PageTime() {
   }, [data]);
 
   const allActivityIds = useMemo(() => allActivitiesFlat.map((a) => a.id), [allActivitiesFlat]);
+
+  // Map each activity ID to its session number
+  const sessionMap = useMemo(() => {
+    const map = new Map<string, number>();
+    const activityById = new Map(allActivitiesFlat.map(a => [a.id, a]));
+    const visited = new Set<string>();
+    let sessionCounter = 0;
+
+    // Sort by time ascending to number sessions chronologically
+    const sorted = [...allActivitiesFlat].sort((a, b) => new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime());
+
+    for (const a of sorted) {
+      if (visited.has(a.id)) continue;
+      // Find chain root
+      let root = a;
+      while (root.linkedFromId && activityById.has(root.linkedFromId) && !visited.has(root.linkedFromId)) {
+        root = activityById.get(root.linkedFromId)!;
+      }
+      // Collect chain
+      sessionCounter++;
+      const queue = [root];
+      while (queue.length > 0) {
+        const current = queue.shift()!;
+        if (visited.has(current.id)) continue;
+        visited.add(current.id);
+        map.set(current.id, sessionCounter);
+        if (current.linkedActivityIds) {
+          current.linkedActivityIds.forEach(id => {
+            if (activityById.has(id) && !visited.has(id)) queue.push(activityById.get(id)!);
+          });
+        }
+      }
+    }
+    return map;
+  }, [allActivitiesFlat]);
 
   const handleSelectAll = useCallback(() => {
     if (selectedIds.size === allActivityIds.length) setSelectedIds(new Set());
@@ -733,9 +767,9 @@ export default function PageTime() {
                     <ActivityRow
                       key={activity.id}
                       activity={activity}
-
                       lang={language}
                       selected={selectedIds.has(activity.id)}
+                      sessionNumber={sessionMap.get(activity.id)}
                       onToggleSelect={() => toggleSelect(activity.id)}
                       onClickEdit={() => setEditingRecord(activity)}
                       onCreateLinked={() => handleCreateLinked(activity)}
@@ -798,6 +832,7 @@ export default function PageTime() {
                       activity={activity}
                       lang={language}
                       selected={selectedIds.has(activity.id)}
+                      sessionNumber={sessions.length - sessionIndex}
                       onToggleSelect={() => toggleSelect(activity.id)}
                       onClickEdit={() => setEditingRecord(activity)}
                       onCreateLinked={() => handleCreateLinked(activity)}
