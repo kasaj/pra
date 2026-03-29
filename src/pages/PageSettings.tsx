@@ -7,7 +7,7 @@ import { DayEntry, ActivityDefinition } from '../types';
 import { loadMoodScale, saveMoodScale, getDefaultMoodScale, MoodScaleItem } from '../utils/moodScale';
 import { Theme, loadTheme, saveTheme } from '../utils/theme';
 import { getCachedConfig } from '../utils/config';
-import { loadVariantRegistry, removeFromRegistry, saveVariantRegistry, rebuildRegistry } from '../utils/variantRegistry';
+import { loadVariantRegistry, removeFromRegistry, addToRegistry, saveVariantRegistry, rebuildRegistry } from '../utils/variantRegistry';
 
 interface ExportActivity {
   type: string;
@@ -316,6 +316,7 @@ export default function PageSettings() {
   const [moodScale, setMoodScale] = useState<MoodScaleItem[]>(() => loadMoodScale());
   const [editingMoodIdx, setEditingMoodIdx] = useState<number | null>(null);
   const [variantRegistry, setVariantRegistry] = useState<string[]>(() => loadVariantRegistry());
+  const [newProperty, setNewProperty] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleThemeChange = (newTheme: Theme) => {
@@ -622,31 +623,59 @@ export default function PageSettings() {
           <h2 className="font-serif text-lg text-themed-primary mb-4">
             {language === 'cs' ? 'Vlastnosti' : 'Properties'}
           </h2>
-          {variantRegistry.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {variantRegistry.map((v) => (
-                <button
-                  key={v}
-                  onClick={() => {
-                    removeFromRegistry(v);
-                    setVariantRegistry(prev => prev.filter(x => x !== v));
-                  }}
-                  className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted hover:border-themed-warn transition-colors"
-                >
-                  {v}
-                  <span className="ml-1.5 text-themed-faint">×</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-themed-faint">{language === 'cs' ? 'Žádné vlastnosti' : 'No properties'}</p>
-          )}
-          <button
-            onClick={() => { const rebuilt = rebuildRegistry(); setVariantRegistry(rebuilt); }}
-            className="text-xs text-themed-faint hover:text-themed-muted mt-3"
-          >
-            Reset
-          </button>
+          <div className="flex flex-wrap gap-2">
+            {variantRegistry.map((v) => (
+              <button
+                key={v}
+                onClick={() => {
+                  removeFromRegistry(v);
+                  setVariantRegistry(prev => prev.filter(x => x !== v));
+                }}
+                className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted hover:border-themed-warn transition-colors"
+              >
+                {v}
+                <span className="ml-1.5 text-themed-faint">×</span>
+              </button>
+            ))}
+            <input
+              type="text"
+              value={newProperty}
+              onChange={(e) => setNewProperty(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const text = newProperty.trim();
+                  if (text && !variantRegistry.includes(text)) {
+                    addToRegistry(text);
+                    setVariantRegistry(loadVariantRegistry());
+                    setNewProperty('');
+                  }
+                }
+              }}
+              placeholder="+"
+              className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input
+                       text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
+            />
+          </div>
+          <div className="flex gap-3 mt-3">
+            <button
+              onClick={() => { const rebuilt = rebuildRegistry(); setVariantRegistry(rebuilt); }}
+              className="text-xs text-themed-faint hover:text-themed-muted"
+            >
+              Reset
+            </button>
+            {variantRegistry.length > 0 && (
+              <button
+                onClick={() => {
+                  variantRegistry.forEach(v => removeFromRegistry(v));
+                  setVariantRegistry([]);
+                }}
+                className="text-xs text-themed-faint hover:text-themed-warn"
+              >
+                {language === 'cs' ? 'Smazat vše' : 'Delete all'}
+              </button>
+            )}
+          </div>
         </section>
 
         {/* Mood scale */}
