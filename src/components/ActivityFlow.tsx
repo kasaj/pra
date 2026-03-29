@@ -27,10 +27,15 @@ function getActivityComments(activity: Activity): ActivityComment[] {
   return comments;
 }
 
-function toLocalDatetime(isoStr: string): string {
+function toLocalDate(isoStr: string): string {
   const d = new Date(isoStr);
   const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function toLocalTime(isoStr: string): string {
+  const d = new Date(isoStr);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewRating, onUpdate, onUpdateRating, onUpdateTime, onDelete, lang: _lang, t }: {
@@ -334,14 +339,34 @@ export default function ActivityFlow({ activity, onClose, onEdit: _onEdit, exist
               <span className="text-2xl">{activity.emoji}</span>
               <h2 className="font-serif text-xl text-themed-primary">{activity.name}</h2>
             </div>
-            <input
-              type="datetime-local"
-              value={toLocalDatetime(startedAt)}
-              onChange={(e) => {
-                if (e.target.value) setStartedAt(new Date(e.target.value).toISOString());
-              }}
-              className="text-center text-sm text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer w-48"
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={toLocalDate(startedAt)}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const current = new Date(startedAt);
+                    const [y, m, d] = e.target.value.split('-').map(Number);
+                    current.setFullYear(y, m - 1, d);
+                    setStartedAt(current.toISOString());
+                  }
+                }}
+                className="text-center text-sm text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
+              />
+              <input
+                type="time"
+                value={toLocalTime(startedAt)}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const current = new Date(startedAt);
+                    const [h, min] = e.target.value.split(':').map(Number);
+                    current.setHours(h, min);
+                    setStartedAt(current.toISOString());
+                  }
+                }}
+                className="text-center text-sm text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
+              />
+            </div>
             {(() => {
               const rated: number[] = localComments.filter(c => c.rating != null).map(c => c.rating as number);
               if (rated.length === 0) return null;
