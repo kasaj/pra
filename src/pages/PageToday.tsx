@@ -276,53 +276,7 @@ export default function PageToday() {
     <div className="page-container">
       <header className="mb-6">
         <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
-        <div className="flex items-center justify-between mt-1">
-          <p className="text-themed-faint">{t.today.subtitle}</p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const now = new Date().toISOString();
-                setSessionStart(now);
-                localStorage.setItem('pra_session_start', now);
-                setRefreshKey((k) => k + 1);
-              }}
-              className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
-              style={{
-                backgroundColor: 'var(--bg-input)',
-                color: 'var(--text-secondary)',
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setShowNewActivity(true)}
-              className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
-              style={{
-                backgroundColor: 'var(--bg-input)',
-                color: 'var(--text-secondary)',
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setEditMode(!editMode)}
-              className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
-              style={{
-                backgroundColor: editMode ? 'var(--accent-solid)' : 'var(--bg-input)',
-                color: editMode ? 'var(--accent-text-on-solid)' : 'var(--text-secondary)',
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <p className="text-themed-faint mt-1">{t.today.subtitle}</p>
       </header>
 
       {editMode && (
@@ -413,6 +367,48 @@ export default function PageToday() {
           onClose={() => setShowNewActivity(false)}
         />
       )}
+
+      {/* Action toolbar above bottom nav */}
+      <div className="fixed bottom-14 left-0 right-0 z-40 flex justify-center">
+        <div className="flex items-center gap-3 px-4 py-2 rounded-full shadow-lg" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
+          <button
+            onClick={() => {
+              const now = new Date().toISOString();
+              setSessionStart(now);
+              localStorage.setItem('pra_session_start', now);
+              setRefreshKey((k) => k + 1);
+            }}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+            style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-secondary)' }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setShowNewActivity(true)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+            style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-secondary)' }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setEditMode(!editMode)}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+            style={{
+              backgroundColor: editMode ? 'var(--accent-solid)' : 'var(--bg-input)',
+              color: editMode ? 'var(--accent-text-on-solid)' : 'var(--text-secondary)',
+            }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
