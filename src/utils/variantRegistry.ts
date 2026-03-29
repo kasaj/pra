@@ -4,6 +4,10 @@ import { getCachedConfig } from './config';
 const STORAGE_KEY = 'pra_variant_registry';
 const DIRTY_KEY = 'pra_variant_registry_dirty';
 
+function getLang(): 'cs' | 'en' {
+  return localStorage.getItem('pra_language') === 'en' ? 'en' : 'cs';
+}
+
 export function loadVariantRegistry(): string[] {
   // Rebuild if flagged dirty (e.g. after config merge)
   if (localStorage.getItem(DIRTY_KEY)) {
@@ -21,7 +25,8 @@ export function loadVariantRegistry(): string[] {
 }
 
 export function saveVariantRegistry(variants: string[]): void {
-  const unique = [...new Set(variants)].sort((a, b) => a.localeCompare(b, 'cs'));
+  const lang = getLang();
+  const unique = [...new Set(variants)].sort((a, b) => a.localeCompare(b, lang));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(unique));
 }
 
@@ -51,14 +56,19 @@ export function removeFromRegistry(variant: string): void {
 }
 
 export function rebuildRegistry(): string[] {
+  const lang = getLang();
   const all = new Set<string>();
-  // From config default properties
+  // From config default properties (language-specific)
   const config = getCachedConfig();
-  config?.properties?.forEach(v => all.add(v));
+  const configProps = config?.properties;
+  if (configProps) {
+    const langProps = configProps[lang] || [];
+    langProps.forEach(v => all.add(v));
+  }
   // From all activities
   const activities = loadActivities();
   activities.forEach(a => a.properties?.forEach(v => all.add(v)));
-  const sorted = [...all].sort((a, b) => a.localeCompare(b, 'cs'));
+  const sorted = [...all].sort((a, b) => a.localeCompare(b, lang));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
   return sorted;
 }

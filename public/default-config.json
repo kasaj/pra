@@ -241,30 +241,35 @@
       }
     }
   ],
-  "properties": [
-    "Accepting pain", "Admitting a feeling", "Balance", "Body & Mind", "Body scan",
-    "Calm gesture 👌 NLP", "Coffee", "Confronting fear", "Contact with earth", "Contemplation",
-    "Dech nosem", "Dlouhý výdech sss (uklidnění)", "Don't give up", "Embrace", "Energie života",
-    "Experience", "Fail", "Failure", "Failure is a win", "Family", "Fatigue", "Fear", "Feeling",
-    "Feeling happiness", "Five Tibetans", "Focused breathing", "Food",
-    "Good - shoulder tap NLP", "Hlavně se nepo",
-    "I'm good, shoulder tap NLP", "Imaginace", "Imagination", "Intention",
-    "Into fist 🤜 releasing tension NLP", "Jsem dobrý, poklepání ramena NLP",
-    "Jídlo", "Jóga", "Klid gesta 👌 NLP", "Kliky", "Konfrontace strachu",
-    "Kontakt se zemí, stabilizace", "Kontemplace", "Káva", "Life energy",
-    "Long exhale sss (calming)", "Malý krok v chaosu", "Meditace", "Meditation", "Meeting",
-    "Movement", "Myšlenka", "Napětí do pěsti 🤜 NLP", "New habit", "Nose breathing", "Note",
-    "Nový návyk", "Objetí", "Observation", "Observing thoughts", "Odmítnutí",
-    "Pleasure", "Pochopení", "Pocit", "Pohyb", "Posilování", "Poznámka", "Pozorování",
-    "Pozorování myšlenek", "Probuzení", "Procítění štěstí", "Protažení", "Push-ups",
-    "Pět tibeťanů", "Přijetí bolesti, pocitu", "Rejection", "Rodina", "Rovnováha",
-    "Sdílení", "Selhání", "Selhání je výhrou", "Setkání", "Sharing", "Silent pause",
-    "Sken těla", "Slast", "Sleep 8h", "Slunce", "Small step in chaos", "Society",
-    "Soustředěné dýchání", "Společnost", "Sport", "Spánek 8h", "Stabilization",
-    "Strach", "Strast", "Strengthening", "Stretching", "Suffering", "Sun", "Tai-chi",
-    "Thought", "Understanding", "Usínání", "Vůle jen pozorovat", "Will to just observe",
-    "Yoga", "Zastavení, pokoj", "Zkušenost", "Záměr", "Únava"
-  ],
+  "properties": {
+    "cs": [
+      "Body & Mind", "Dech nosem", "Dlouhý výdech sss (uklidnění)", "Energie života", "Fail",
+      "Hlavně se nepo", "Imaginace", "Jídlo", "Jóga", "Jsem dobrý, poklepání ramena NLP",
+      "Klid gesta 👌 NLP", "Kliky", "Konfrontace strachu", "Kontakt se zemí, stabilizace",
+      "Kontemplace", "Káva", "Malý krok v chaosu", "Meditace", "Myšlenka",
+      "Napětí do pěsti 🤜 NLP", "Nový návyk", "Objetí", "Odmítnutí", "Pochopení", "Pocit",
+      "Pohyb", "Posilování", "Poznámka", "Pozorování", "Pozorování myšlenek", "Probuzení",
+      "Procítění štěstí", "Protažení", "Přijetí bolesti, pocitu", "Pět tibeťanů",
+      "Rodina", "Rovnováha", "Sdílení", "Selhání", "Selhání je výhrou", "Setkání",
+      "Sken těla", "Slast", "Slunce", "Soustředěné dýchání", "Spánek 8h", "Společnost",
+      "Sport", "Strach", "Strast", "Tai-chi", "Únava", "Usínání", "Vůle jen pozorovat",
+      "Zastavení, pokoj", "Zkušenost", "Záměr"
+    ],
+    "en": [
+      "Accepting pain", "Admitting a feeling", "Balance", "Body & Mind", "Body scan",
+      "Calm gesture 👌 NLP", "Coffee", "Confronting fear", "Contact with earth",
+      "Contemplation", "Don't give up", "Embrace", "Experience", "Fail", "Failure",
+      "Failure is a win", "Family", "Fatigue", "Fear", "Feeling", "Feeling happiness",
+      "Five Tibetans", "Focused breathing", "Food", "Good - shoulder tap NLP",
+      "I'm good, shoulder tap NLP", "Imagination", "Intention",
+      "Into fist 🤜 releasing tension NLP", "Life energy", "Long exhale sss (calming)",
+      "Meditation", "Meeting", "Movement", "New habit", "Nose breathing", "Note",
+      "Observation", "Observing thoughts", "Pleasure", "Push-ups", "Rejection", "Sharing",
+      "Silent pause", "Sleep 8h", "Small step in chaos", "Society", "Sport", "Stabilization",
+      "Strengthening", "Stretching", "Suffering", "Sun", "Tai-chi", "Thought",
+      "Understanding", "Will to just observe", "Yoga"
+    ]
+  },
   "moodScale": [
     { "value": 1, "emoji": "😡", "labelCs": "Vztek", "labelEn": "Anger" },
     { "value": 2, "emoji": "😟", "labelCs": "Úzkost", "labelEn": "Anxiety" },

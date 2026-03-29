@@ -44,7 +44,7 @@ export interface AppConfig {
   language?: string;
   theme?: string;
   activities: ConfigActivity[];
-  properties?: string[];
+  properties?: { cs: string[]; en: string[] };
   info: {
     cs: ConfigInfo;
     en: ConfigInfo;
