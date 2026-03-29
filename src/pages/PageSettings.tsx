@@ -343,13 +343,15 @@ export default function PageSettings() {
   const handleExportBackup = useCallback(() => {
     const backup = generateBackup(language, theme, name);
     const content = generatePraFileContent(backup);
-    downloadFile(content, `prabackup-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
+    const safeName = (name || 'default').replace(/[^a-zA-Z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ_-]/g, '').toLowerCase();
+    downloadFile(content, `pra-${safeName}-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
   }, [language, theme, name]);
 
   const handleExportConfig = useCallback(() => {
     const config = generateConfigExport(language, theme, name);
     const content = generatePraFileContent(config);
-    downloadFile(content, `praconfig-${language}-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
+    const safeName = (name || 'default').replace(/[^a-zA-Z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ_-]/g, '').toLowerCase();
+    downloadFile(content, `praconf-${safeName}-${new Date().toISOString().split('T')[0]}.json`, 'application/json;charset=utf-8');
   }, [language, theme, name]);
 
   const backupInputRef = useRef<HTMLInputElement>(null);
