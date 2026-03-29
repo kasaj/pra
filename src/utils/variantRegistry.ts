@@ -1,7 +1,6 @@
 import { getCachedConfig } from './config';
 
 const STORAGE_KEY = 'pra_variant_registry';
-const DIRTY_KEY = 'pra_variant_registry_dirty';
 const MODIFIED_KEY = 'pra_variant_registry_modified';
 
 function getLang(): 'cs' | 'en' {
@@ -16,27 +15,24 @@ export function markModified(): void {
   localStorage.setItem(MODIFIED_KEY, '1');
 }
 
+function getConfigDefaults(): string[] {
+  const lang = getLang();
+  const config = getCachedConfig();
+  return config?.properties?.[lang] || [];
+}
+
 export function loadVariantRegistry(): string[] {
-  // Rebuild if flagged dirty (e.g. after config merge)
-  if (localStorage.getItem(DIRTY_KEY)) {
-    localStorage.removeItem(DIRTY_KEY);
-    if (!isUserModified()) {
-      return rebuildRegistry();
-    }
-  }
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) {
-        // If user hasn't modified, sync with config defaults
-        if (!isUserModified()) {
-          return rebuildRegistry();
-        }
-        return parsed;
+  // If user modified, return their version
+  if (isUserModified()) {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
       }
-    }
-  } catch { /* default */ }
+    } catch { /* fall through */ }
+  }
+  // Otherwise always use config defaults
   return rebuildRegistry();
 }
 
@@ -63,18 +59,9 @@ export function removeFromRegistry(variant: string): void {
 
 export function rebuildRegistry(): string[] {
   const lang = getLang();
-  const all = new Set<string>();
-  // Only from config top-level properties (language-specific)
-  // Activity-level properties stay on activities, not in registry
-  const config = getCachedConfig();
-  const configProps = config?.properties;
-  if (configProps) {
-    const langProps = configProps[lang] || [];
-    langProps.forEach(v => all.add(v));
-  }
-  const sorted = [...all].sort((a, b) => a.localeCompare(b, lang));
+  const defaults = getConfigDefaults();
+  const sorted = [...new Set(defaults)].sort((a, b) => a.localeCompare(b, lang));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
-  // Reset modified flag on rebuild (reset = back to defaults)
   localStorage.removeItem(MODIFIED_KEY);
   return sorted;
 }
