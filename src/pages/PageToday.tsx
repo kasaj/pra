@@ -245,9 +245,10 @@ export default function PageToday() {
                 localStorage.setItem('pra_session_start', now);
                 setRefreshKey((k) => k + 1);
               }}
-              className="text-xs text-themed-faint hover:text-themed-accent-solid transition-colors"
+              className="text-xs text-themed-faint hover:text-themed-accent-solid transition-colors text-right leading-tight"
             >
-              {t.settings.newSession}
+              <div>{t.settings.newSessionLine1}</div>
+              <div className="text-[0.6rem]">{t.settings.newSessionLine2}</div>
             </button>
           </div>
           <div className="flex items-center gap-2">
