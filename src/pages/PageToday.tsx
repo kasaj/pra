@@ -236,8 +236,8 @@ export default function PageToday() {
       <header className="mb-6">
         <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
         <div className="flex items-center justify-between mt-1">
-          <div className="flex items-center gap-3">
-            <p className="text-themed-faint">{t.today.subtitle}</p>
+          <p className="text-themed-faint">{t.today.subtitle}</p>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 const now = new Date().toISOString();
@@ -245,13 +245,16 @@ export default function PageToday() {
                 localStorage.setItem('pra_session_start', now);
                 setRefreshKey((k) => k + 1);
               }}
-              className="text-xs text-themed-faint hover:text-themed-accent-solid transition-colors text-right leading-tight"
+              className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
+              style={{
+                backgroundColor: 'var(--bg-input)',
+                color: 'var(--text-secondary)',
+              }}
             >
-              <div>{t.settings.newSessionLine1}</div>
-              <div className="text-[0.6rem]">{t.settings.newSessionLine2}</div>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
             </button>
-          </div>
-          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowNewActivity(true)}
               className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
