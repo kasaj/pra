@@ -193,9 +193,14 @@ export const mergeWithConfig = (existing: ActivityDefinition[]): ActivityDefinit
 
   // Update existing non-modified activities from config
   const merged = existing.map(a => {
-    if (userModified.has(a.type)) return a; // user edited - keep
     const fromConfig = configByType.get(a.type);
     if (!fromConfig) return a; // not in config (custom) - keep
+    // Always sync core flag from config
+    if (a.core !== fromConfig.core) {
+      a = { ...a, core: fromConfig.core };
+      changed = true;
+    }
+    if (userModified.has(a.type)) return a; // user edited - keep (but core synced)
     // Check if different
     if (a.name !== fromConfig.name || a.description !== fromConfig.description ||
         a.emoji !== fromConfig.emoji || a.durationMinutes !== fromConfig.durationMinutes ||
