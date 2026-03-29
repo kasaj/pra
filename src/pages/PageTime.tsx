@@ -652,13 +652,8 @@ export default function PageTime() {
                 dot={(props: Record<string, unknown>) => {
                   const { cx, cy, value, index } = props as { cx: number; cy: number; value: number | null; index: number };
                   if (value === null || value === undefined) return <g key={`dot-${index}`} />;
-                  const emoji = getMoodEmoji(value);
-                  const size = trendRange === 'month' ? 10 : 14;
-                  return (
-                    <text key={`dot-${index}`} x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fontSize={size}>
-                      {emoji}
-                    </text>
-                  );
+                  const r = trendRange === 'month' ? 3 : 4;
+                  return <circle key={`dot-${index}`} cx={cx} cy={cy} r={r} fill={colors.barHigh} stroke="white" strokeWidth={1.5} />;
                 }}
                 activeDot={false}
               />
