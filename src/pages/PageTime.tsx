@@ -862,6 +862,17 @@ export default function PageTime() {
           </div>
         </div>
 
+        <div className="card flex flex-col items-center py-3 mb-3">
+          <div className="flex gap-1.5 text-2xl">
+            {loadMoodScale().map(({ value: v, emoji: e }) => (
+              <span key={v} className={v === Math.round(summaryStats.overallMood) ? 'opacity-100' : 'grayscale opacity-30'}>
+                {e}
+              </span>
+            ))}
+          </div>
+          <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Průměr' : 'Average'}</div>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">
