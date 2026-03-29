@@ -647,7 +647,7 @@ export default function PageSettings() {
                   const text = newProperty.trim();
                   if (text && !variantRegistry.includes(text)) {
                     addToRegistry(text);
-                    setVariantRegistry(loadVariantRegistry());
+                    setVariantRegistry(prev => [...prev, text].sort((a, b) => a.localeCompare(b, language)));
                     setNewProperty('');
                   }
                 }
@@ -667,7 +667,16 @@ export default function PageSettings() {
             {variantRegistry.length > 0 && (
               <button
                 onClick={() => {
-                  variantRegistry.forEach(v => removeFromRegistry(v));
+                  saveVariantRegistry([]);
+                  const activities = loadActivities();
+                  let changed = false;
+                  activities.forEach(a => {
+                    if (a.properties && a.properties.length > 0) {
+                      a.properties = undefined;
+                      changed = true;
+                    }
+                  });
+                  if (changed) saveActivities(activities);
                   setVariantRegistry([]);
                 }}
                 className="text-xs text-themed-faint hover:text-themed-warn"
