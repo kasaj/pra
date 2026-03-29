@@ -482,7 +482,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                       editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
                     }`}
                   >
-                    {editingVariants ? '✓' : '✎'}
+                    {editingVariants ? '✓' : '+'}
                   </button>
                   {editingVariants && (
                     <button
@@ -581,7 +581,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                       editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
                     }`}
                   >
-                    {editingVariants ? '✓' : '✎'}
+                    {editingVariants ? '✓' : '+'}
                   </button>
                   {editingVariants && (
                     <button
@@ -708,7 +708,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                       editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
                     }`}
                   >
-                    {editingVariants ? '✓' : '✎'}
+                    {editingVariants ? '✓' : '+'}
                   </button>
                   {editingVariants && (
                     <button
