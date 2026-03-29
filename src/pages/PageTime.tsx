@@ -865,17 +865,15 @@ export default function PageTime() {
         <div className="grid grid-cols-2 gap-3">
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">
-              {summaryStats.todayActivities} / {summaryStats.totalActivities}
+              {summaryStats.totalActivities}
             </div>
-            <div className="text-xs text-themed-faint mt-1">{t.time.todayActivities} / {t.time.totalActivities}</div>
+            <div className="text-xs text-themed-faint mt-1">{t.time.totalActivities}</div>
           </div>
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">
-              {summaryStats.today.hours > 0 ? `${summaryStats.today.hours}${t.time.hours} ` : ''}{summaryStats.today.minutes}{t.time.minutes}
-              {' / '}
               {summaryStats.hours > 0 ? `${summaryStats.hours}${t.time.hours} ` : ''}{summaryStats.minutes}{t.time.minutes}
             </div>
-            <div className="text-xs text-themed-faint mt-1">{t.time.todayTime} / {t.time.totalTime}</div>
+            <div className="text-xs text-themed-faint mt-1">{t.time.totalTime}</div>
           </div>
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">{summaryStats.streak}</div>
