@@ -226,7 +226,7 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
           <div className="flex items-center gap-1.5">
             <span className="text-themed-faint text-xs">{formatTime(activity.startedAt, lang)}</span>
             <span className="text-sm">{def?.emoji}</span>
-            {def?.name && <span className="text-sm text-themed-muted italic truncate">{def.name}</span>}
+            {def?.name && <span className="text-xs text-themed-muted truncate">{def.name}</span>}
           </div>
           <div className="flex items-center gap-2">
             {linkCount > 0 && (
@@ -271,7 +271,7 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
           <div key={`${c.id}-${c.rating || 0}`} className="flex items-center justify-between mt-0.5">
             <div className="flex items-center gap-1.5 text-sm min-w-0">
               <span className="text-themed-faint text-xs flex-shrink-0">{formatTime(c.updatedAt || c.createdAt, lang)}</span>
-              {c.text && <span className="text-themed-muted italic truncate">{c.text}</span>}
+              {c.text && <span className="text-themed-muted text-xs truncate">{c.text}</span>}
             </div>
             {c.rating != null && (
               <div className="flex gap-px flex-shrink-0 ml-1" style={{ fontSize: '0.55rem' }}>
@@ -812,6 +812,7 @@ export default function PageTime() {
       </section>
 
       {/* Overall mood */}
+      <h2 className="font-serif text-base text-themed-secondary mb-3">{language === 'cs' ? 'Průměr' : 'Average'}</h2>
       <div className="card flex justify-center py-4 mb-6">
         <div className="flex gap-1.5 text-2xl">
           {loadMoodScale().map(({ value: v, emoji: e }) => (
