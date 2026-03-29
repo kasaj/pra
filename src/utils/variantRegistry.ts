@@ -1,4 +1,3 @@
-import { loadActivities } from './activities';
 import { getCachedConfig } from './config';
 
 const STORAGE_KEY = 'pra_variant_registry';
@@ -65,16 +64,14 @@ export function removeFromRegistry(variant: string): void {
 export function rebuildRegistry(): string[] {
   const lang = getLang();
   const all = new Set<string>();
-  // From config default properties (language-specific)
+  // Only from config top-level properties (language-specific)
+  // Activity-level properties stay on activities, not in registry
   const config = getCachedConfig();
   const configProps = config?.properties;
   if (configProps) {
     const langProps = configProps[lang] || [];
     langProps.forEach(v => all.add(v));
   }
-  // From all activities
-  const activities = loadActivities();
-  activities.forEach(a => a.properties?.forEach(v => all.add(v)));
   const sorted = [...all].sort((a, b) => a.localeCompare(b, lang));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(sorted));
   // Reset modified flag on rebuild (reset = back to defaults)
