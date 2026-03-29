@@ -184,7 +184,6 @@ interface ActivityRowProps {
   activity: Activity;
   lang: string;
   selected: boolean;
-  sessionNumber?: number;
   onToggleSelect: () => void;
   onClickEdit: () => void;
   onCreateLinked: () => void;
@@ -192,7 +191,7 @@ interface ActivityRowProps {
   t: ReturnType<typeof useLanguage>['t'];
 }
 
-function ActivityRow({ activity, lang, selected, sessionNumber, onToggleSelect, onClickEdit, onCreateLinked, onNavigate, t }: ActivityRowProps) {
+function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, onCreateLinked, onNavigate, t }: ActivityRowProps) {
   const rawDef = getActivityByType(activity.type);
   const def = rawDef ? getTranslatedActivity(rawDef, t) : rawDef;
   const durationMin = activity.actualDurationSeconds
@@ -468,40 +467,7 @@ export default function PageTime() {
 
   const allActivityIds = useMemo(() => allActivitiesFlat.map((a) => a.id), [allActivitiesFlat]);
 
-  // Map each activity ID to its session number
-  const sessionMap = useMemo(() => {
-    const map = new Map<string, number>();
-    const activityById = new Map(allActivitiesFlat.map(a => [a.id, a]));
-    const visited = new Set<string>();
-    let sessionCounter = 0;
 
-    // Sort by time ascending to number sessions chronologically
-    const sorted = [...allActivitiesFlat].sort((a, b) => new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime());
-
-    for (const a of sorted) {
-      if (visited.has(a.id)) continue;
-      // Find chain root
-      let root = a;
-      while (root.linkedFromId && activityById.has(root.linkedFromId) && !visited.has(root.linkedFromId)) {
-        root = activityById.get(root.linkedFromId)!;
-      }
-      // Collect chain
-      sessionCounter++;
-      const queue = [root];
-      while (queue.length > 0) {
-        const current = queue.shift()!;
-        if (visited.has(current.id)) continue;
-        visited.add(current.id);
-        map.set(current.id, sessionCounter);
-        if (current.linkedActivityIds) {
-          current.linkedActivityIds.forEach(id => {
-            if (activityById.has(id) && !visited.has(id)) queue.push(activityById.get(id)!);
-          });
-        }
-      }
-    }
-    return map;
-  }, [allActivitiesFlat]);
 
   const handleSelectAll = useCallback(() => {
     if (selectedIds.size === allActivityIds.length) setSelectedIds(new Set());
@@ -767,7 +733,7 @@ export default function PageTime() {
                       activity={activity}
                       lang={language}
                       selected={selectedIds.has(activity.id)}
-                      sessionNumber={sessionMap.get(activity.id)}
+
                       onToggleSelect={() => toggleSelect(activity.id)}
                       onClickEdit={() => setEditingRecord(activity)}
                       onCreateLinked={() => handleCreateLinked(activity)}
@@ -830,7 +796,7 @@ export default function PageTime() {
                       activity={activity}
                       lang={language}
                       selected={selectedIds.has(activity.id)}
-                      sessionNumber={sessions.length - sessionIndex}
+
                       onToggleSelect={() => toggleSelect(activity.id)}
                       onClickEdit={() => setEditingRecord(activity)}
                       onCreateLinked={() => handleCreateLinked(activity)}
