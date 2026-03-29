@@ -225,6 +225,15 @@
       }
     }
   ],
+  "moodScale": [
+    { "value": 1, "emoji": "😡", "labelCs": "Vztek", "labelEn": "Anger" },
+    { "value": 2, "emoji": "😟", "labelCs": "Úzkost", "labelEn": "Anxiety" },
+    { "value": 3, "emoji": "😕", "labelCs": "Sklíčenost", "labelEn": "Gloom" },
+    { "value": 4, "emoji": "😐", "labelCs": "Neutrál", "labelEn": "Neutral" },
+    { "value": 5, "emoji": "🙂", "labelCs": "Pohoda", "labelEn": "Fine" },
+    { "value": 6, "emoji": "😊", "labelCs": "Radost", "labelEn": "Joy" },
+    { "value": 7, "emoji": "😄", "labelCs": "Nadšení", "labelEn": "Excitement" }
+  ],
   "info": {
     "cs": {
       "title": "Info",
