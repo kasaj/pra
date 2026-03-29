@@ -243,24 +243,23 @@
   ],
   "properties": {
     "cs": [
-      "Dlouhý výdech sss (uklidnění)", "☕️", "Fail", "🍲", "Jóga", "Jsem dobrý, poklepání ramena NLP",
-      "Klid gesta 👌 NLP", "Kliky", "👫", " 🏃‍♂️", "Nový návyk", "🤗", "❤️","Pochopení", "Pocit",
-      "Poznámka", "Pozorování", "Pět tibeťanů", "Rodina", "Slast", "Strach","🌞", "Spánek 8h", "Společnost",
-      "Sport", "Práce", "Procházka", "Tai-chi", "Únava", "Vůle jen pozorovat","Zkušenost", "Záměr"
+      "Dlouhý výdech sss (uklidnění)", "Fail", "Jóga", "Jsem dobrý, poklepání ramena NLP",
+      "Klid gesta 👌 NLP", "Kliky", "Nový návyk", "Pochopení", "Pocit",
+      "Poznámka", "Pozorování", "Procházka", "Práce", "Pět tibeťanů",
+      "Rodina", "Slast", "Spánek 8h", "Sport", "Společnost", "Strach",
+      "Tai-chi", "Únava", "Vůle jen pozorovat", "Zkušenost", "Záměr",
+      "☕️", "❤️", "🌞", "🍲", "🏃‍♂️", "🤗", "👫"
     ],
     "en": [
-      "Accepting pain", "Admitting a feeling", "Balance", "Body & Mind", "Body scan",
-      "Calm gesture 👌 NLP", "Coffee", "Confronting fear", "Contact with earth",
-      "Contemplation", "Don't give up", "Embrace", "Experience", "Fail", "Failure",
-      "Failure is a win", "Family", "Fatigue", "Fear", "Feeling", "Feeling happiness",
-      "Five Tibetans", "Focused breathing", "Food", "Good - shoulder tap NLP",
-      "I'm good, shoulder tap NLP", "Imagination", "Intention",
-      "Into fist 🤜 releasing tension NLP", "Life energy", "Long exhale sss (calming)",
-      "Meditation", "Meeting", "Movement", "New habit", "Nose breathing", "Note",
-      "Observation", "Observing thoughts", "Pleasure", "Push-ups", "Rejection", "Sharing",
-      "Silent pause", "Sleep 8h", "Small step in chaos", "Society", "Sport", "Stabilization",
-      "Strengthening", "Stretching", "Suffering", "Sun", "Tai-chi", "Thought",
-      "Understanding", "Will to just observe", "Yoga"
+      "Accepting pain", "Admitting a feeling", "Balance", "Calm gesture 👌 NLP",
+      "Confronting fear", "Don't give up", "Experience", "Fail", "Failure",
+      "Failure is a win", "Family", "Fatigue", "Fear", "Feeling",
+      "Five Tibetans", "Imagination", "Intention", "Long exhale sss (calming)",
+      "New habit", "Note", "Observation", "Pleasure", "Push-ups",
+      "Sharing", "Sleep 8h", "Small step in chaos", "Society", "Sport",
+      "Tai-chi", "Thought", "Understanding", "Walk", "Will to just observe",
+      "Work", "Yoga",
+      "☕️", "❤️", "🌞", "🍲", "🏃‍♂️", "🤗", "👫"
     ]
   },
   "moodScale": [
