@@ -20,7 +20,7 @@ function formatTotalTime(seconds: number): string {
   return `${m}m`;
 }
 
-export default function ActivityCard({ activity, onClick, completedToday, completedCount, completedYesterday: _completedYesterday, yesterdayCount: _yesterdayCount, totalSeconds }: ActivityCardProps) {
+export default function ActivityCard({ activity, onClick, completedToday, completedCount, completedYesterday: _completedYesterday, yesterdayCount: _yesterdayCount, totalCount, totalSeconds }: ActivityCardProps) {
   const { t } = useLanguage();
 
   return (
@@ -52,6 +52,11 @@ export default function ActivityCard({ activity, onClick, completedToday, comple
           <span className="text-sm text-themed-accent-solid bg-themed-accent px-2 py-0.5 rounded-full">
             {activity.durationMinutes} {t.today.min}
           </span>
+        )}
+
+        {/* Total count for non-timed activities */}
+        {!activity.durationMinutes && (totalCount || 0) > 0 && (
+          <span className="text-xs text-themed-faint opacity-50">{totalCount}</span>
         )}
 
         {/* Session check - always last */}
