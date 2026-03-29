@@ -237,6 +237,7 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
         {/* Row 1: time left, right: linkCount emoji avgEmoji */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
+            <span className="text-sm">{def?.emoji}</span>
             <span className="text-themed-faint text-xs">{formatTime(activity.startedAt, lang)}</span>
             {actualTime && <span className="text-themed-faint text-xs">{actualTime}</span>}
           </div>
@@ -274,7 +275,6 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
-            <span className="text-sm">{def?.emoji}</span>
           </div>
         </div>
 
