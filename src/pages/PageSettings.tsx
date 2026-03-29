@@ -618,6 +618,55 @@ export default function PageSettings() {
           </div>
         </section>
 
+        {/* Mood scale */}
+        <section className="card">
+          <h2 className="font-serif text-lg text-themed-primary mb-4">
+            {t.settings.moodScale}
+          </h2>
+          <div className="flex items-stretch justify-between gap-1">
+            {moodScale.map((item, idx) => (
+              <div key={item.value} className="flex flex-col items-center gap-0.5 flex-1">
+                {editingMoodIdx === idx ? (
+                  <input
+                    autoFocus
+                    defaultValue={item.emoji}
+                    onBlur={(e) => {
+                      const val = e.target.value.trim();
+                      if (val) {
+                        const emoji = [...val].pop()!;
+                        const updated = [...moodScale];
+                        updated[idx] = { ...item, emoji };
+                        setMoodScale(updated);
+                        saveMoodScale(updated);
+                      }
+                      setEditingMoodIdx(null);
+                    }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                    className="w-10 h-10 text-center text-xl bg-themed-input border border-themed-accent rounded-lg focus:outline-none"
+                  />
+                ) : (
+                  <button
+                    onClick={() => setEditingMoodIdx(idx)}
+                    className="text-xl hover:scale-110 transition-transform"
+                  >
+                    {item.emoji}
+                  </button>
+                )}
+                <span className="text-xs text-themed-faint">{item.value}</span>
+                <span className="text-xs text-themed-muted text-center leading-tight" style={{ fontSize: '0.6rem' }}>
+                  {language === 'cs' ? item.labelCs : item.labelEn}
+                </span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => { setMoodScale(getDefaultMoodScale()); saveMoodScale(getDefaultMoodScale()); }}
+            className="text-xs text-themed-faint hover:text-themed-muted mt-3"
+          >
+            Reset
+          </button>
+        </section>
+
         {/* Variant registry */}
         <section className="card">
           <h2 className="font-serif text-lg text-themed-primary mb-4">
@@ -685,55 +734,6 @@ export default function PageSettings() {
               </button>
             )}
           </div>
-        </section>
-
-        {/* Mood scale */}
-        <section className="card">
-          <h2 className="font-serif text-lg text-themed-primary mb-4">
-            {t.settings.moodScale}
-          </h2>
-          <div className="flex items-stretch justify-between gap-1">
-            {moodScale.map((item, idx) => (
-              <div key={item.value} className="flex flex-col items-center gap-0.5 flex-1">
-                {editingMoodIdx === idx ? (
-                  <input
-                    autoFocus
-                    defaultValue={item.emoji}
-                    onBlur={(e) => {
-                      const val = e.target.value.trim();
-                      if (val) {
-                        const emoji = [...val].pop()!;
-                        const updated = [...moodScale];
-                        updated[idx] = { ...item, emoji };
-                        setMoodScale(updated);
-                        saveMoodScale(updated);
-                      }
-                      setEditingMoodIdx(null);
-                    }}
-                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                    className="w-10 h-10 text-center text-xl bg-themed-input border border-themed-accent rounded-lg focus:outline-none"
-                  />
-                ) : (
-                  <button
-                    onClick={() => setEditingMoodIdx(idx)}
-                    className="text-xl hover:scale-110 transition-transform"
-                  >
-                    {item.emoji}
-                  </button>
-                )}
-                <span className="text-xs text-themed-faint">{item.value}</span>
-                <span className="text-xs text-themed-muted text-center leading-tight" style={{ fontSize: '0.6rem' }}>
-                  {language === 'cs' ? item.labelCs : item.labelEn}
-                </span>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={() => { setMoodScale(getDefaultMoodScale()); saveMoodScale(getDefaultMoodScale()); }}
-            className="text-xs text-themed-faint hover:text-themed-muted mt-3"
-          >
-            Reset
-          </button>
         </section>
 
         {/* Sync */}

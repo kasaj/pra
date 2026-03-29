@@ -394,6 +394,7 @@ export default function PageToday() {
           activity={activeActivity}
           onClose={() => {
             setActiveActivity(null);
+            setActivities(loadActivities());
             setRefreshKey((k) => k + 1);
           }}
           onEdit={() => {
