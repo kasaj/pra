@@ -442,7 +442,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {activity.description}
               </p>
 
-              {(localVariants.length > 0 || editingVariants) && (<>
+              {(<>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {localVariants.map((variant) => (
                     <div key={variant} className="relative">
@@ -541,7 +541,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {activity.description}
               </p>
 
-              {(localVariants.length > 0 || editingVariants) && (<>
+              {(<>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {localVariants.map((variant) => (
                     <div key={variant} className="relative">
@@ -668,7 +668,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {t.flow.whatShifted}
               </h3>
 
-              {(localVariants.length > 0 || editingVariants) && (<>
+              {(<>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {localVariants.map((variant) => (
                     <div key={variant} className="relative">
