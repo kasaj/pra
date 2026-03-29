@@ -753,22 +753,22 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
       {/* Records */}
       <section className="mb-6">
         <div className="flex items-center justify-between mb-3">
+          <div className="flex gap-1 bg-themed-input rounded-lg p-0.5">
+            {(['date', 'score'] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setRecordSort(s)}
+                className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                  recordSort === s
+                    ? 'bg-themed-card text-themed-accent shadow-sm'
+                    : 'text-themed-faint hover:text-themed-secondary'
+                }`}
+              >
+                {s === 'date' ? t.time.sortDate : t.time.sortScore}
+              </button>
+            ))}
+          </div>
           <div className="flex items-center gap-2">
-            <div className="flex gap-1 bg-themed-input rounded-lg p-0.5">
-              {(['date', 'score'] as const).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setRecordSort(s)}
-                  className={`px-2 py-1 text-xs rounded-md transition-colors ${
-                    recordSort === s
-                      ? 'bg-themed-card text-themed-accent shadow-sm'
-                      : 'text-themed-faint hover:text-themed-secondary'
-                  }`}
-                >
-                  {s === 'date' ? t.time.sortDate : t.time.sortScore}
-                </button>
-              ))}
-            </div>
             <button
               onClick={handleSelectAll}
               className="px-3 py-1.5 text-sm rounded-xl bg-themed-input text-themed-muted
