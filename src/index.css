@@ -159,7 +159,8 @@
 
 @layer components {
   .page-container {
-    @apply max-w-md mx-auto px-4 pb-24 pt-12;
+    @apply max-w-md mx-auto px-4 pb-24;
+    padding-top: max(env(safe-area-inset-top, 0px), 1rem);
   }
 
   .card {
