@@ -44,8 +44,10 @@ export const saveDayEntry = (entry: DayEntry): void => {
 };
 
 export const addActivity = (activity: Activity): void => {
-  const today = getTodayDate();
-  const entry = getDayEntry(today) || { date: today, activities: [] };
+  const activityDate = activity.startedAt
+    ? new Date(activity.startedAt).toISOString().split('T')[0]
+    : getTodayDate();
+  const entry = getDayEntry(activityDate) || { date: activityDate, activities: [] };
   entry.activities.push(activity);
   saveDayEntry(entry);
 };
@@ -60,8 +62,25 @@ export const updateActivityById = (id: string, updates: Partial<Activity>): void
   for (const entry of data) {
     const idx = entry.activities.findIndex((a) => a.id === id);
     if (idx >= 0) {
-      entry.activities[idx] = { ...entry.activities[idx], ...updates };
-      saveAllData(data);
+      const updated = { ...entry.activities[idx], ...updates };
+      const newDate = updated.startedAt
+        ? new Date(updated.startedAt).toISOString().split('T')[0]
+        : entry.date;
+
+      if (newDate !== entry.date) {
+        // Move activity to the correct day
+        entry.activities.splice(idx, 1);
+        const targetEntry = data.find(e => e.date === newDate) || { date: newDate, activities: [] };
+        targetEntry.activities.push(updated);
+        if (!data.find(e => e.date === newDate)) data.push(targetEntry);
+        // Remove empty days
+        const filtered = data.filter(e => e.activities.length > 0);
+        filtered.sort((a, b) => b.date.localeCompare(a.date));
+        saveAllData(filtered);
+      } else {
+        entry.activities[idx] = updated;
+        saveAllData(data);
+      }
       return;
     }
   }

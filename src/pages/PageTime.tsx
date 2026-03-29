@@ -237,8 +237,8 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
         {/* Row 1: time left, right: linkCount emoji avgEmoji */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm">{def?.emoji}</span>
             <span className="text-themed-faint text-xs">{formatTime(activity.startedAt, lang)}</span>
+            <span className="text-sm">{def?.emoji}</span>
             {actualTime && <span className="text-themed-faint text-xs">{actualTime}</span>}
           </div>
           <div className="flex items-center gap-2">
@@ -713,7 +713,7 @@ export default function PageTime() {
         <div className="card">
           {recordSort === 'date' ? (
             // Sort by date (grouped by day), filtered by calendar
-            (calendarDate ? data.filter(d => d.date === calendarDate) : data).map((day, dayIndex) => (
+            (calendarDate ? data.filter(d => d.date === calendarDate) : data.slice(0, 10)).map((day, dayIndex) => (
               <div key={day.date}>
                 <div className={`py-2 px-1 text-sm font-medium text-themed-muted capitalize flex items-center justify-between ${
                   dayIndex > 0 ? 'border-t-2 border-themed mt-2' : ''
