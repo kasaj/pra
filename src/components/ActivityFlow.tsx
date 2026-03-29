@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { Activity, ActivityDefinition, ActivityComment, Rating } from '../types';
 import { useLanguage } from '../i18n';
 import { generateId, addActivity, updateActivityById, getDayEntry, getTodayDate } from '../utils/storage';
+import { loadActivities, saveActivities } from '../utils/activities';
 import { loadMoodScale } from '../utils/moodScale';
 import StarRating from './StarRating';
 import Timer from './Timer';
@@ -144,6 +145,10 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
   const ratingBefore = existingActivity?.ratingBefore || null;
   const ratingAfter = existingActivity?.ratingAfter || null;
   const rating = existingActivity?.rating || null;
+
+  const [localVariants, setLocalVariants] = useState<string[]>(activity.variants || []);
+  const [newVariantText, setNewVariantText] = useState('');
+  const [editingVariants, setEditingVariants] = useState(false);
 
   const [startedAt, setStartedAt] = useState(existingActivity?.startedAt || new Date().toISOString());
   const actualDurationRef = useRef<number>(existingActivity?.actualDurationSeconds || 0);
@@ -297,6 +302,31 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     onClose();
   }, [isEditing, existingActivity, onUpdateExisting, isTimed, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose, newComment, newCommentRating, localComments, onAddComment, ensureSaved, startedAt]);
 
+  const persistVariants = useCallback((updated: string[]) => {
+    const all = loadActivities();
+    const idx = all.findIndex(a => a.type === activity.type);
+    if (idx >= 0) {
+      all[idx] = { ...all[idx], variants: updated };
+      saveActivities(all);
+    }
+  }, [activity.type]);
+
+  const handleAddVariant = useCallback(() => {
+    const text = newVariantText.trim();
+    if (!text || localVariants.includes(text)) return;
+    const updated = [...localVariants, text];
+    setLocalVariants(updated);
+    setNewVariantText('');
+    persistVariants(updated);
+  }, [newVariantText, localVariants, persistVariants]);
+
+  const handleRemoveVariant = useCallback((variant: string) => {
+    const updated = localVariants.filter(v => v !== variant);
+    setLocalVariants(updated);
+    if (selectedVariant === variant) setSelectedVariant(null);
+    persistVariants(updated);
+  }, [localVariants, selectedVariant, persistVariants]);
+
   const handleVariantClick = (variant: string) => {
     if (selectedVariant === variant) {
       setSelectedVariant(null);
@@ -408,21 +438,47 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {activity.description}
               </p>
 
-              {activity.variants && activity.variants.length > 0 && (
+              {(localVariants.length > 0 || editingVariants) && (
                 <div className="flex flex-wrap gap-2 justify-center">
-                  {activity.variants.map((variant) => (
-                    <button
-                      key={variant}
-                      onClick={() => handleVariantClick(variant)}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        selectedVariant === variant
-                          ? 'bg-themed-accent border-themed-accent text-themed-accent'
-                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                      }`}
-                    >
-                      {variant}
-                    </button>
+                  {localVariants.map((variant) => (
+                    <div key={variant} className="relative">
+                      <button
+                        onClick={() => handleVariantClick(variant)}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                          selectedVariant === variant
+                            ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        }`}
+                      >
+                        {variant}
+                      </button>
+                      {editingVariants && (
+                        <button
+                          onClick={() => handleRemoveVariant(variant)}
+                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-themed-warn text-white flex items-center justify-center text-xs"
+                        >×</button>
+                      )}
+                    </div>
                   ))}
+                  {editingVariants && (
+                    <div className="flex gap-1">
+                      <input
+                        value={newVariantText}
+                        onChange={(e) => setNewVariantText(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddVariant(); } }}
+                        placeholder="+"
+                        className="w-20 px-2 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
+                      />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setEditingVariants(!editingVariants)}
+                    className={`px-2 py-1.5 text-xs rounded-full border transition-colors ${
+                      editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                    }`}
+                  >
+                    {editingVariants ? '✓' : '✎'}
+                  </button>
                 </div>
               )}
 
@@ -450,21 +506,47 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {activity.description}
               </p>
 
-              {activity.variants && activity.variants.length > 0 && (
+              {(localVariants.length > 0 || editingVariants) && (
                 <div className="flex flex-wrap gap-2 justify-center">
-                  {activity.variants.map((variant) => (
-                    <button
-                      key={variant}
-                      onClick={() => handleVariantClick(variant)}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        selectedVariant === variant
-                          ? 'bg-themed-accent border-themed-accent text-themed-accent'
-                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                      }`}
-                    >
-                      {variant}
-                    </button>
+                  {localVariants.map((variant) => (
+                    <div key={variant} className="relative">
+                      <button
+                        onClick={() => handleVariantClick(variant)}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                          selectedVariant === variant
+                            ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        }`}
+                      >
+                        {variant}
+                      </button>
+                      {editingVariants && (
+                        <button
+                          onClick={() => handleRemoveVariant(variant)}
+                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-themed-warn text-white flex items-center justify-center text-xs"
+                        >×</button>
+                      )}
+                    </div>
                   ))}
+                  {editingVariants && (
+                    <div className="flex gap-1">
+                      <input
+                        value={newVariantText}
+                        onChange={(e) => setNewVariantText(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddVariant(); } }}
+                        placeholder="+"
+                        className="w-20 px-2 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
+                      />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setEditingVariants(!editingVariants)}
+                    className={`px-2 py-1.5 text-xs rounded-full border transition-colors ${
+                      editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                    }`}
+                  >
+                    {editingVariants ? '✓' : '✎'}
+                  </button>
                 </div>
               )}
 
@@ -520,21 +602,47 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {t.flow.whatShifted}
               </h3>
 
-              {activity.variants && activity.variants.length > 0 && (
+              {(localVariants.length > 0 || editingVariants) && (
                 <div className="flex flex-wrap gap-2 justify-center">
-                  {activity.variants.map((variant) => (
-                    <button
-                      key={variant}
-                      onClick={() => handleVariantClick(variant)}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        selectedVariant === variant
-                          ? 'bg-themed-accent border-themed-accent text-themed-accent'
-                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                      }`}
-                    >
-                      {variant}
-                    </button>
+                  {localVariants.map((variant) => (
+                    <div key={variant} className="relative">
+                      <button
+                        onClick={() => handleVariantClick(variant)}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                          selectedVariant === variant
+                            ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        }`}
+                      >
+                        {variant}
+                      </button>
+                      {editingVariants && (
+                        <button
+                          onClick={() => handleRemoveVariant(variant)}
+                          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-themed-warn text-white flex items-center justify-center text-xs"
+                        >×</button>
+                      )}
+                    </div>
                   ))}
+                  {editingVariants && (
+                    <div className="flex gap-1">
+                      <input
+                        value={newVariantText}
+                        onChange={(e) => setNewVariantText(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddVariant(); } }}
+                        placeholder="+"
+                        className="w-20 px-2 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
+                      />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setEditingVariants(!editingVariants)}
+                    className={`px-2 py-1.5 text-xs rounded-full border transition-colors ${
+                      editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                    }`}
+                  >
+                    {editingVariants ? '✓' : '✎'}
+                  </button>
                 </div>
               )}
 
