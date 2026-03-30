@@ -386,7 +386,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </div>
           </div>
 
-          {/* User-added activities (via +) - not core, not from config */}
+          {/* User-added activities (via +) */}
           {(() => {
             const configTypes = new Set((getCachedConfig()?.activities || []).map(a => a.type));
             const userActivities = allTranslated.filter(a => !a.core && !configTypes.has(a.type));
@@ -405,6 +405,23 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               ))}
             </div>
           ); })()}
+
+          {/* Config activities */}
+          <div className="mt-4 space-y-2">
+            {allTranslated.filter(a => !a.core).map((activity) => (
+              <ActivityCard
+                key={activity.type}
+                activity={activity}
+                onClick={() => handleActivityClick(activity)}
+                completedToday={completedTodayCounts.has(activity.type)}
+                completedCount={completedTodayCounts.get(activity.type) || 0}
+                completedYesterday={completedPreviousCounts.has(activity.type)}
+                yesterdayCount={completedPreviousCounts.get(activity.type) || 0}
+                totalCount={totalCountPerActivity.get(activity.type) || 0}
+                totalSeconds={totalTimePerActivity.get(activity.type) || 0}
+              />
+            ))}
+          </div>
         </section>
       ) : (
       <section>
