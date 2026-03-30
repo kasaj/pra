@@ -26,6 +26,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [moodRating, setMoodRating] = useState<Rating | null>(null);
   const [moodComment, setMoodComment] = useState('');
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
+  const [editMode, setEditMode] = useState(false);
   const [editingProperties, setEditingProperties] = useState(false);
   const [newPropertyText, setNewPropertyText] = useState('');
   const [hiddenProperties, setHiddenProperties] = useState<Set<string>>(() => {
@@ -292,6 +293,23 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
+            <button
+              onClick={() => {
+                const next = !editMode;
+                setEditMode(next);
+                setEditingProperties(next);
+              }}
+              className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
+              style={{
+                backgroundColor: editMode ? 'var(--accent-solid)' : 'var(--bg-input)',
+                color: editMode ? 'var(--accent-text-on-solid)' : 'var(--text-secondary)',
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
           </div>
         </div>
       </header>
@@ -347,19 +365,21 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                          text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
               />
             )}
-            <button
-              onClick={() => setEditingProperties(!editingProperties)}
-              className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
-                editingProperties ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
-              }`}
-            >
-              {editingProperties ? '✓' : '+'}
-            </button>
+            {editMode && (
+              <button
+                onClick={() => setEditingProperties(!editingProperties)}
+                className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
+                  editingProperties ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                }`}
+              >
+                {editingProperties ? '✓' : '+'}
+              </button>
+            )}
           </div>
 
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
-          <div className="w-5" />
+          {editMode && <div className="w-5" />}
           <div className="flex-1">
           <div
             className="card p-3"
@@ -403,33 +423,23 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </div>
           </div>
           </div>
-          <div className="w-5" />
+          {editMode && <div className="w-5" />}
           </div>
 
           {/* All non-core activities with move controls */}
           <div className="mt-4 space-y-2">
             {allTranslated.filter(a => !a.core).map((activity, idx, arr) => (
               <div key={activity.type} className="flex items-center gap-1">
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => handleMoveActivity(activity.type, 'up')}
-                    disabled={idx === 0}
-                    className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20"
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleMoveActivity(activity.type, 'down')}
-                    disabled={idx === arr.length - 1}
-                    className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20"
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
+                {editMode ? (
+                  <div className="flex flex-col">
+                    <button onClick={() => handleMoveActivity(activity.type, 'up')} disabled={idx === 0} className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                    </button>
+                    <button onClick={() => handleMoveActivity(activity.type, 'down')} disabled={idx === arr.length - 1} className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                  </div>
+                ) : null}
                 <div className="flex-1">
                   <ActivityCard
                     activity={activity}
@@ -442,26 +452,16 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     totalSeconds={totalTimePerActivity.get(activity.type) || 0}
                   />
                 </div>
-                <div className="flex flex-col">
-                  <button
-                    onClick={() => handleMoveActivity(activity.type, 'up')}
-                    disabled={idx === 0}
-                    className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20"
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleMoveActivity(activity.type, 'down')}
-                    disabled={idx === arr.length - 1}
-                    className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20"
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
+                {editMode ? (
+                  <div className="flex flex-col">
+                    <button onClick={() => handleMoveActivity(activity.type, 'up')} disabled={idx === 0} className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                    </button>
+                    <button onClick={() => handleMoveActivity(activity.type, 'down')} disabled={idx === arr.length - 1} className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
