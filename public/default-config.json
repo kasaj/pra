@@ -127,47 +127,6 @@
       }
     },
     {
-      "type": "komentar",
-      "emoji": "📜",
-      "durationMinutes": null,
-      "cs": {
-        "name": "Komentář - Informace",
-        "description": "Vědomá sebereflexe, kotvení, záměr, poznámka",
-        "properties": [
-          "Probuzení",
-          "Záměr",
-          "Spánek 8h",
-          "Fail",
-          "Slast",
-          "Strast",
-          "Poznámka",
-          "Zkušenost",
-          "Myšlenka",
-          "Pocit",
-          "Strach",
-          "Únava",
-          "Usínání"
-        ]
-      },
-      "en": {
-        "name": "Comment - Information",
-        "description": "Conscious self-reflection, anchoring, intention, note",
-        "properties": [
-          "Intention",
-          "Sleep 8h",
-          "Fail",
-          "Pleasure",
-          "Suffering",
-          "Note",
-          "Experience",
-          "Thought",
-          "Feeling",
-          "Fear",
-          "Fatigue"
-        ]
-      }
-    },
-    {
       "type": "objeti",
       "emoji": "👫",
       "durationMinutes": null,
