@@ -341,8 +341,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
 
           {/* Core activity centered */}
+          <div className="flex items-center gap-1">
+          <div className="flex-1">
           <div
-            className="card p-4"
+            className="card p-3"
             onBlur={(e) => {
               setTimeout(() => {
                 if (!e.currentTarget.contains(document.activeElement)) flushMood();
@@ -382,11 +384,26 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               </span>
             </div>
           </div>
+          </div>
+          <div className="w-5" />
+          </div>
 
           {/* All non-core activities with move controls */}
           <div className="mt-4 space-y-2">
             {allTranslated.filter(a => !a.core).map((activity, idx, arr) => (
               <div key={activity.type} className="flex items-center gap-1">
+                <div className="flex-1">
+                  <ActivityCard
+                    activity={activity}
+                    onClick={() => handleActivityClick(activity)}
+                    completedToday={completedTodayCounts.has(activity.type)}
+                    completedCount={completedTodayCounts.get(activity.type) || 0}
+                    completedYesterday={completedPreviousCounts.has(activity.type)}
+                    yesterdayCount={completedPreviousCounts.get(activity.type) || 0}
+                    totalCount={totalCountPerActivity.get(activity.type) || 0}
+                    totalSeconds={totalTimePerActivity.get(activity.type) || 0}
+                  />
+                </div>
                 <div className="flex flex-col">
                   <button
                     onClick={() => handleMoveActivity(activity.type, 'up')}
@@ -406,18 +423,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                </div>
-                <div className="flex-1">
-                  <ActivityCard
-                    activity={activity}
-                    onClick={() => handleActivityClick(activity)}
-                    completedToday={completedTodayCounts.has(activity.type)}
-                    completedCount={completedTodayCounts.get(activity.type) || 0}
-                    completedYesterday={completedPreviousCounts.has(activity.type)}
-                    yesterdayCount={completedPreviousCounts.get(activity.type) || 0}
-                    totalCount={totalCountPerActivity.get(activity.type) || 0}
-                    totalSeconds={totalTimePerActivity.get(activity.type) || 0}
-                  />
                 </div>
               </div>
             ))}
