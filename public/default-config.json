@@ -198,21 +198,20 @@
   ],
   "properties": {
     "cs": [
-      "Dlouhý výdech sss (uklidnění)", "Fail", "Jóga",
-      "Klid gesta 👌", "Nový návyk", "Aha", "Pocit",
-      "Poznámka","Procházka", "Práce", "Rodina", "Slast", "Strast", "Strach", 
-      "Sport", "Společnost", "Únava", "Vůle pozorovat", "Zkušenost", "Záměr", "Probuzení", "Usínání",
-      "☕️","🌞", "🍲", "🏃‍♂️", "👫", "🚴"
+      "Dlouhý výdech sss (uklidnění)", "Fail", "Klid gesta 👌", "Nový návyk",
+      "Pocit", "Pochopení", "Práce", "Slast", "Spánek 8h", "Společnost",
+      "Sport", "Stín", "Strach", "Únava", "Záměr", "Zkušenost",
+      "☀️", "☕️", "♟️", "🌅", "🍩", "🍲", "🏃‍♂️", "🏋️", "🏠",
+      "🐓", "🐕", "👫", "👫👫🧍‍♂️", "💤", "💩", "💭", "📝",
+      "🔭", "🤗", "🥱", "🚬", "🚶‍♂️", "🛌"
     ],
     "en": [
-      "Accepting pain", "Admitting a feeling", "Balance", "Calm gesture 👌 NLP",
-      "Confronting fear", "Don't give up", "Experience", "Fail", "Failure",
-      "Failure is a win", "Family", "Fatigue", "Fear", "Feeling",
-      "Five Tibetans", "Imagination", "Intention", "Long exhale sss (calming)",
-      "New habit", "Note", "Observation", "Pleasure", "Push-ups",
-      "Sharing", "Sleep 8h", "Small step in chaos", "Society", "Sport",
-      "Tai-chi", "Thought", "Understanding", "Walk", "Will to just observe",
-      "Work", "Yoga", "☕️", "❤️", "🌞", "🍲", "🏃‍♂️", "🤗", "👫"
+      "Dlouhý výdech sss (uklidnění)", "Fail", "Klid gesta 👌", "Nový návyk",
+      "Pocit", "Pochopení", "Práce", "Slast", "Spánek 8h", "Společnost",
+      "Sport", "Stín", "Strach", "Únava", "Záměr", "Zkušenost",
+      "☀️", "☕️", "♟️", "🌅", "🍩", "🍲", "🏃‍♂️", "🏋️", "🏠",
+      "🐓", "🐕", "👫", "👫👫🧍‍♂️", "💤", "💩", "💭", "📝",
+      "🔭", "🤗", "🥱", "🚬", "🚶‍♂️", "🛌"
     ]
   },
   "moodScale": [

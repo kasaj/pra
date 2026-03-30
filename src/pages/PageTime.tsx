@@ -291,7 +291,7 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
         ))}
         {/* Mood scale if no comments */}
         {lastTwo.length === 0 && (
-          <div className="flex gap-px mt-0.5" style={{ fontSize: '0.55rem' }}>
+          <div className="flex justify-end gap-px mt-0.5" style={{ fontSize: '0.55rem' }}>
             {loadMoodScale().map(({ value: v, emoji: e }) => (
               <span key={v} className="grayscale opacity-20">{e}</span>
             ))}
