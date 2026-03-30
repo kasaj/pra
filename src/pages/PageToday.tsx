@@ -27,7 +27,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [moodComment, setMoodComment] = useState('');
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [editMode, setEditMode] = useState(false);
-  const [editingProperties, setEditingProperties] = useState(false);
   const [newPropertyText, setNewPropertyText] = useState('');
   const [hiddenProperties, setHiddenProperties] = useState<Set<string>>(() => {
     try {
@@ -297,7 +296,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               onClick={() => {
                 const next = !editMode;
                 setEditMode(next);
-                setEditingProperties(next);
               }}
               className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
               style={{
@@ -325,12 +323,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               const bIsEmoji = /^\p{Emoji}/u.test(b);
               if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
               return a.localeCompare(b, language);
-            }).filter(prop => editingProperties || !hiddenProperties.has(prop)).map((prop) => (
+            }).filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
               <div key={prop} className="relative">
                 <button
-                  onClick={() => editingProperties ? toggleHideProperty(prop) : toggleProperty(prop)}
+                  onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
                   className={`px-2 py-1 text-xs rounded-full border transition-colors ${
-                    editingProperties && hiddenProperties.has(prop)
+                    editMode && hiddenProperties.has(prop)
                       ? 'opacity-30 border-themed bg-themed-input text-themed-faint line-through'
                       : selectedProperties.has(prop)
                         ? 'bg-themed-accent border-themed-accent text-themed-accent'
@@ -341,7 +339,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </button>
               </div>
             ))}
-            {editingProperties && (
+            {editMode && (
               <input
                 type="text"
                 value={newPropertyText}
@@ -364,16 +362,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input
                          text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
               />
-            )}
-            {editMode && (
-              <button
-                onClick={() => setEditingProperties(!editingProperties)}
-                className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
-                  editingProperties ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
-                }`}
-              >
-                {editingProperties ? '✓' : '+'}
-              </button>
             )}
           </div>
 

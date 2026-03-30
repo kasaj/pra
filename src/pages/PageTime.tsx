@@ -309,6 +309,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
   const [trendRange, setTrendRange] = useState<'day' | 'week' | 'month'>('day');
   const [showView, setShowView] = useState<'chart' | 'calendar'>('chart');
   const [recordSort, setRecordSort] = useState<'date' | 'score'>('date');
+  const [searchQuery, setSearchQuery] = useState('');
   const [calendarDate, setCalendarDate] = useState<string | null>(null); // null = all, string = YYYY-MM-DD filter
   const [editingRecord, setEditingRecord] = useState<Activity | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -542,6 +543,34 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
     setSelectedIds(new Set());
   }, [selectedIds]);
 
+  // Search filter
+  const matchesSearch = useCallback((activity: Activity): boolean => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    const def = getActivityByType(activity.type);
+    // Search in activity type, name, emoji
+    if (activity.type.toLowerCase().includes(q)) return true;
+    if (def?.name?.toLowerCase().includes(q)) return true;
+    if (def?.emoji?.includes(searchQuery)) return true;
+    // Search in selectedVariant
+    if (activity.selectedVariant?.toLowerCase().includes(q)) return true;
+    // Search in comments text and rating emoji
+    if (activity.comments) {
+      for (const c of activity.comments) {
+        if (c.text?.toLowerCase().includes(q)) return true;
+        if (c.rating) {
+          const emoji = getMoodEmoji(c.rating);
+          if (emoji.includes(searchQuery)) return true;
+        }
+      }
+    }
+    // Legacy notes
+    if (activity.note?.toLowerCase().includes(q)) return true;
+    if (activity.noteBefore?.toLowerCase().includes(q)) return true;
+    if (activity.noteAfter?.toLowerCase().includes(q)) return true;
+    return false;
+  }, [searchQuery]);
+
   // Flat list of all activities sorted by time (newest first)
   const allActivitiesFlat = useMemo(() => {
     const flat: Activity[] = [];
@@ -630,6 +659,15 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
       <header className="mb-6">
         <h1 className="font-serif text-3xl text-themed-primary">{t.time.title}</h1>
         <p className="text-themed-faint mt-1">{t.time.subtitle}</p>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={language === 'cs' ? '🔍 Hledat...' : '🔍 Search...'}
+          className="w-full mt-3 px-3 py-2 rounded-xl bg-themed-input border border-themed
+                   focus:outline-none focus:border-themed-accent
+                   text-themed-primary placeholder:text-themed-faint text-sm"
+        />
       </header>
 
       {/* Chart / Calendar toggle */}
@@ -820,12 +858,14 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
 
         <div className="card">
           {recordSort === 'date' ? (
-            // Sort by date (grouped by day), filtered by calendar
+            // Sort by date (grouped by day), filtered by calendar and search
             (calendarDate ? data.filter(d => d.date === calendarDate) : (() => {
-              // Default: show days containing the last 10 activities
-              let remaining = 10;
+              const filtered = searchQuery.trim()
+                ? data.map(d => ({ ...d, activities: d.activities.filter(matchesSearch) })).filter(d => d.activities.length > 0)
+                : data;
+              let remaining = searchQuery.trim() ? 999 : 10;
               const result: DayEntry[] = [];
-              for (const day of data) {
+              for (const day of filtered) {
                 if (remaining <= 0) break;
                 result.push(day);
                 remaining -= day.activities.length;
@@ -843,6 +883,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
                   </span>
                 </div>
                 {day.activities
+                  .filter(matchesSearch)
                   .slice()
                   .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
                   .map((activity) => (
@@ -867,6 +908,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
               ? allActivitiesFlat.filter(a => a.startedAt.startsWith(calendarDate))
               : allActivitiesFlat
             )
+              .filter(matchesSearch)
               .slice()
               .sort((a, b) => {
                 const chainPos = (act: Activity) => {
