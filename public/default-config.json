@@ -240,10 +240,9 @@
   "properties": {
     "cs": [
       "Dlouhý výdech sss (uklidnění)", "Fail", "Jóga",
-      "Klid gesta 👌", "Kliky", "Nový návyk", "Pochopení", "Pocit",
-      "Poznámka","Procházka", "Práce", "Pět tibeťanů",
-      "Rodina", "Slast", "Strach", "Spánek 8h", "Sport", "Společnost", "Strach",
-       "Únava", "Vůle jen pozorovat", "Zkušenost", "Záměr",
+      "Klid gesta 👌", "Nový návyk", "Aha", "Pocit",
+      "Poznámka","Procházka", "Práce", "Rodina", "Slast", "Strast", "Strach", 
+      "Spánek 8h", "Sport", "Společnost", "Únava", "Vůle pozorovatele", "Zkušenost", "Záměr", "Probuzení", "Usínání",
       "☕️","🚬","🌞", "🍲", "🏃‍♂️", "🤗", "👫"
     ],
     "en": [
