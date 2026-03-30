@@ -364,16 +364,9 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
       <div className="flex-1 overflow-auto flex flex-col">
         <div className="max-w-md mx-auto px-4 w-full flex-1 flex flex-col justify-center">
-          <div className="flex items-center gap-2">
-            {onEdit && !(isTimed && (timedStep === 'rating-after' || timedStep === 'timer')) && (
-              <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-1">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </button>
-            )}
+          <div className="flex flex-col items-center gap-1 mb-2">
             <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
               <input
                 type="date"
                 value={toLocalDate(startedAt)}
@@ -420,6 +413,15 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 }}
                 className="text-sm text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
               />
+              </div>
+              {onEdit && !(isTimed && (timedStep === 'rating-after' || timedStep === 'timer')) && (
+                <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-1 ml-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
           {onNavigateLinked && (() => {
@@ -447,7 +449,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 : null;
 
               return (
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center justify-center gap-2 mt-2">
                   {chainAvgEmoji && <span className="text-lg">{chainAvgEmoji}</span>}
                   {hasFrom && (
                     <button
