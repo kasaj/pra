@@ -10,7 +10,7 @@ import {
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import { loadVariantRegistry, addToRegistry } from '../utils/variantRegistry';
-import { getMoodEmoji } from '../utils/moodScale';
+import { getCachedConfig } from '../utils/config';
 import ActivityCard from '../components/ActivityCard';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
@@ -194,15 +194,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // Today's activities for custom view
-  const todayActivities = useMemo(() => {
-    const todayEntry = getDayEntry(getTodayDate());
-    if (!todayEntry) return [];
-    return todayEntry.activities
-      .slice()
-      .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshKey]);
 
   const handleActivityClick = (activity: ActivityDefinition) => {
     flushMood();
@@ -301,7 +292,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
         <section>
           {/* Properties above core */}
           <div className="flex flex-wrap gap-2 mb-4 justify-center">
-            {loadVariantRegistry().map((prop) => (
+            {loadVariantRegistry().slice().sort((a, b) => {
+              const aIsEmoji = /^\p{Emoji}/u.test(a);
+              const bIsEmoji = /^\p{Emoji}/u.test(b);
+              if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
+              return a.localeCompare(b, language);
+            }).map((prop) => (
               <button
                 key={prop}
                 onClick={() => toggleProperty(prop)}
@@ -392,39 +388,25 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </div>
           </div>
 
-          {/* Today's records */}
-          {todayActivities.length > 0 && (
-            <div className="mt-4 space-y-1">
-              {todayActivities.map((a) => {
-                const def = activities.find(d => d.type === a.type);
-                const translated = def ? getTranslatedActivity(def, t) : null;
-                const time = new Date(a.startedAt).toLocaleTimeString(language === 'cs' ? 'cs-CZ' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-                const comment = a.comments?.[0];
-                return (
-                  <div key={a.id} className="card px-3 py-2 cursor-pointer" onClick={() => {
-                    if (translated) {
-                      flushMood();
-                      setActiveActivity(translated);
-                    }
-                  }}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-themed-faint">{time}</span>
-                      <span className="text-sm">{translated?.emoji || '📊'}</span>
-                      {a.selectedVariant && (
-                        <span className="text-xs text-themed-muted truncate flex-1">{a.selectedVariant}</span>
-                      )}
-                      {!a.selectedVariant && comment?.text && (
-                        <span className="text-xs text-themed-muted truncate flex-1">{comment.text}</span>
-                      )}
-                      {comment?.rating && (
-                        <span className="text-sm">{getMoodEmoji(comment.rating)}</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+          {/* User-added activities (via +) - not core, not from config */}
+          {(() => {
+            const configTypes = new Set((getCachedConfig()?.activities || []).map(a => a.type));
+            const userActivities = allTranslated.filter(a => !a.core && !configTypes.has(a.type));
+            return userActivities.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {userActivities.map((activity) => (
+                <ActivityCard
+                  key={activity.type}
+                  activity={activity}
+                  onClick={() => handleActivityClick(activity)}
+                  completedToday={completedTodayCounts.has(activity.type)}
+                  completedCount={completedTodayCounts.get(activity.type) || 0}
+                  totalCount={totalCountPerActivity.get(activity.type) || 0}
+                  totalSeconds={totalTimePerActivity.get(activity.type) || 0}
+                />
+              ))}
             </div>
-          )}
+          ); })()}
         </section>
       ) : (
       <section>
