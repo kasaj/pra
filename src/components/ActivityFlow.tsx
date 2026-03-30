@@ -276,8 +276,9 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
         actualDurationSeconds: Math.max(60, Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000)),
       });
     } else if (savedIdRef.current) {
-      // Only update if there are changes (new comments or variant)
-      const hasNewData = finalComments.length > localComments.length || selectedVariant;
+      // Update if there are any changes
+      const timeChanged = completedAt !== (existingActivity?.completedAt || '') || startedAt !== (existingActivity?.startedAt || '');
+      const hasNewData = finalComments.length > localComments.length || selectedVariant || timeChanged;
       if (hasNewData || localComments.length > 0) {
         updateActivityById(savedIdRef.current, {
           startedAt,
