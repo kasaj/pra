@@ -6,9 +6,10 @@ interface StarRatingProps {
   onChange: (rating: Rating) => void;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   scale?: MoodScaleItem[];
+  bordered?: boolean;
 }
 
-export default function StarRating({ value, onChange, size = 'md', scale }: StarRatingProps) {
+export default function StarRating({ value, onChange, size = 'md', scale, bordered }: StarRatingProps) {
   const items = scale || loadMoodScale();
 
   const sizeClasses = {
@@ -27,7 +28,7 @@ export default function StarRating({ value, onChange, size = 'md', scale }: Star
           onClick={() => onChange((value === v ? null : v) as Rating)}
           className={`transition-transform hover:scale-110 ${
             value === v ? 'opacity-100' : 'grayscale opacity-40'
-          }`}
+          } ${bordered ? `rounded-lg border ${value === v ? 'border-themed-accent' : 'border-themed'} p-1.5` : ''}`}
         >
           {emoji}
         </button>
