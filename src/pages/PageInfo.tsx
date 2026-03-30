@@ -185,7 +185,6 @@ export default function PageInfo() {
         <footer className="text-center text-sm text-themed-faint pt-4 space-y-4">
           <div className="space-y-1">
             <div><a href="https://github.com/kasaj/app" target="_blank" rel="noopener noreferrer" className="text-themed-accent-solid hover:underline">github.com/kasaj/app</a></div>
-            <div><a href="https://community.paulus.yoga/c/sdileni/aplikace-pro-praxi-beta" target="_blank" rel="noopener noreferrer" className="text-themed-accent-solid hover:underline">community.paulus.yoga</a></div>
           </div>
         </footer>
       </div>
