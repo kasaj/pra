@@ -234,8 +234,8 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <span className="text-themed-faint text-xs">{formatTime(activity.startedAt, lang)}</span>
-            <span className="text-sm">{def?.emoji}</span>
-            {def?.name && <span className="text-xs text-themed-muted truncate">{def.name}</span>}
+            <span className="text-sm">{def?.emoji || '📌'}</span>
+            <span className="text-xs text-themed-muted truncate">{def?.name || activity.type}</span>
           </div>
           <div className="flex items-center gap-2">
             {linkCount > 0 && (
@@ -1018,8 +1018,13 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
 
       {editingRecord && (() => {
         const def = getActivityByType(editingRecord.type);
-        const translated = def ? getTranslatedActivity(def, t) : null;
-        if (!translated) return null;
+        const translated = def ? getTranslatedActivity(def, t) : {
+          type: editingRecord.type,
+          emoji: '📌',
+          name: editingRecord.type,
+          description: '',
+          durationMinutes: editingRecord.durationMinutes,
+        };
         const idx = allActivitiesFlat.findIndex((a) => a.id === editingRecord.id);
         return (
           <ActivityFlow
