@@ -359,7 +359,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
       <div className="px-4 pt-4 pb-2">
         <div className="max-w-md mx-auto">
           <h1 className="font-serif text-3xl text-themed-primary">{activity.emoji} {activity.name}</h1>
-          <p className="text-themed-faint mt-1">{activity.description}</p>
+          <p className="text-themed-faint mt-1 max-w-xs">{activity.description}</p>
         </div>
       </div>
 

@@ -39,9 +39,10 @@ function NoteField({ value, onChange, placeholder }: {
       value={value}
       onChange={(e) => { onChange(e.target.value); autoResize(); }}
       placeholder={placeholder}
-      className="w-full p-3 mt-3 rounded-xl bg-themed-input border border-themed
-               focus:outline-none focus:border-themed-accent resize-none min-h-[4rem]
-               text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
+      rows={1}
+      className="w-full px-3 py-2 mt-3 rounded-xl bg-themed-input border border-themed
+               focus:outline-none focus:border-themed-accent resize-none
+               text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
     />
   );
 }
@@ -64,7 +65,7 @@ export default function PageInfo() {
   const info = {
     title: cfgInfo.title || t.info.title,
     subtitle: cfgInfo.subtitle || '',
-    intro: cfgInfo.intro || cfgInfo.intro1 || '',
+    intro: cfgInfo.body || cfgInfo.intro || cfgInfo.intro1 || '',
     why: cfgInfo.why || cfgInfo.intro2 || '',
     how: cfgInfo.how || cfgInfo.sequence || '',
     what: cfgInfo.what || cfgInfo.intro3?.split('\n\n')[0] || '',
