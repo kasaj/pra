@@ -63,17 +63,17 @@ export default function PageInfo() {
 
   const info = {
     title: cfgInfo.title || t.info.title,
-    subtitle: cfgInfo.subtitle || t.info.subtitle,
-    intro: cfgInfo.intro || cfgInfo.intro1,
-    why: cfgInfo.why || cfgInfo.intro2,
-    how: cfgInfo.how || cfgInfo.sequence,
-    what: cfgInfo.what || cfgInfo.intro3?.split('\n\n')[0],
-    bioTitle: cfgInfo.bioTitle || t.info.bioTitle,
-    bioText: cfgInfo.bioText || t.info.bioText,
-    psychTitle: cfgInfo.psychTitle || t.info.psychTitle,
-    psychText: cfgInfo.psychText || t.info.psychText,
-    philoTitle: cfgInfo.philoTitle || t.info.philoTitle,
-    philoText: cfgInfo.philoText || t.info.philoText,
+    subtitle: cfgInfo.subtitle || '',
+    intro: cfgInfo.intro || cfgInfo.intro1 || '',
+    why: cfgInfo.why || cfgInfo.intro2 || '',
+    how: cfgInfo.how || cfgInfo.sequence || '',
+    what: cfgInfo.what || cfgInfo.intro3?.split('\n\n')[0] || '',
+    bioTitle: cfgInfo.bioTitle || '',
+    bioText: cfgInfo.bioText || '',
+    psychTitle: cfgInfo.psychTitle || '',
+    psychText: cfgInfo.psychText || '',
+    philoTitle: cfgInfo.philoTitle || '',
+    philoText: cfgInfo.philoText || '',
   };
 
   // Reload notes when language changes
@@ -92,8 +92,8 @@ export default function PageInfo() {
   return (
     <div className="page-container">
       <header className="mb-8">
-        <h1 className="font-serif text-3xl text-themed-primary">{info.title}</h1>
-        <p className="text-themed-faint mt-2">{info.subtitle}</p>
+        {info.title && <h1 className="font-serif text-3xl text-themed-primary">{info.title}</h1>}
+        {info.subtitle && <p className="text-themed-faint mt-2">{info.subtitle}</p>}
       </header>
 
       <div className="space-y-6 text-themed-secondary leading-relaxed">
