@@ -268,7 +268,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       {(
         <section>
           {/* Properties above core */}
-          <div className="flex flex-wrap gap-2 mb-4 justify-center">
+          <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
             {loadVariantRegistry().slice().sort((a, b) => {
               const aIsEmoji = /^\p{Emoji}/u.test(a);
               const bIsEmoji = /^\p{Emoji}/u.test(b);
@@ -278,7 +278,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               <button
                 key={prop}
                 onClick={() => toggleProperty(prop)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                className={`px-2 py-1 text-xs rounded-full border transition-colors ${
                   selectedProperties.has(prop)
                     ? 'bg-themed-accent border-themed-accent text-themed-accent'
                     : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
