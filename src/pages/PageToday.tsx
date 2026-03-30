@@ -341,7 +341,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 e.target.style.height = 'auto';
                 e.target.style.height = e.target.scrollHeight + 'px';
               }}
-              placeholder={language === 'cs' ? 'Jak se cítíš...' : 'How do you feel...'}
+              placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
               className="w-full p-3 rounded-xl bg-themed-input border border-themed
                        focus:outline-none focus:border-themed-accent resize-none min-h-[3rem]
                        text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
