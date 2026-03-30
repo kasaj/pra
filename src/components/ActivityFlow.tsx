@@ -156,6 +156,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
   const [showVariantRegistry, setShowVariantRegistry] = useState(false);
 
   const [startedAt, setStartedAt] = useState(existingActivity?.startedAt || new Date().toISOString());
+  const [completedAt, setCompletedAt] = useState(existingActivity?.completedAt || new Date().toISOString());
   const actualDurationRef = useRef<number>(existingActivity?.actualDurationSeconds || 0);
   // Track the saved activity ID for new records
   const savedIdRef = useRef<string | null>(existingActivity?.id || null);
@@ -265,8 +266,10 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     if (isEditing && existingActivity && onUpdateExisting) {
       onUpdateExisting(existingActivity.id, {
         startedAt,
+        completedAt,
         selectedVariant: selectedVariant || undefined,
         comments: finalComments.length > 0 ? finalComments : undefined,
+        actualDurationSeconds: Math.max(60, Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000)),
       });
     } else if (savedIdRef.current) {
       // Only update if there are changes (new comments or variant)
@@ -274,9 +277,10 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
       if (hasNewData || localComments.length > 0) {
         updateActivityById(savedIdRef.current, {
           startedAt,
+          completedAt,
           selectedVariant: selectedVariant || undefined,
           comments: finalComments.length > 0 ? finalComments : undefined,
-          actualDurationSeconds: isTimed ? (actualDurationRef.current || (activity.durationMinutes || 0) * 60) : undefined,
+          actualDurationSeconds: actualDurationRef.current || (isTimed ? (activity.durationMinutes || 0) * 60 : Math.max(60, Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000))),
         });
       }
     } else if (finalComments.length > 0 || (isTimed && actualDurationRef.current > 0)) {
@@ -388,6 +392,26 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     const [h, min] = e.target.value.split(':').map(Number);
                     current.setHours(h, min);
                     setStartedAt(current.toISOString());
+                    // Recalculate duration
+                    const diff = Math.round((new Date(completedAt).getTime() - current.getTime()) / 1000);
+                    if (diff > 0) actualDurationRef.current = diff;
+                  }
+                }}
+                className="text-sm text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
+              />
+              <span className="text-sm text-themed-faint">—</span>
+              <input
+                type="time"
+                value={toLocalTime(completedAt)}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const end = new Date(completedAt);
+                    const [h, min] = e.target.value.split(':').map(Number);
+                    end.setHours(h, min);
+                    setCompletedAt(end.toISOString());
+                    // Recalculate duration
+                    const diff = Math.round((end.getTime() - new Date(startedAt).getTime()) / 1000);
+                    if (diff > 0) actualDurationRef.current = diff;
                   }
                 }}
                 className="text-sm text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
