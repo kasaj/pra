@@ -364,7 +364,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
       <div className="flex-1 overflow-auto flex flex-col">
         <div className="max-w-md mx-auto px-4 w-full flex-1 flex flex-col justify-center">
-          <p className="text-themed-faint text-center max-w-xs mx-auto mb-1">{activity.description}</p>
+          <p className="text-themed-faint text-center max-w-xs mx-auto mb-4">{activity.description}</p>
           <div className="flex flex-col items-center gap-1 mb-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
