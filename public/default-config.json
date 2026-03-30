@@ -165,18 +165,18 @@
   ],
   "properties": {
     "cs": [
-      "Dlouhý výdech sss (uklidnění)", "Fail", "Klid gesta 👌", "Nový návyk",
-      "Pocit", "Pochopení", "Práce", "Slast", "Spánek 8h", "Společnost",
-      "Sport", "🌘stín", "Strach", "Únava", "Záměr", "Zkušenost",
-      "☀️", "☕️", "♟️", "🌅", "🍩", "🍲", "🏃‍♂️", "🏋️", "🏠", "🐕", "👫", "👫👫", "💤 sen", "💩", "💭 myšlenka", "📝",
-      "🔭", "🤗", "🥱", "🚶‍♂️", "🛌","📜 záměr"
+      "💨 Dlouhý výdech sss (uklidnění)", "Nový návyk", "Aha"
+      "Pocit", "Zkušenost", "Společnost","🙏 Fail", "👌 Klid gesta","💻 Práce", "🏡 Práce", "🍩 Sladkost", "😴 Spánek 8h",
+      "🏋️ Posilování", "🏃‍♂️ Sport", "🌘 Stín", "😨 Strach", "🥱 Únava", "📜 Záměr", "🤗 Obejmutí",
+      "☀️", "☕️", "🍵","♟️", "🌅 probuzeni", "🍲", "🐕", "👫", "👫👫 Rodina", "💤 Sen", "💩", "💭 Myšlenka", "📝 Poznámka",
+      "🔭 Pozornost", "🚶‍♂️ Procházka", "🛌 Usínání"
     ],
     "en": [
-      "Dlouhý výdech sss (uklidnění)", "Fail", "Klid gesta 👌", "Nový návyk",
-      "Pocit", "Pochopení", "Práce", "Slast", "Spánek 8h", "Společnost",
-      "Sport", "Stín", "Strach", "Únava", "Záměr", "Zkušenost",
-      "☀️", "☕️", "♟️", "🌅", "🍩", "🍲", "🏃‍♂️", "🏋️", "🏠", "🐕", "👫", "👫👫", "💤", "💩", "💭", "📝",
-      "🔭", "🤗", "🥱", "🚶‍♂️", "🛌","📜 "
+      "💨 Dlouhý výdech sss (uklidnění)", "🙏 Fail", "👌 Klid gesta", "Nový návyk", "Aha"
+      "Pocit", "Zkušenost","💻 Práce", "🏡 Práce", "🍩 Sladkost", "Spánek 😴 8h", "Společnost",
+      "🏋️ Posilování", "🏃‍♂️ Sport", "🌘 Stín", "😨 Strach", "🥱 Únava", "📜 Záměr", "🤗 Obejmutí",
+      "☀️", "☕️", "🍵","♟️", "🌅 probuzeni", "🍲", "🐕", "👫", "👫👫 Rodina", "💤 Sen", "💩", "💭 MYšlenka", "📝 Poznámka",
+      "🔭 Pozornost", "🚶‍♂️ Procházka", "🛌 Usínání"
     ]
   },
   "moodScale": [
