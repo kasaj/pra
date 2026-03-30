@@ -734,7 +734,7 @@ export default function PageSettings() {
         </section>
 
         {/* Sync */}
-        <section className="card" style={{ borderColor: '#22c55e', borderWidth: '1px' }}>
+        <section className="card" style={{ border: '1.5px solid #22c55e' }}>
           <button
             onClick={handleSync}
             className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
@@ -753,7 +753,7 @@ export default function PageSettings() {
         </section>
 
         {/* Reset */}
-        <section className="card" style={{ borderColor: '#ef4444', borderWidth: '1px' }}>
+        <section className="card" style={{ border: '1.5px solid #ef4444' }}>
           <button
             onClick={handleReset}
             className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
