@@ -369,21 +369,19 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                        focus:outline-none focus:border-themed-accent resize-none min-h-[3rem]
                        text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
             />
-            <div className="flex items-center justify-between mt-2">
-              <span className="flex items-center gap-2">
-                {(totalCountPerActivity.get('nalada') || 0) > 0 && (
-                  <span className="text-xs text-themed-faint opacity-50">{totalCountPerActivity.get('nalada')}</span>
-                )}
-                {(completedTodayCounts.get('nalada') || 0) > 1 && (
-                  <span className="text-xs font-medium text-themed-accent-solid">{completedTodayCounts.get('nalada')}</span>
-                )}
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center ${
+            <div className="flex items-center justify-end gap-2 mt-2">
+              {(totalCountPerActivity.get('nalada') || 0) > 0 && (
+                <span className="text-xs text-themed-faint opacity-50">{totalCountPerActivity.get('nalada')}</span>
+              )}
+              {(completedTodayCounts.get('nalada') || 0) > 1 && (
+                <span className="text-xs font-medium text-themed-accent-solid">{completedTodayCounts.get('nalada')}</span>
+              )}
+              <span className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${
                 completedTodayCounts.has('nalada') ? '' : 'opacity-20'
               }`} style={{ backgroundColor: completedTodayCounts.has('nalada') ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
                 <svg className="w-3 h-3" style={{ color: completedTodayCounts.has('nalada') ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
-                </span>
               </span>
             </div>
           </div>
