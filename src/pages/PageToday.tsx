@@ -342,6 +342,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
+          <div className="w-5" />
           <div className="flex-1">
           <div
             className="card p-3"
@@ -392,6 +393,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           <div className="mt-4 space-y-2">
             {allTranslated.filter(a => !a.core).map((activity, idx, arr) => (
               <div key={activity.type} className="flex items-center gap-1">
+                <div className="w-5" />
                 <div className="flex-1">
                   <ActivityCard
                     activity={activity}
