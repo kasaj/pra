@@ -367,7 +367,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
-          {editMode && <div className="w-5" />}
+          <div className="w-5" />
           <div className="flex-1">
           <div
             className="card p-3"
@@ -411,7 +411,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </div>
           </div>
           </div>
-          {editMode && <div className="w-5" />}
+          <div className="w-5" />
           </div>
 
           {/* All non-core activities with move controls */}
@@ -419,7 +419,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {allTranslated.filter(a => !a.core).map((activity, idx, arr) => (
               <div key={activity.type} className="flex items-center gap-1">
                 {editMode ? (
-                  <div className="flex flex-col">
+                  <div className="flex flex-col w-5">
                     <button onClick={() => handleMoveActivity(activity.type, 'up')} disabled={idx === 0} className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20">
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
                     </button>
@@ -427,7 +427,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                     </button>
                   </div>
-                ) : null}
+                ) : <div className="w-5" />}
                 <div className="flex-1">
                   <ActivityCard
                     activity={activity}
@@ -441,7 +441,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   />
                 </div>
                 {editMode ? (
-                  <div className="flex flex-col">
+                  <div className="flex flex-col w-5">
                     <button onClick={() => handleMoveActivity(activity.type, 'up')} disabled={idx === 0} className="p-0.5 text-themed-faint hover:text-themed-accent-solid disabled:opacity-20">
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
                     </button>
@@ -449,7 +449,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                     </button>
                   </div>
-                ) : null}
+                ) : <div className="w-5" />}
               </div>
             ))}
           </div>
