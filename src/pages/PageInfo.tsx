@@ -39,10 +39,10 @@ function NoteField({ value, onChange, placeholder }: {
       value={value}
       onChange={(e) => { onChange(e.target.value); autoResize(); }}
       placeholder={placeholder}
-      rows={1}
+      rows={2}
       className="w-full p-3 mt-3 rounded-xl bg-themed-input border border-themed
                focus:outline-none focus:border-themed-accent resize-none
-               text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
+               text-themed-primary placeholder:text-themed-faint text-base overflow-hidden leading-relaxed"
     />
   );
 }
