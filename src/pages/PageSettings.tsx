@@ -734,17 +734,17 @@ export default function PageSettings() {
         </section>
 
         {/* Sync */}
-        <section className="card">
+        <section className="card" style={{ borderColor: '#22c55e', borderWidth: '1px' }}>
           <button
             onClick={handleSync}
             className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
           >
-            <svg className="w-5 h-5 text-themed-accent-solid" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" style={{ color: '#22c55e' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
             </svg>
             <div>
-              <div className="text-themed-accent-solid font-medium">
+              <div className="font-medium" style={{ color: '#22c55e' }}>
                 {synced ? `${t.settings.syncSuccess} ✓` : t.settings.syncConfig}
               </div>
               <div className="text-sm text-themed-faint">{t.settings.syncConfigDesc}</div>
@@ -753,17 +753,17 @@ export default function PageSettings() {
         </section>
 
         {/* Reset */}
-        <section className="card" style={{ borderColor: 'var(--warn-text)', borderWidth: '1px' }}>
+        <section className="card" style={{ borderColor: '#ef4444', borderWidth: '1px' }}>
           <button
             onClick={handleReset}
             className="w-full flex items-center gap-3 p-3 rounded-xl text-left"
           >
-            <svg className="w-5 h-5 text-themed-ochre" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" style={{ color: '#ef4444' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
             <div>
-              <div className="text-themed-warn font-medium">{t.settings.resetDefault}</div>
+              <div className="font-medium" style={{ color: '#ef4444' }}>{t.settings.resetDefault}</div>
               <div className="text-sm text-themed-faint">{t.settings.resetDefaultDesc}</div>
             </div>
           </button>
