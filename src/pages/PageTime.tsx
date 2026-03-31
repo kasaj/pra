@@ -930,7 +930,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
               return result;
             })()).map((day, dayIndex) => (
               <div key={day.date}>
-                <div className={`py-2 px-1 text-sm font-medium text-themed-muted capitalize flex items-center justify-between ${
+                <div className={`py-2 px-1 text-sm font-medium text-themed-muted flex items-center justify-between ${
                   dayIndex > 0 ? 'border-t-2 border-themed mt-2' : ''
                 }`}>
                   <span>{formatDateFull(day.date, language)}</span>
@@ -1011,20 +1011,25 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
       <section className="mb-6">
 
         {/* Day-specific stats (selected day or today) */}
+        {(() => {
+          const rangeLabel = calendarDate ? '1D' : trendRange === 'day' ? '1D' : trendRange === '3days' ? '3D' : trendRange === 'week' ? '1W' : trendRange === 'month' ? '1M' : '1Y';
+          return (
         <div className="grid grid-cols-3 gap-3 mb-3">
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.count}</div>
-            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Aktivit' : 'Activities'}</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Aktivit' : 'Activities'} {rangeLabel}</div>
           </div>
           <div className="card text-center py-3">
             <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.minutes >= 60 ? `${Math.floor(selectedDayStats.minutes / 60)} h${selectedDayStats.minutes % 60 > 0 ? ` ${selectedDayStats.minutes % 60} m` : ''}` : `${selectedDayStats.minutes} m`}</div>
-            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Čas' : 'Time'}</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Čas' : 'Time'} {rangeLabel}</div>
           </div>
           <div className="card text-center py-3">
             <div className="text-2xl">{selectedDayStats.avgMood ? getMoodEmoji(selectedDayStats.avgMood) : '😐'}</div>
-            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Nálada' : 'Mood'}</div>
+            <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Nálada' : 'Mood'} {rangeLabel}</div>
           </div>
         </div>
+          );
+        })()}
 
         <div className="card flex flex-col items-center py-3 mb-3">
           <div className="flex gap-1.5 text-2xl">
@@ -1034,7 +1039,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
               </span>
             ))}
           </div>
-          <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Průměr' : 'Average'}</div>
+          <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Celkově' : 'Overall'}</div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

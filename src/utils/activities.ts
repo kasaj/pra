@@ -2,6 +2,7 @@ import { ActivityDefinition, ActivityType } from '../types';
 import { Translations } from '../i18n/translations';
 import { translations } from '../i18n/translations';
 import { getCachedConfig } from './config';
+import { loadAllData, saveAllData } from './storage';
 
 const ACTIVITIES_STORAGE_KEY = 'pra_activities';
 const USER_MODIFIED_KEY = 'pra_user_modified_activities';
@@ -285,19 +286,20 @@ export const updateActivity = (
 
 export const deleteActivity = (type: ActivityType): ActivityDefinition[] => {
   const activities = loadActivities();
-  // Preserve emoji/name for history display
-  const toDelete = activities.find(a => a.type === type);
-  if (toDelete) {
-    try {
-      const archived: Record<string, { emoji: string; name: string }> = JSON.parse(localStorage.getItem('pra_archived_activities') || '{}');
-      archived[type] = { emoji: toDelete.emoji, name: toDelete.name };
-      localStorage.setItem('pra_archived_activities', JSON.stringify(archived));
-    } catch { /* ignore */ }
-  }
   const filtered = activities.filter((a) => a.type !== type);
   saveActivities(filtered);
   markUserModified(type);
   markUserDeleted(type);
+
+  // Remove all records of this activity type from history
+  const allData = loadAllData();
+  const cleaned = allData
+    .map(d => ({
+      ...d,
+      activities: d.activities.filter(a => a.type !== type),
+    }))
+    .filter(d => d.activities.length > 0);
+  saveAllData(cleaned);
   return filtered;
 };
 
