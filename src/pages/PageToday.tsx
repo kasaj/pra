@@ -308,12 +308,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </button>
           </div>
         </div>
+      {/* Current date/time - outside flex center */}
+      <div className="text-center text-xs text-themed-faint py-1">
+        {new Date().toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
+      </div>
       {(
         <section className="flex-1 flex flex-col justify-center">
-          {/* Current date/time */}
-          <div className="text-center text-xs text-themed-faint mb-1.5">
-            {new Date().toLocaleDateString(language === 'cs' ? 'cs-CZ' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </div>
           {/* Properties above core */}
           <div className="flex flex-wrap gap-1.5 mb-1.5 justify-center">
             {loadVariantRegistry().slice().sort((a, b) => {
