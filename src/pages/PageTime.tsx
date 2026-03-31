@@ -997,7 +997,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
             <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Aktivit' : 'Activities'}</div>
           </div>
           <div className="card text-center py-3">
-            <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.minutes} min</div>
+            <div className="text-2xl font-serif text-themed-accent-solid">{selectedDayStats.minutes >= 60 ? `${Math.floor(selectedDayStats.minutes / 60)} h${selectedDayStats.minutes % 60 > 0 ? ` ${selectedDayStats.minutes % 60} m` : ''}` : `${selectedDayStats.minutes} m`}</div>
             <div className="text-xs text-themed-faint mt-1">{language === 'cs' ? 'Čas' : 'Time'}</div>
           </div>
           <div className="card text-center py-3">
