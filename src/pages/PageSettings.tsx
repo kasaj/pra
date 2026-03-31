@@ -497,7 +497,7 @@ export default function PageSettings() {
           {infoTab === 'info' && (
             <div>
               <p className="text-sm text-themed-muted">{t.settings.statement}</p>
-              <div className="text-right mt-3">
+              <div className="text-left mt-3">
                 <a href="https://github.com/kasaj/app" target="_blank" rel="noopener noreferrer" className="text-xs text-themed-accent-solid hover:underline">github.com/kasaj/app</a>
               </div>
               <p className="text-xs text-themed-faint italic mt-2">{t.settings.backupHint}</p>
