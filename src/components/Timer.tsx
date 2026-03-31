@@ -150,6 +150,13 @@ export default function Timer({ durationMinutes, onComplete, onCancel: _onCancel
 
       {!isCompleted && (
         <div className="flex flex-col items-center gap-2">
+          <button
+            onClick={() => onComplete(totalSeconds)}
+            className="px-6 py-2 rounded-xl transition-colors font-medium"
+            style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
+          >
+            {t.flow.done}
+          </button>
           <div className="flex gap-3">
             <button
               onClick={togglePause}
@@ -165,13 +172,6 @@ export default function Timer({ durationMinutes, onComplete, onCancel: _onCancel
               {t.timer.finishEarly}
             </button>
           </div>
-          <button
-            onClick={() => onComplete(totalSeconds)}
-            className="px-6 py-2 rounded-xl transition-colors font-medium"
-            style={{ backgroundColor: 'var(--accent-solid)', color: 'var(--accent-text-on-solid)' }}
-          >
-            {t.flow.done}
-          </button>
         </div>
       )}
     </div>
