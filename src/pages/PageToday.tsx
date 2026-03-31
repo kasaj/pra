@@ -263,7 +263,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
   return (
     <div className="page-container min-h-screen flex flex-col">
-      <header className="mb-2">
+      <header>
         <div className="flex items-center justify-between">
           <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
           <div className="flex items-center gap-2">
@@ -310,9 +310,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
         </div>
       </header>
-
-
-
       {(
         <section className="flex-1 flex flex-col justify-center">
           {/* Properties above core */}
