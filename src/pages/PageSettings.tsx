@@ -500,7 +500,6 @@ export default function PageSettings() {
               <div className="text-left mt-3">
                 <a href="https://github.com/kasaj/app" target="_blank" rel="noopener noreferrer" className="text-xs text-themed-accent-solid hover:underline">github.com/kasaj/app</a>
               </div>
-              <p className="text-xs text-themed-faint italic mt-2">{t.settings.backupHint}</p>
             </div>
           )}
 
@@ -546,6 +545,7 @@ export default function PageSettings() {
           {exportTab === 'backup' && (
             <div className="space-y-3">
               <div className="text-sm text-themed-muted mb-2">{t.settings.backupExportDesc}</div>
+              <p className="text-xs text-themed-faint mb-2">{t.settings.backupHint}</p>
               <div className="flex gap-2">
                 <button
                   onClick={handleExportBackup}
