@@ -356,21 +356,9 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
     return false;
   }, [searchQuery]);
 
-  // Summary statistics (filtered by search, calendar and trend range)
+  // Summary statistics (always from ALL data, not filtered by range)
   const summaryStats = useMemo(() => {
-    // Date range filter based on trendRange
-    const nowDate = new Date();
-    const rangeDays = trendRange === 'day' ? 1 : trendRange === '3days' ? 3 : trendRange === 'week' ? 7 : trendRange === 'month' ? 30 : 365;
-    const rangeStart = new Date(nowDate);
-    rangeStart.setDate(rangeStart.getDate() - (rangeDays - 1));
-    const rangeStartStr = rangeStart.toISOString().split('T')[0];
-
-    const filteredData = (calendarDate ? data.filter(d => d.date === calendarDate) : data.filter(d => d.date >= rangeStartStr))
-      .map(d => ({
-        ...d,
-        activities: d.activities.filter(matchesSearch),
-      }))
-      .filter(d => d.activities.length > 0);
+    const filteredData = data.filter(d => d.activities.length > 0);
 
     let totalActivities = 0;
     let totalSeconds = 0;
@@ -436,7 +424,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
       avgPerDay,
       streak,
     };
-  }, [data, searchQuery, calendarDate, matchesSearch, trendRange]);
+  }, [data]);
 
   // Elapsed time since first activity (ticking)
   const elapsed = useMemo(() => {
@@ -456,45 +444,39 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
     return { display, percent };
   }, [summaryStats.firstDate, summaryStats.totalSeconds, now]);
 
-  // Stats for the selected calendar day (or today)
+  // Stats for the selected range (uses same filter as summaryStats)
   const selectedDayStats = useMemo(() => {
-    const targetDate = calendarDate || new Date().toISOString().split('T')[0];
-    const dayEntry = data.find(d => d.date === targetDate);
-    const filteredActs = dayEntry ? dayEntry.activities.filter(matchesSearch) : [];
-    if (filteredActs.length === 0) return { count: 0, minutes: 0, avgMood: null, topType: null, topTypeCount: 0, uniqueTypes: 0 };
+    const rangeDays = trendRange === 'day' ? 1 : trendRange === '3days' ? 3 : trendRange === 'week' ? 7 : trendRange === 'month' ? 30 : 365;
+    const rangeStart = new Date();
+    rangeStart.setDate(rangeStart.getDate() - (rangeDays - 1));
+    const rangeStartStr = rangeStart.toISOString().split('T')[0];
 
-    const acts = filteredActs;
-    let secs = 0;
-    const ratings: number[] = [];
-    const typeCounts = new Map<string, number>();
+    const filteredData = (calendarDate ? data.filter(d => d.date === calendarDate) : data.filter(d => d.date >= rangeStartStr))
+      .map(d => ({ ...d, activities: d.activities.filter(matchesSearch) }))
+      .filter(d => d.activities.length > 0);
 
     let totalCount = 0;
-    acts.forEach(a => {
-      const comments = getActivityComments(a);
-      totalCount += 1 + comments.length;
-      secs += (a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60)) + (Math.max(0, comments.length - 1) * 60);
-      typeCounts.set(a.type, (typeCounts.get(a.type) || 0) + 1);
-      const cr = comments.filter(c => c.rating != null).map(c => c.rating!);
-      if (cr.length > 0) ratings.push(...cr);
-      else { const r = a.ratingAfter ?? a.rating; if (r != null) ratings.push(r); }
+    let secs = 0;
+    const ratings: number[] = [];
+
+    filteredData.forEach(day => {
+      day.activities.forEach(a => {
+        const comments = getActivityComments(a);
+        totalCount += 1 + comments.length;
+        secs += (a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60)) + (Math.max(0, comments.length - 1) * 60);
+        const cr = comments.filter(c => c.rating != null).map(c => c.rating!);
+        if (cr.length > 0) ratings.push(...cr);
+        else { const r = a.ratingAfter ?? a.rating; if (r != null) ratings.push(r); }
+      });
     });
 
     const avgMood = ratings.length > 0
       ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
       : null;
-    const topType = [...typeCounts.entries()].sort((a, b) => b[1] - a[1])[0];
-    const uniqueTypes = typeCounts.size;
     const mins = Math.round(secs / 60);
 
-    return {
-      count: totalCount,
-      minutes: mins,
-      avgMood,
-      topType: topType[0],
-      topTypeCount: topType[1],
-      uniqueTypes,
-    };
-  }, [data, calendarDate, searchQuery, matchesSearch]);
+    return { count: totalCount, minutes: mins, avgMood };
+  }, [data, calendarDate, searchQuery, matchesSearch, trendRange]);
 
   // Trend data (day/week/month) - non-cumulative per period
   const trendData = useMemo(() => {
