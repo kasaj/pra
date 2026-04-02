@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Activity, ActivityDefinition, ActivityComment, Rating } from '../types';
 import { useLanguage } from '../i18n';
-import { generateId, addActivity, updateActivityById, getDayEntry, getTodayDate, findActivityById } from '../utils/storage';
+import { generateId, addActivity, updateActivityById, getDayEntry, getTodayDate, findActivityById, deleteActivitiesByIds } from '../utils/storage';
 import { loadActivities, saveActivities, markActivityModified } from '../utils/activities';
 import { addToRegistry, loadVariantRegistry } from '../utils/variantRegistry';
 import { getMoodEmoji } from '../utils/moodScale';
@@ -256,6 +256,23 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     const finalComments: ActivityComment[] = (newComment.trim() || newCommentRating)
       ? [{ id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`, text: newComment.trim(), createdAt: new Date().toISOString(), rating: newCommentRating || undefined } as ActivityComment, ...localComments]
       : localComments;
+
+    // If editing a linked activity with no content, delete it
+    if (isEditing && existingActivity && existingActivity.linkedFromId
+        && finalComments.length === 0 && !selectedVariant
+        && !(existingActivity.comments && existingActivity.comments.length > 0)) {
+      // Remove empty linked activity
+      deleteActivitiesByIds([existingActivity.id]);
+      // Remove link from parent
+      const parent = findActivityById(existingActivity.linkedFromId);
+      if (parent) {
+        updateActivityById(existingActivity.linkedFromId, {
+          linkedActivityIds: (parent.activity.linkedActivityIds || []).filter(id => id !== existingActivity.id),
+        });
+      }
+      onClose();
+      return;
+    }
 
     if (isEditing && existingActivity && onUpdateExisting) {
       onUpdateExisting(existingActivity.id, {
