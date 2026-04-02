@@ -369,7 +369,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
     filteredData.forEach((day) => {
       day.activities.forEach((activity) => {
         const comments = getActivityComments(activity);
-        const eventCount = 1 + comments.length;
+        const eventCount = 1 + Math.max(0, comments.length - 1);
         totalActivities += eventCount;
         const extraComments = Math.max(0, comments.length - 1);
         const secs = (activity.actualDurationSeconds || (activity.durationMinutes ? activity.durationMinutes * 60 : 60)) + (extraComments * 60);
@@ -462,7 +462,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
     filteredData.forEach(day => {
       day.activities.forEach(a => {
         const comments = getActivityComments(a);
-        totalCount += 1 + comments.length;
+        totalCount += 1 + Math.max(0, comments.length - 1);
         secs += (a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60)) + (Math.max(0, comments.length - 1) * 60);
         const cr = comments.filter(c => c.rating != null).map(c => c.rating!);
         if (cr.length > 0) ratings.push(...cr);
@@ -566,7 +566,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
         let totalSecs = 0;
         filtered.forEach(a => {
           const c = getActivityComments(a);
-          count += 1 + c.length;
+          count += 1 + Math.max(0, c.length - 1);
           totalSecs += (a.actualDurationSeconds || (a.durationMinutes ? a.durationMinutes * 60 : 60)) + Math.max(0, c.length - 1) * 60;
         });
         const dayRatings = ratingsByDate.get(dateStr) || [];
