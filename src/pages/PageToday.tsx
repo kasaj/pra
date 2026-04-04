@@ -317,9 +317,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
         </div>
       {(
         <section className={viewMode === 'beta' ? 'flex-1 flex flex-col justify-center' : ''}>
-          {/* Date/time - editable + beta session total */}
+          {/* Date/time - editable */}
           <div className="flex items-center justify-center gap-2 mb-1.5">
-            {viewMode === 'beta' ? <div className="w-16" /> : null}
             <input
               type="date"
               value={(() => { const d = customTime ? new Date(customTime) : new Date(); const pad = (n: number) => n.toString().padStart(2, '0'); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; })()}
@@ -346,22 +345,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }}
               className="text-xs text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
             />
-            {viewMode === 'beta' ? (() => {
-              const todayEntry = getDayEntry(getTodayDate());
-              const ss = localStorage.getItem('pra_session_start') || '';
-              const sessionActivities = todayEntry?.activities.filter(act =>
-                new Date(act.completedAt || act.startedAt) >= new Date(ss)
-              ) || [];
-              const sessionTotal = sessionActivities.reduce((sum, act) => {
-                const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
-                return sum + Math.round(secs / 60);
-              }, 0);
-              return (
-                <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
-                  {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
-                </span>
-              );
-            })() : null}
           </div>
           {/* Properties - above core for default, inside core for beta */}
           {viewMode !== 'beta' && (
@@ -476,9 +459,24 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                        focus:outline-none focus:border-themed-accent resize-none
                        text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
             />
-            <div className="flex items-center justify-between gap-2 mt-2">
-              <div className="flex items-center gap-2">
-                {(totalCountPerActivity.get('nalada') || 0) > 0 && (
+            <div className="flex items-center justify-end gap-2 mt-2">
+              {viewMode === 'beta' && (() => {
+                const todayEntry = getDayEntry(getTodayDate());
+                const ss = localStorage.getItem('pra_session_start') || '';
+                const sessionActivities = todayEntry?.activities.filter(act =>
+                  new Date(act.completedAt || act.startedAt) >= new Date(ss)
+                ) || [];
+                const sessionTotal = sessionActivities.reduce((sum, act) => {
+                  const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
+                  return sum + Math.round(secs / 60);
+                }, 0);
+                return (
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
+                    {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
+                  </span>
+                );
+              })()}
+              {(totalCountPerActivity.get('nalada') || 0) > 0 && (
                   <span className="text-xs text-themed-faint opacity-50">{totalCountPerActivity.get('nalada')}</span>
                 )}
                 {(completedTodayCounts.get('nalada') || 0) >= 1 && (
@@ -491,7 +489,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </span>
-              </div>
             </div>
             {/* Beta: separator + activity bubbles with time + session total + records */}
             {viewMode === 'beta' && allTranslated.filter(a => !a.core).length > 0 && (
