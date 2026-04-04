@@ -772,32 +772,36 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     const todayEntry = getDayEntry(getTodayDate());
                     const todayActivities = todayEntry?.activities || [];
                     // Build cumulative rows: group by emoji
-                    const rows: { key: string; emoji: string; label: string; total: number; sessionCount: number }[] = [];
+                    const rows: { key: string; emoji: string; label: string; total: number; totalMin: number; sessionCount: number }[] = [];
                     // Core activity: group by record emoji
                     const coreActivity = allTranslated.find(a => a.core);
                     if (coreActivity) {
                       const coreRecords = todayActivities.filter(a => a.type === coreActivity.type);
-                      const byEmoji = new Map<string, { total: number; sessionCount: number }>();
+                      const byEmoji = new Map<string, { total: number; totalMin: number; sessionCount: number; hasProperty: boolean }>();
                       coreRecords.forEach(r => {
                         const emoji = getRecordEmoji(r.selectedVariant, coreActivity.emoji);
-                        const entry = byEmoji.get(emoji) || { total: 0, sessionCount: 0 };
+                        const hasProperty = !!r.selectedVariant;
+                        const entry = byEmoji.get(emoji) || { total: 0, totalMin: 0, sessionCount: 0, hasProperty };
                         entry.total++;
+                        entry.totalMin += hasProperty ? Math.round((r.actualDurationSeconds || 900) / 60) : 1;
                         if (new Date(r.completedAt || r.startedAt) >= new Date(sessionStart)) entry.sessionCount++;
                         byEmoji.set(emoji, entry);
                       });
                       if (byEmoji.size === 0) {
-                        rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, label: coreActivity.name, total: 0, sessionCount: 0 });
+                        rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, label: coreActivity.name, total: 0, totalMin: 0, sessionCount: 0 });
                       } else {
                         byEmoji.forEach((val, emoji) => {
-                          rows.push({ key: `core_${emoji}`, emoji, label: coreActivity.name, total: val.total, sessionCount: val.sessionCount });
+                          rows.push({ key: `core_${emoji}`, emoji, label: coreActivity.name, total: val.total, totalMin: val.totalMin, sessionCount: val.sessionCount });
                         });
                       }
                     }
                     // Non-core activities
                     allTranslated.filter(a => !a.core).forEach(activity => {
                       const total = totalCountPerActivity.get(activity.type) || 0;
+                      const totalSecs = totalTimePerActivity.get(activity.type) || 0;
+                      const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
                       const sessionCount = completedTodayCounts.get(activity.type) || 0;
-                      rows.push({ key: activity.type, emoji: activity.emoji, label: activity.name, total, sessionCount });
+                      rows.push({ key: activity.type, emoji: activity.emoji, label: activity.name, total, totalMin, sessionCount });
                     });
                     return rows.map(row => (
                       <div key={row.key} className="flex items-center gap-2 opacity-50">
@@ -805,6 +809,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         <span className="text-xs text-themed-muted flex-1">
                           {row.total > 0 ? `${language === 'cs' ? 'celkem' : 'total'} ${row.total}` : row.label}
                         </span>
+                        {row.totalMin > 0 && (
+                          <span className="text-xs text-themed-faint">
+                            {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
+                          </span>
+                        )}
                         {row.sessionCount > 0 && (
                           <span className="text-xs font-medium text-themed-accent-solid">{row.sessionCount}</span>
                         )}
