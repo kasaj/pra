@@ -664,32 +664,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     </div>
                   ))}
                 </div>
-                {/* Dokoncit relaci (left) + Session total (right) */}
-                <div className="flex items-center justify-between mt-2">
+                {/* Session total bubble with dokoncit checkbox */}
+                <div className="flex justify-end mt-2">
                   {(() => {
                     const allDone = allTranslated.every(a => completedTodayCounts.has(a.type));
-                    return (
-                  <button
-                    onClick={() => {
-                      flushMood();
-                      const now = new Date().toISOString();
-                      setSessionStart(now);
-                      localStorage.setItem('pra_session_start', now);
-                      setRefreshKey((k) => k + 1);
-                    }}
-                    className="px-2 py-0.5 text-xs rounded-full transition-colors flex items-center gap-1"
-                    style={{
-                      backgroundColor: allDone ? 'var(--accent-solid)' : 'var(--bg-input)',
-                      color: allDone ? 'var(--accent-text-on-solid)' : 'var(--text-secondary)',
-                    }}
-                  >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </button>
-                    );
-                  })()}
-                  {(() => {
                     const todayEntry = getDayEntry(getTodayDate());
                     const ss = localStorage.getItem('pra_session_start') || '';
                     const sessionActivities = todayEntry?.activities.filter(act =>
@@ -700,9 +678,25 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       return sum + Math.round(secs / 60);
                     }, 0);
                     return (
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
+                      <button
+                        onClick={() => {
+                          flushMood();
+                          const now = new Date().toISOString();
+                          setSessionStart(now);
+                          localStorage.setItem('pra_session_start', now);
+                          setRefreshKey((k) => k + 1);
+                        }}
+                        className="text-xs px-2 py-0.5 rounded-full transition-colors flex items-center gap-1.5"
+                        style={{
+                          backgroundColor: allDone ? 'var(--accent-solid)' : (sessionTotal > 0 ? 'var(--accent-bg)' : 'var(--bg-input)'),
+                          color: allDone ? 'var(--accent-text-on-solid)' : (sessionTotal > 0 ? 'var(--accent-solid)' : 'var(--text-faint)'),
+                        }}
+                      >
                         {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
-                      </span>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
                     );
                   })()}
                 </div>
