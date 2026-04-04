@@ -44,6 +44,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('pra_hidden_properties');
+      setHiddenProperties(stored ? new Set(JSON.parse(stored)) : new Set());
+    } catch { /* */ }
+  }, [refreshKey]);
   const toggleHideProperty = (prop: string) => {
     setHiddenProperties(prev => {
       const next = new Set(prev);

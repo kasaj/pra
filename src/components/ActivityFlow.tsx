@@ -566,7 +566,23 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     >{prop}</button>
                     {editingVariants && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); removeFromRegistry(prop); setRegistryVersion(v => v + 1); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Remove from this activity
+                          const updated = localVariants.filter(v => v !== prop);
+                          setLocalVariants(updated);
+                          persistVariants(updated);
+                          // Also remove from core activity
+                          const all = loadActivities();
+                          const coreIdx = all.findIndex(a => a.core);
+                          if (coreIdx >= 0 && all[coreIdx].properties?.includes(prop)) {
+                            all[coreIdx] = { ...all[coreIdx], properties: all[coreIdx].properties!.filter(p => p !== prop) };
+                            saveActivities(all);
+                            markActivityModified(all[coreIdx].type);
+                          }
+                          removeFromRegistry(prop);
+                          setRegistryVersion(v => v + 1);
+                        }}
                         className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
                       >✕</button>
                     )}
@@ -658,7 +674,23 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     >{prop}</button>
                     {editingVariants && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); removeFromRegistry(prop); setRegistryVersion(v => v + 1); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Remove from this activity
+                          const updated = localVariants.filter(v => v !== prop);
+                          setLocalVariants(updated);
+                          persistVariants(updated);
+                          // Also remove from core activity
+                          const all = loadActivities();
+                          const coreIdx = all.findIndex(a => a.core);
+                          if (coreIdx >= 0 && all[coreIdx].properties?.includes(prop)) {
+                            all[coreIdx] = { ...all[coreIdx], properties: all[coreIdx].properties!.filter(p => p !== prop) };
+                            saveActivities(all);
+                            markActivityModified(all[coreIdx].type);
+                          }
+                          removeFromRegistry(prop);
+                          setRegistryVersion(v => v + 1);
+                        }}
                         className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
                       >✕</button>
                     )}
@@ -777,7 +809,23 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     >{prop}</button>
                     {editingVariants && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); removeFromRegistry(prop); setRegistryVersion(v => v + 1); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Remove from this activity
+                          const updated = localVariants.filter(v => v !== prop);
+                          setLocalVariants(updated);
+                          persistVariants(updated);
+                          // Also remove from core activity
+                          const all = loadActivities();
+                          const coreIdx = all.findIndex(a => a.core);
+                          if (coreIdx >= 0 && all[coreIdx].properties?.includes(prop)) {
+                            all[coreIdx] = { ...all[coreIdx], properties: all[coreIdx].properties!.filter(p => p !== prop) };
+                            saveActivities(all);
+                            markActivityModified(all[coreIdx].type);
+                          }
+                          removeFromRegistry(prop);
+                          setRegistryVersion(v => v + 1);
+                        }}
                         className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
                       >✕</button>
                     )}
