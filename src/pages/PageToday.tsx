@@ -36,6 +36,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const customTimeRef = useRef<string | null>(null);
   const setCustomTimeSync = (t: string | null) => { customTimeRef.current = t; setCustomTime(t); };
   const [newPropertyText, setNewPropertyText] = useState('');
+  const [newDurationText, setNewDurationText] = useState('');
   const [hiddenProperties, setHiddenProperties] = useState<Set<string>>(() => {
     try {
       const stored = localStorage.getItem('pra_hidden_properties');
@@ -350,23 +351,26 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }}
               className="text-xs text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
             />
-            {viewMode === 'beta' && (() => {
-              const todayEntry = getDayEntry(getTodayDate());
-              const ss = localStorage.getItem('pra_session_start') || '';
-              const sessionActivities = todayEntry?.activities.filter(act =>
-                new Date(act.completedAt || act.startedAt) >= new Date(ss)
-              ) || [];
-              const sessionTotal = sessionActivities.reduce((sum, act) => {
-                const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
-                return sum + Math.round(secs / 60);
-              }, 0);
-              return (
+          </div>
+          {/* Beta: session total - right aligned above core */}
+          {viewMode === 'beta' && (() => {
+            const todayEntry = getDayEntry(getTodayDate());
+            const ss = localStorage.getItem('pra_session_start') || '';
+            const sessionActivities = todayEntry?.activities.filter(act =>
+              new Date(act.completedAt || act.startedAt) >= new Date(ss)
+            ) || [];
+            const sessionTotal = sessionActivities.reduce((sum, act) => {
+              const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
+              return sum + Math.round(secs / 60);
+            }, 0);
+            return (
+              <div className="flex justify-end mb-1">
                 <span className={`text-xs px-2 py-0.5 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
                   {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
                 </span>
-              );
-            })()}
-          </div>
+              </div>
+            );
+          })()}
           {/* Properties - above core for default, inside core for beta */}
           {viewMode !== 'beta' && (
           <div className="flex flex-wrap gap-1.5 mb-1.5 justify-center">
@@ -466,7 +470,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {/* Beta: duration bubbles */}
             {viewMode === 'beta' && (() => {
               const durations = [...new Set(allTranslated.filter(a => !a.core && a.durationMinutes).map(a => a.durationMinutes!))].sort((a, b) => a - b);
-              return durations.length > 0 ? (
+              return (
                 <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
                   {durations.map(d => (
                     <button key={`dur-${d}`}
@@ -474,8 +478,30 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       className={`px-2 py-1 text-xs rounded-full border transition-colors ${selectedDuration === d ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-faint hover:border-themed-medium'}`}
                     >{d} m</button>
                   ))}
+                  {editMode && (
+                    <input type="number" value={newDurationText} onChange={(e) => setNewDurationText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = parseInt(newDurationText);
+                          if (val > 0 && !durations.includes(val)) {
+                            // Create a new timed activity with this duration
+                            const newType = `timed_${val}m`;
+                            const existing = activities.find(a => a.durationMinutes === val);
+                            if (!existing) {
+                              const newAct: ActivityDefinition = { type: newType, name: `${val} min`, emoji: '⏱', description: '', durationMinutes: val };
+                              const current = loadActivities(); current.push(newAct); saveActivities(current); setActivities(current);
+                            }
+                            setNewDurationText('');
+                          }
+                        }
+                      }}
+                      placeholder="+"
+                      className="w-12 px-2 py-1 text-xs rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent text-center"
+                    />
+                  )}
                 </div>
-              ) : null;
+              );
             })()}
             {/* Beta: activity bubbles */}
             {viewMode === 'beta' && (
@@ -498,6 +524,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     }`}
                   >{activity.emoji} {activity.name}</button>
                 ))}
+                {editMode && (
+                  <button
+                    onClick={() => setShowNewActivity(true)}
+                    className="px-2 py-1 text-xs rounded-full border border-dashed border-themed text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid transition-colors"
+                  >+</button>
+                )}
               </div>
             )}
             <div className="flex justify-center mb-3">
