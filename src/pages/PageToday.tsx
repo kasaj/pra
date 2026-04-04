@@ -489,7 +489,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           <div className="w-5" />
           <div className="flex-1">
           <div
-            className="card p-3"
+            className="card"
             onBlur={(e) => {
               setTimeout(() => {
                 if (!e.currentTarget.contains(document.activeElement)) flushMood();
