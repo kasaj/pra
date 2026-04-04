@@ -280,8 +280,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
+  const [activeActivityDurationOverride, setActiveActivityDurationOverride] = useState<number | null>(null);
+
   const handleActivityClick = (activity: ActivityDefinition) => {
     flushMood();
+    setActiveActivityDurationOverride(selectedDuration);
     setActiveActivity(activity);
   };
 
@@ -720,11 +723,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         if (editMode) {
                           toggleHideActivity(activity.type);
                         } else {
-                          if (selectedDuration) {
-                            handleActivityClick({ ...activity, durationMinutes: selectedDuration });
-                          } else {
-                            handleActivityClick(activity);
-                          }
+                          handleActivityClick(activity);
                         }
                       }}
                       className={`px-2 py-1 text-xs rounded-full border transition-colors ${
@@ -936,8 +935,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       {activeActivity && (
         <ActivityFlow
           activity={activeActivity}
+          initialOverrideDuration={activeActivityDurationOverride}
           onClose={() => {
             setActiveActivity(null);
+            setActiveActivityDurationOverride(null);
             setActivities(loadActivities());
             setRefreshKey((k) => k + 1);
             setRegistryVersion((v) => v + 1);

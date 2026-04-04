@@ -128,12 +128,14 @@ interface ActivityFlowProps {
   onNavigateNext?: () => void;
   onCreateLinked?: () => void;
   onNavigatePage?: (page: string) => void;
+  initialOverrideDuration?: number | null;
 }
 
-export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment: _onUpdateComment, onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked: _onCreateLinked, onNavigatePage }: ActivityFlowProps) {
+export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment: _onUpdateComment, onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked: _onCreateLinked, onNavigatePage, initialOverrideDuration }: ActivityFlowProps) {
   const { t, language } = useLanguage();
-  const [overrideDuration, setOverrideDuration] = useState<number | null>(null);
+  const [overrideDuration, setOverrideDuration] = useState<number | null>(initialOverrideDuration ?? null);
   const effectiveDuration = overrideDuration ?? activity.durationMinutes;
+  const isOriginallyTimed = activity.durationMinutes !== null;
   const isTimed = effectiveDuration !== null;
   const isEditing = !!existingActivity;
 
@@ -222,12 +224,14 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
       type: activity.type,
       startedAt,
       completedAt: now,
-      durationMinutes: isTimed ? effectiveDuration : null,
-      actualDurationSeconds: isTimed ? actualDurationRef.current || (effectiveDuration || 0) * 60 : undefined,
+      durationMinutes: isOriginallyTimed ? effectiveDuration : null,
+      actualDurationSeconds: isOriginallyTimed
+        ? actualDurationRef.current || (effectiveDuration || 0) * 60
+        : overrideDuration !== null ? overrideDuration * 60 : undefined,
       selectedVariant: selectedVariant || undefined,
-      ratingBefore: isTimed ? (ratingBefore || undefined) : undefined,
-      ratingAfter: isTimed ? (ratingAfter || undefined) : undefined,
-      rating: !isTimed ? (rating || undefined) : undefined,
+      ratingBefore: isOriginallyTimed ? (ratingBefore || undefined) : undefined,
+      ratingAfter: isOriginallyTimed ? (ratingAfter || undefined) : undefined,
+      rating: !isOriginallyTimed ? (rating || undefined) : undefined,
       comments: [],
       linkedFromId: prevInSession?.id,
     };
@@ -242,7 +246,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
     savedIdRef.current = id;
     return id;
-  }, [activity, startedAt, isTimed, selectedVariant, ratingBefore, ratingAfter, rating]);
+  }, [activity, startedAt, isTimed, isOriginallyTimed, overrideDuration, selectedVariant, ratingBefore, ratingAfter, rating]);
 
 
   const persistComments = useCallback((updated: ActivityComment[]) => {
@@ -336,13 +340,13 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
           actualDurationSeconds: actualDurationRef.current || (isTimed ? (effectiveDuration || 0) * 60 : Math.max(60, Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000))),
         });
       }
-    } else if (finalComments.length > 0 || (isTimed && actualDurationRef.current > 0)) {
-      // New record not saved yet — save now (has comments or timer was running)
+    } else if (finalComments.length > 0 || (isTimed && (actualDurationRef.current > 0 || overrideDuration !== null))) {
+      // New record not saved yet — save now (has comments, timer was running, or duration was selected)
       const id = ensureSaved();
       updateActivityById(id, { comments: finalComments.length > 0 ? finalComments : undefined });
     }
     onClose();
-  }, [isEditing, existingActivity, onUpdateExisting, isTimed, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose, newComment, newCommentRating, localComments, onAddComment, ensureSaved, startedAt]);
+  }, [isEditing, existingActivity, onUpdateExisting, isTimed, overrideDuration, selectedVariant, ratingBefore, ratingAfter, rating, activity, onClose, newComment, newCommentRating, localComments, onAddComment, ensureSaved, startedAt]);
 
 
 
@@ -387,9 +391,9 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
           )}
           <h1 className="font-serif text-3xl text-themed-primary text-center mb-2">{activity.emoji} {activity.name}</h1>
           <p className={`text-themed-faint text-center max-w-xs mx-auto mb-4 ${
-            isTimed && timedStep === 'rating-after' ? 'font-serif text-xl' : ''
+            isOriginallyTimed && timedStep === 'rating-after' ? 'font-serif text-xl' : ''
           }`}>
-            {isTimed && timedStep === 'rating-after'
+            {isOriginallyTimed && timedStep === 'rating-after'
               ? (language === 'cs' ? 'Jak se teď cítíš?' : 'How do you feel now?')
               : activity.description}
           </p>
@@ -590,7 +594,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
               );
             })()}
           {/* Nečasové aktivity */}
-          {!isTimed && (
+          {!isOriginallyTimed && (
             <div className="space-y-3 py-2">
 
 
@@ -713,7 +717,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
           )}
 
           {/* Časové aktivity - před */}
-          {isTimed && timedStep === 'rating-before' && (
+          {isOriginallyTimed && timedStep === 'rating-before' && (
             <div className="space-y-3 py-2">
 
               <div className="pt-2 space-y-3">
@@ -851,7 +855,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
           )}
 
           {/* Časové aktivity - timer */}
-          {isTimed && timedStep === 'timer' && effectiveDuration && (
+          {isOriginallyTimed && timedStep === 'timer' && effectiveDuration && (
             <Timer
               durationMinutes={effectiveDuration}
               onComplete={handleTimerComplete}
@@ -863,7 +867,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
           )}
 
           {/* Časové aktivity - po (a edit mód) */}
-          {isTimed && timedStep === 'rating-after' && (
+          {isOriginallyTimed && timedStep === 'rating-after' && (
             <div className="space-y-3 py-2">
 
 
