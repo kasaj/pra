@@ -835,7 +835,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       }
                     }
                     // Non-core activities
-                    allTranslated.filter(a => !a.core).forEach(activity => {
+                    allTranslated.filter(a => !a.core).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
                       const total = totalCountPerActivity.get(activity.type) || 0;
                       const totalSecs = totalTimePerActivity.get(activity.type) || 0;
                       const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
