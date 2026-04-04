@@ -634,7 +634,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               <>
                 {/* Activity records */}
                 <div className="space-y-1 mt-3">
-                  {allTranslated.filter(a => !a.core).map((activity) => (
+                  {allTranslated.map((activity) => (
                     <div key={activity.type} className="flex items-center gap-2 opacity-50">
                       <span className="text-sm">{activity.emoji}</span>
                       <span className="text-xs text-themed-muted flex-1">{activity.name}</span>
