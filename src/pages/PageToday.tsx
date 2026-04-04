@@ -306,6 +306,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     <div className={`page-container ${viewMode === 'beta' ? 'min-h-screen flex flex-col' : ''}`}>
       <div className="flex items-center justify-between mb-1.5">
           <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
+          {viewMode !== 'beta' && (
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
@@ -348,6 +349,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               </svg>
             </button>
           </div>
+          )}
         </div>
       {(
         <section className={viewMode === 'beta' ? 'flex-1 flex flex-col justify-center' : ''}>
@@ -662,8 +664,31 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     </div>
                   ))}
                 </div>
-                {/* Session total - right aligned under checkboxes */}
-                <div className="flex justify-end mt-2">
+                {/* Dokoncit relaci (left) + Session total (right) */}
+                <div className="flex items-center justify-between mt-2">
+                  {(() => {
+                    const allDone = allTranslated.every(a => completedTodayCounts.has(a.type));
+                    return (
+                  <button
+                    onClick={() => {
+                      flushMood();
+                      const now = new Date().toISOString();
+                      setSessionStart(now);
+                      localStorage.setItem('pra_session_start', now);
+                      setRefreshKey((k) => k + 1);
+                    }}
+                    className="px-2 py-0.5 text-xs rounded-full transition-colors flex items-center gap-1"
+                    style={{
+                      backgroundColor: allDone ? 'var(--accent-solid)' : 'var(--bg-input)',
+                      color: allDone ? 'var(--accent-text-on-solid)' : 'var(--text-secondary)',
+                    }}
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                    );
+                  })()}
                   {(() => {
                     const todayEntry = getDayEntry(getTodayDate());
                     const ss = localStorage.getItem('pra_session_start') || '';
@@ -687,6 +712,25 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
           <div className="w-5" />
           </div>
+
+          {/* Beta: edit button centered below core card */}
+          {viewMode === 'beta' && (
+            <div className="flex justify-center mt-2">
+              <button
+                onClick={() => setEditMode(!editMode)}
+                className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
+                style={{
+                  backgroundColor: editMode ? 'var(--accent-solid)' : 'var(--bg-input)',
+                  color: editMode ? 'var(--accent-text-on-solid)' : 'var(--text-secondary)',
+                }}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+            </div>
+          )}
 
           {/* All non-core activities - default view only */}
           {viewMode !== 'beta' && (
