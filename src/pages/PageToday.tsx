@@ -490,10 +490,17 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }, 100);
             }}
           >
-            {/* Beta: properties from nalada config */}
+            {/* Beta: properties from nalada (stored + config fallback) */}
             {viewMode === 'beta' && (
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                  {(() => { void registryVersion; const configProps = getConfigProperties('nalada'); return editMode ? [...new Set([...configProps, ...loadVariantRegistry()])] : configProps; })().slice().sort((a, b) => {
+                  {(() => {
+                    void registryVersion;
+                    const naladaActivity = allTranslated.find(a => a.core);
+                    const storedProps = naladaActivity?.properties || [];
+                    const configProps = getConfigProperties('nalada');
+                    const activityProps = storedProps.length > 0 ? storedProps : configProps;
+                    return editMode ? [...new Set([...activityProps, ...loadVariantRegistry()])] : activityProps;
+                  })().slice().sort((a, b) => {
                     const aIsEmoji = /^\p{Emoji}/u.test(a);
                     const bIsEmoji = /^\p{Emoji}/u.test(b);
                     if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
