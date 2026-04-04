@@ -3,7 +3,7 @@ import { Activity, ActivityDefinition, ActivityComment, Rating } from '../types'
 import { useLanguage } from '../i18n';
 import { generateId, addActivity, updateActivityById, getDayEntry, getTodayDate, findActivityById, deleteActivitiesByIds } from '../utils/storage';
 import { loadActivities, saveActivities, markActivityModified, getConfigProperties } from '../utils/activities';
-import { addToRegistry, removeFromRegistry, loadVariantRegistry } from '../utils/variantRegistry';
+import { addToRegistry, removeFromRegistry } from '../utils/variantRegistry';
 import { getMoodEmoji } from '../utils/moodScale';
 import StarRating from './StarRating';
 import Timer from './Timer';
@@ -519,14 +519,19 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
 
               <div className="flex flex-wrap gap-2 justify-center">
-                {/* Show: config properties (normal) or config+registry (edit) */}
+                {/* Show: activity properties (normal) or activity+core (edit) */}
                 {(() => {
                   void registryVersion;
-                  const configProps = localVariants;
-                  const registry = loadVariantRegistry();
+                  const activityProps = localVariants;
+                  const coreProps = (() => {
+                    const all = loadActivities();
+                    const core = all.find(a => a.core);
+                    const stored = core?.properties || [];
+                    return stored.length > 0 ? stored : getConfigProperties('nalada');
+                  })();
                   const allProps = editingVariants
-                    ? [...new Set([...configProps, ...registry])]
-                    : configProps.filter(prop => !hiddenProperties.has(prop));
+                    ? [...new Set([...activityProps, ...coreProps])]
+                    : activityProps.filter(prop => !hiddenProperties.has(prop));
                   return editingVariants
                     ? allProps.sort((a, b) => {
                         const aIsEmoji = /^\p{Emoji}/u.test(a);
@@ -606,14 +611,19 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
               <div className="pt-2 space-y-3">
               <div className="flex flex-wrap gap-2 justify-center">
-                {/* Show: config properties (normal) or config+registry (edit) */}
+                {/* Show: activity properties (normal) or activity+core (edit) */}
                 {(() => {
                   void registryVersion;
-                  const configProps = localVariants;
-                  const registry = loadVariantRegistry();
+                  const activityProps = localVariants;
+                  const coreProps = (() => {
+                    const all = loadActivities();
+                    const core = all.find(a => a.core);
+                    const stored = core?.properties || [];
+                    return stored.length > 0 ? stored : getConfigProperties('nalada');
+                  })();
                   const allProps = editingVariants
-                    ? [...new Set([...configProps, ...registry])]
-                    : configProps.filter(prop => !hiddenProperties.has(prop));
+                    ? [...new Set([...activityProps, ...coreProps])]
+                    : activityProps.filter(prop => !hiddenProperties.has(prop));
                   return editingVariants
                     ? allProps.sort((a, b) => {
                         const aIsEmoji = /^\p{Emoji}/u.test(a);
@@ -720,14 +730,19 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
 
               <div className="flex flex-wrap gap-2 justify-center">
-                {/* Show: config properties (normal) or config+registry (edit) */}
+                {/* Show: activity properties (normal) or activity+core (edit) */}
                 {(() => {
                   void registryVersion;
-                  const configProps = localVariants;
-                  const registry = loadVariantRegistry();
+                  const activityProps = localVariants;
+                  const coreProps = (() => {
+                    const all = loadActivities();
+                    const core = all.find(a => a.core);
+                    const stored = core?.properties || [];
+                    return stored.length > 0 ? stored : getConfigProperties('nalada');
+                  })();
                   const allProps = editingVariants
-                    ? [...new Set([...configProps, ...registry])]
-                    : configProps.filter(prop => !hiddenProperties.has(prop));
+                    ? [...new Set([...activityProps, ...coreProps])]
+                    : activityProps.filter(prop => !hiddenProperties.has(prop));
                   return editingVariants
                     ? allProps.sort((a, b) => {
                         const aIsEmoji = /^\p{Emoji}/u.test(a);
