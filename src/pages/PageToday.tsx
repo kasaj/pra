@@ -64,6 +64,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('pra_hidden_durations');
+      setHiddenDurations(stored ? new Set(JSON.parse(stored)) : new Set());
+    } catch { /* */ }
+  }, [refreshKey]);
   const toggleHideDuration = (d: number) => {
     setHiddenDurations(prev => {
       const next = new Set(prev);
@@ -78,6 +84,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('pra_hidden_activities');
+      setHiddenActivities(stored ? new Set(JSON.parse(stored)) : new Set());
+    } catch { /* */ }
+  }, [refreshKey]);
   const toggleHideActivity = (type: string) => {
     setHiddenActivities(prev => {
       const next = new Set(prev);
