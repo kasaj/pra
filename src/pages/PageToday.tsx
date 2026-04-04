@@ -533,9 +533,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {viewMode === 'beta' && (() => {
               const stored = localStorage.getItem('pra_duration_bubbles');
               const durations: number[] = stored ? JSON.parse(stored) : [...new Set(allTranslated.filter(a => !a.core && a.durationMinutes).map(a => a.durationMinutes!))].sort((a, b) => a - b);
-              return (<>
-              <div className="border border-themed rounded-lg p-2 mb-2">
-                <div className="flex flex-wrap gap-1.5 justify-center">
+              return (
+                <div className="flex flex-wrap gap-1.5 mb-2 justify-center items-center">
                   {durations.filter(d => editMode || !hiddenDurations.has(d)).map(d => (
                     <span key={`dur-${d}`} className="relative inline-flex">
                       <button
@@ -586,10 +585,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       className="w-16 px-2 py-1 text-xs rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent text-center"
                     />
                   )}
-                </div>
-              </div>
-              <div className="border border-themed rounded-lg p-2 mb-2">
-                <div className="flex flex-wrap gap-1.5 justify-center">
+                  <span className="text-themed-faint mx-1">|</span>
                 {/* Activity bubbles from config */}
                 {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
                   <span key={activity.type} className="relative inline-flex">
@@ -629,9 +625,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     className="px-2 py-1 text-xs rounded-full border border-dashed border-themed text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid transition-colors"
                   >+</button>
                 )}
-              </div>
-              </div>
-              </>);
+              </div>);
             })()}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
