@@ -494,7 +494,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   {allTranslated.filter(a => !a.core).map((activity) => (
                     <button key={activity.type}
                       onClick={() => {
-                        if (selectedDuration && activity.durationMinutes) {
+                        if (selectedDuration) {
                           handleActivityClick({ ...activity, durationMinutes: selectedDuration });
                         } else {
                           handleActivityClick(activity);
@@ -514,8 +514,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     return sum + (count * dur);
                   }, 0);
                   return sessionTotal > 0 ? (
-                    <div className="text-center text-xs text-themed-accent-solid mb-2">
-                      {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
+                    <div className="flex justify-end mb-2">
+                      <span className="text-sm text-themed-accent-solid bg-themed-accent px-2 py-0.5 rounded-full">
+                        {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
+                      </span>
                     </div>
                   ) : null;
                 })()}
