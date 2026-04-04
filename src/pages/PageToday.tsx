@@ -464,16 +464,22 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {/* Beta: activity bubbles */}
             {viewMode === 'beta' && (
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                {allTranslated.filter(a => !a.core).map((activity) => (
+                {allTranslated.map((activity) => (
                   <button key={activity.type}
                     onClick={() => {
-                      if (selectedDuration) {
-                        handleActivityClick({ ...activity, durationMinutes: selectedDuration });
-                      } else {
-                        handleActivityClick(activity);
+                      if (!activity.core) {
+                        if (selectedDuration) {
+                          handleActivityClick({ ...activity, durationMinutes: selectedDuration });
+                        } else {
+                          handleActivityClick(activity);
+                        }
                       }
                     }}
-                    className={`px-2 py-1 text-xs rounded-full border transition-colors ${completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'}`}
+                    className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                      activity.core
+                        ? (completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-faint')
+                        : (completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium')
+                    }`}
                   >{activity.emoji} {activity.name}</button>
                 ))}
               </div>
@@ -546,11 +552,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </div>
             )}
             {/* Beta: separator + activity bubbles with time + session total + records */}
-            {viewMode === 'beta' && allTranslated.filter(a => !a.core).length > 0 && (
+            {viewMode === 'beta' && allTranslated.length > 0 && (
               <>
                 {/* Activity records */}
-                <div className="space-y-1">
-                  {allTranslated.filter(a => !a.core).map((activity) => (
+                <div className="space-y-1 mt-3">
+                  {allTranslated.map((activity) => (
                     <div key={activity.type} className="flex items-center gap-2 opacity-50">
                       <span className="text-sm">{activity.emoji}</span>
                       <span className="text-xs text-themed-muted flex-1">{activity.name}</span>
