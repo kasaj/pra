@@ -704,8 +704,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   <button
                     onClick={() => {
                       actualDurationRef.current = (activity.durationMinutes || 0) * 60;
-                      ensureSaved();
-                      onClose();
+                      handleClose();
                     }}
                     className="px-3 py-2 rounded-xl border transition-colors text-sm text-themed-faint hover:text-themed-muted"
                     style={{ borderColor: 'var(--border-light)' }}
