@@ -702,6 +702,32 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               </div>
               </>);
             })()}
+            {viewMode === 'beta' && editMode && (
+              <div className="flex justify-center mb-2">
+                <button
+                  onClick={() => {
+                    if (!window.confirm(language === 'cs' ? 'Obnovit výchozí nastavení?' : 'Reset to defaults?')) return;
+                    // Reset view settings to defaults, keep user records
+                    localStorage.removeItem('pra_user_modified_activities');
+                    localStorage.removeItem('pra_user_deleted_activities');
+                    localStorage.removeItem('pra_hidden_properties');
+                    localStorage.removeItem('pra_hidden_activities');
+                    localStorage.removeItem('pra_hidden_durations');
+                    localStorage.removeItem('pra_duration_bubbles');
+                    localStorage.removeItem('pra_activities');
+                    localStorage.removeItem('pra_variant_registry_modified');
+                    localStorage.removeItem('pra_variant_registry');
+                    // Reload activities from config (mergeWithConfig with empty will load defaults)
+                    setActivities(loadActivities());
+                    setRegistryVersion(v => v + 1);
+                    setEditMode(false);
+                  }}
+                  className="text-xs text-red-500 hover:text-red-400"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
