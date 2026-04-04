@@ -486,7 +486,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
-          <div className="w-5" />
+          {viewMode !== 'beta' && <div className="w-5" />}
           <div className="flex-1">
           <div
             className="card"
@@ -753,7 +753,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             )}
           </div>
           </div>
-          <div className="w-5" />
+          {viewMode !== 'beta' && <div className="w-5" />}
           </div>
 
 
