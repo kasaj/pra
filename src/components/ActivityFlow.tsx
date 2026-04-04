@@ -697,9 +697,22 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   t={t}
                 />
 
-                <button onClick={handleTimedBeforeSubmit} className="btn-primary w-full max-w-xs mx-auto block">
-                  {t.flow.start} ({activity.durationMinutes} min)
-                </button>
+                <div className="flex gap-2 max-w-xs mx-auto">
+                  <button onClick={handleTimedBeforeSubmit} className="btn-primary flex-1">
+                    {t.flow.start} ({activity.durationMinutes} min)
+                  </button>
+                  <button
+                    onClick={() => {
+                      actualDurationRef.current = (activity.durationMinutes || 0) * 60;
+                      ensureSaved();
+                      onClose();
+                    }}
+                    className="px-3 py-2 rounded-xl border transition-colors text-sm text-themed-faint hover:text-themed-muted"
+                    style={{ borderColor: 'var(--border-light)' }}
+                  >
+                    {t.flow.done}
+                  </button>
+                </div>
                 {onEdit && (
                   <div className="flex justify-center mt-3">
                     <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-1">
