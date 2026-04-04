@@ -351,7 +351,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
         </div>
       {(
         <section className={viewMode === 'beta' ? 'flex-1 flex flex-col justify-center' : ''}>
-          {/* Date/time - editable + session total on right in beta */}
+          {/* Date/time - editable + session total aligned with checkbox in beta */}
           <div className="flex items-center mb-1.5">
             <div className="flex-1" />
             <div className="flex items-center gap-2">
@@ -393,7 +393,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 return sum + Math.round(secs / 60);
               }, 0);
               return (
-                <div className="flex-1 flex justify-end">
+                <div className="flex-1 flex justify-end pr-1">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
                     {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
                   </span>
