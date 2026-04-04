@@ -268,7 +268,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   }, [editingActivity]);
 
   return (
-    <div className="page-container">
+    <div className={`page-container ${viewMode === 'beta' ? 'min-h-screen flex flex-col' : ''}`}>
       <div className="flex items-center justify-between mb-1.5">
           <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
           <div className="flex items-center gap-2">
@@ -315,7 +315,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
         </div>
       {(
-        <section>
+        <section className={viewMode === 'beta' ? 'flex-1 flex flex-col justify-center' : ''}>
           {/* Date/time - editable */}
           <div className="flex items-center justify-center gap-2 mb-1.5">
             <input
