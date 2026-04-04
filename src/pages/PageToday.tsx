@@ -489,9 +489,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }, 100);
             }}
           >
-            {/* Beta: properties + emoji + comment in inner border */}
+            {/* Beta: properties */}
             {viewMode === 'beta' && (
-              <div className="border border-themed rounded-lg p-2 mb-2">
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
                   {(() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
                     const aIsEmoji = /^\p{Emoji}/u.test(a);
@@ -529,32 +528,14 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       placeholder="+" className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent" />
                   )}
                 </div>
-            <div className="flex justify-center mb-3">
-              <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
-            </div>
-            <textarea
-              ref={moodTextareaRef}
-              value={moodComment}
-              onChange={(e) => {
-                setMoodCommentSync(e.target.value);
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
-              }}
-              placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
-              rows={1}
-              className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
-                       focus:outline-none focus:border-themed-accent resize-none
-                       text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
-            />
-            </div>
             )}
             {/* Beta: duration + activity bubbles in inner border */}
             {viewMode === 'beta' && (() => {
               const stored = localStorage.getItem('pra_duration_bubbles');
               const durations: number[] = stored ? JSON.parse(stored) : [...new Set(allTranslated.filter(a => !a.core && a.durationMinutes).map(a => a.durationMinutes!))].sort((a, b) => a - b);
-              return (
+              return (<>
               <div className="border border-themed rounded-lg p-2 mb-2">
-                <div className="flex flex-wrap gap-1.5 mb-1.5 justify-center">
+                <div className="flex flex-wrap gap-1.5 justify-center">
                   {durations.filter(d => editMode || !hiddenDurations.has(d)).map(d => (
                     <span key={`dur-${d}`} className="relative inline-flex">
                       <button
@@ -606,6 +587,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     />
                   )}
                 </div>
+              </div>
+              <div className="border border-themed rounded-lg p-2 mb-2">
                 <div className="flex flex-wrap gap-1.5 justify-center">
                 {/* Activity bubbles from config */}
                 {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
@@ -647,9 +630,9 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   >+</button>
                 )}
               </div>
-              </div>);
+              </div>
+              </>);
             })()}
-            {viewMode !== 'beta' && (<>
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
@@ -667,7 +650,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                        focus:outline-none focus:border-themed-accent resize-none
                        text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
             />
-            </>)}
             {viewMode !== 'beta' && (
             <div className="flex items-center justify-end gap-2 mt-2">
               {(totalCountPerActivity.get('nalada') || 0) > 0 && (
