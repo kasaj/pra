@@ -477,19 +477,22 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {viewMode === 'beta' && allTranslated.filter(a => !a.core).length > 0 && (
               <>
                 <div className="border-t border-themed mt-3 pt-2" />
-                {/* Activity bubbles with duration */}
+                {/* Duration bubbles + Activity bubbles */}
                 <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                  {(() => {
+                    const durations = [...new Set(allTranslated.filter(a => !a.core && a.durationMinutes).map(a => a.durationMinutes!))].sort((a, b) => a - b);
+                    return durations.map(d => (
+                      <span key={`dur-${d}`} className="px-2 py-1 text-xs rounded-full border border-themed bg-themed-input text-themed-faint">
+                        {d} m
+                      </span>
+                    ));
+                  })()}
                   {allTranslated.filter(a => !a.core).map((activity) => (
                     <button key={activity.type}
                       onClick={() => handleActivityClick(activity)}
                       className={`px-2 py-1 text-xs rounded-full border transition-colors ${completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'}`}
                     >
                       {activity.emoji} {activity.name}
-                      {activity.durationMinutes && (
-                        <span className={`ml-1 ${completedTodayCounts.has(activity.type) ? '' : 'text-themed-faint'}`}>
-                          {activity.durationMinutes} m
-                        </span>
-                      )}
                     </button>
                   ))}
                 </div>
