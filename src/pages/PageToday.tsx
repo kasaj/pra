@@ -459,20 +459,35 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                        focus:outline-none focus:border-themed-accent resize-none
                        text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
             />
-            <div className="flex items-center justify-end gap-2 mt-2">
-              {(totalCountPerActivity.get('nalada') || 0) > 0 && (
-                <span className="text-xs text-themed-faint opacity-50">{totalCountPerActivity.get('nalada')}</span>
-              )}
-              {(completedTodayCounts.get('nalada') || 0) >= 1 && (
-                <span className="text-xs font-medium text-themed-accent-solid">{completedTodayCounts.get('nalada')}</span>
-              )}
-              <span className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${
-                completedTodayCounts.has('nalada') ? '' : 'opacity-20'
-              }`} style={{ backgroundColor: completedTodayCounts.has('nalada') ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
-                <svg className="w-3 h-3" style={{ color: completedTodayCounts.has('nalada') ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
-              </span>
+            <div className="flex items-center justify-between gap-2 mt-2">
+              {/* Beta: session total on left */}
+              {viewMode === 'beta' ? (() => {
+                const sessionTotal = (completedTodayCounts.get('nalada') || 0) + allTranslated.filter(a => !a.core).reduce((sum, a) => {
+                  const count = completedTodayCounts.get(a.type) || 0;
+                  const dur = a.durationMinutes || 1;
+                  return sum + (count * dur);
+                }, 0);
+                return (
+                  <span className={`text-sm px-2 py-0.5 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
+                    {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
+                  </span>
+                );
+              })() : <span />}
+              <div className="flex items-center gap-2">
+                {(totalCountPerActivity.get('nalada') || 0) > 0 && (
+                  <span className="text-xs text-themed-faint opacity-50">{totalCountPerActivity.get('nalada')}</span>
+                )}
+                {(completedTodayCounts.get('nalada') || 0) >= 1 && (
+                  <span className="text-xs font-medium text-themed-accent-solid">{completedTodayCounts.get('nalada')}</span>
+                )}
+                <span className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${
+                  completedTodayCounts.has('nalada') ? '' : 'opacity-20'
+                }`} style={{ backgroundColor: completedTodayCounts.has('nalada') ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
+                  <svg className="w-3 h-3" style={{ color: completedTodayCounts.has('nalada') ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+              </div>
             </div>
             {/* Beta: separator + activity bubbles with time + session total + records */}
             {viewMode === 'beta' && allTranslated.filter(a => !a.core).length > 0 && (
@@ -506,21 +521,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     </button>
                   ))}
                 </div>
-                {/* Session total time */}
-                {(() => {
-                  const sessionTotal = allTranslated.filter(a => !a.core).reduce((sum, a) => {
-                    const count = completedTodayCounts.get(a.type) || 0;
-                    const dur = a.durationMinutes || 1;
-                    return sum + (count * dur);
-                  }, 0);
-                  return sessionTotal > 0 ? (
-                    <div className="flex justify-end mb-2">
-                      <span className="text-sm text-themed-accent-solid bg-themed-accent px-2 py-0.5 rounded-full">
-                        {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
-                      </span>
-                    </div>
-                  ) : null;
-                })()}
                 {/* Activity records */}
                 <div className="space-y-1">
                   {allTranslated.filter(a => !a.core).map((activity) => (
