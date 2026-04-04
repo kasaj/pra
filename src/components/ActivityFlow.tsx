@@ -505,12 +505,16 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
 
               <div className="flex flex-wrap gap-2 justify-center">
-                {(() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
-                  const aIsEmoji = /^\p{Emoji}/u.test(a);
-                  const bIsEmoji = /^\p{Emoji}/u.test(b);
-                  if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
-                  return a.localeCompare(b, language);
-                }).filter(prop => editingVariants || !hiddenProperties.has(prop)).map((prop) => (
+                {/* Normal: only activity's properties; Edit: all from registry */}
+                {(editingVariants
+                  ? (() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
+                      const aIsEmoji = /^\p{Emoji}/u.test(a);
+                      const bIsEmoji = /^\p{Emoji}/u.test(b);
+                      if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
+                      return a.localeCompare(b, language);
+                    })
+                  : localVariants
+                ).filter(prop => editingVariants || !hiddenProperties.has(prop)).map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
                       onClick={() => {
@@ -654,16 +658,6 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     {t.flow.done}
                   </button>
                 </div>
-                {onEdit && (
-                  <div className="flex justify-center mt-3">
-                    <button onClick={() => { handleClose(); onEdit(); }} className="text-themed-faint hover:text-themed-muted p-1">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -686,12 +680,16 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
 
               <div className="flex flex-wrap gap-2 justify-center">
-                {(() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
-                  const aIsEmoji = /^\p{Emoji}/u.test(a);
-                  const bIsEmoji = /^\p{Emoji}/u.test(b);
-                  if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
-                  return a.localeCompare(b, language);
-                }).filter(prop => editingVariants || !hiddenProperties.has(prop)).map((prop) => (
+                {/* Normal: only activity's properties; Edit: all from registry */}
+                {(editingVariants
+                  ? (() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
+                      const aIsEmoji = /^\p{Emoji}/u.test(a);
+                      const bIsEmoji = /^\p{Emoji}/u.test(b);
+                      if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
+                      return a.localeCompare(b, language);
+                    })
+                  : localVariants
+                ).filter(prop => editingVariants || !hiddenProperties.has(prop)).map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
                       onClick={() => {

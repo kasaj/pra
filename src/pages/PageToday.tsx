@@ -79,20 +79,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       return next;
     });
   };
-  const [activePropertyBubbles, setActivePropertyBubbles] = useState<Set<string>>(() => {
-    try {
-      const stored = localStorage.getItem('pra_active_property_bubbles');
-      return stored ? new Set(JSON.parse(stored)) : new Set();
-    } catch { return new Set(); }
-  });
-  const togglePropertyBubble = (prop: string) => {
-    setActivePropertyBubbles(prev => {
-      const next = new Set(prev);
-      if (next.has(prop)) next.delete(prop); else next.add(prop);
-      localStorage.setItem('pra_active_property_bubbles', JSON.stringify([...next]));
-      return next;
-    });
-  };
   const moodRatingRef = useRef<Rating | null>(null);
   const moodCommentRef = useRef('');
   const moodTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -640,39 +626,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     )}
                   </span>
                 ))}
-                {/* Activated property bubbles (visible in normal mode) */}
-                {!editMode && (() => { void registryVersion; return loadVariantRegistry(); })()
-                  .filter(prop => activePropertyBubbles.has(prop) && !hiddenActivities.has(`prop_${prop}`))
-                  .map(prop => (
-                    <button key={`prop_${prop}`}
-                      onClick={() => {
-                        toggleProperty(prop);
-                        flushMood();
-                      }}
-                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${
-                        selectedProperties.has(prop) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                      }`}
-                    >{prop}</button>
-                  ))
-                }
-                {/* Edit mode: show all registry properties as grayed-out options */}
-                {editMode && (() => { void registryVersion; return loadVariantRegistry(); })()
-                  .slice().sort((a, b) => {
-                    const aIsEmoji = /^\p{Emoji}/u.test(a);
-                    const bIsEmoji = /^\p{Emoji}/u.test(b);
-                    if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
-                    return a.localeCompare(b, language);
-                  }).map(prop => (
-                    <span key={`prop_${prop}`} className="relative inline-flex">
-                      <button
-                        onClick={() => togglePropertyBubble(prop)}
-                        className={`px-2 py-1 text-xs rounded-full border transition-colors ${
-                          activePropertyBubbles.has(prop) ? 'bg-themed-input border-themed text-themed-muted' : 'opacity-30 bg-themed-input border-themed text-themed-faint'
-                        }`}
-                      >{prop}</button>
-                    </span>
-                  ))
-                }
                 {editMode && (
                   <button
                     onClick={() => setShowNewActivity(true)}

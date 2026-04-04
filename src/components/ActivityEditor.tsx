@@ -60,7 +60,7 @@ export default function ActivityEditor({ activity, onSave, onDelete, onClose }: 
 
   return (
     <div className="fixed inset-0 bg-themed-base z-50 flex flex-col">
-      <div className="flex-1 overflow-auto max-w-md mx-auto w-full">
+      <div className="flex-1 overflow-auto max-w-md mx-auto w-full flex flex-col justify-center">
         <div className="p-4 border-b border-themed flex items-center justify-between">
           <h2 className="font-serif text-xl text-themed-primary">
             {isNew ? t.editor.newActivity : t.editor.editActivity}
