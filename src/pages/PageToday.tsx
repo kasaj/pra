@@ -346,7 +346,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               className="text-xs text-themed-faint bg-transparent border-none focus:outline-none focus:text-themed-muted cursor-pointer"
             />
           </div>
-          {/* Properties above core */}
+          {/* Properties - above core for default, inside core for beta */}
+          {viewMode !== 'beta' && (
           <div className="flex flex-wrap gap-1.5 mb-1.5 justify-center">
             {(() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
               const aIsEmoji = /^\p{Emoji}/u.test(a);
@@ -394,6 +395,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               />
             )}
           </div>
+          )}
 
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
@@ -407,6 +409,45 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }, 100);
             }}
           >
+            {/* Beta: properties inside core card */}
+            {viewMode === 'beta' && (
+              <>
+                <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
+                  {(() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
+                    const aIsEmoji = /^\p{Emoji}/u.test(a);
+                    const bIsEmoji = /^\p{Emoji}/u.test(b);
+                    if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
+                    return a.localeCompare(b, language);
+                  }).filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
+                    <button
+                      key={prop}
+                      onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
+                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                        editMode && hiddenProperties.has(prop)
+                          ? 'opacity-30 border-themed bg-themed-input text-themed-faint line-through'
+                          : selectedProperties.has(prop)
+                            ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >
+                      {prop}
+                    </button>
+                  ))}
+                  {editMode && (
+                    <input
+                      type="text"
+                      value={newPropertyText}
+                      onChange={(e) => setNewPropertyText(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const text = newPropertyText.trim(); if (text) { addToRegistry(text); setNewPropertyText(''); } } }}
+                      onBlur={() => { const text = newPropertyText.trim(); if (text) { addToRegistry(text); setNewPropertyText(''); } }}
+                      placeholder="+"
+                      className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
+                    />
+                  )}
+                </div>
+                <div className="border-t border-themed mb-3" />
+              </>
+            )}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
