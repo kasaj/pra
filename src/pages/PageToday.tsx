@@ -30,6 +30,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [registryVersion, setRegistryVersion] = useState(0);
   const viewMode = localStorage.getItem('pra_view_mode') || 'default';
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
+  const selectedDurationRef = useRef<number | null>(null);
+  const setSelectedDurationSync = (d: number | null) => { selectedDurationRef.current = d; setSelectedDuration(d); };
   const [customTime, setCustomTime] = useState<string | null>(null);
   const customTimeRef = useRef<string | null>(null);
   const setCustomTimeSync = (t: string | null) => { customTimeRef.current = t; setCustomTime(t); };
@@ -85,12 +87,14 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime())
       [0];
 
+    const durOverride = selectedDurationRef.current;
     addActivity({
       id,
       type: 'nalada',
       startedAt: now,
       completedAt: now,
-      durationMinutes: null,
+      durationMinutes: durOverride || null,
+      actualDurationSeconds: durOverride ? durOverride * 60 : undefined,
       comments: [{
         id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
         text: [props.length > 0 ? props.join(', ') : '', c.trim()].filter(Boolean).join(' — '),
@@ -112,6 +116,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     selectedPropertiesRef.current = new Set();
     setSelectedProperties(new Set());
     setCustomTimeSync(null);
+    setSelectedDurationSync(null);
     if (moodTextareaRef.current) {
       moodTextareaRef.current.style.height = 'auto';
     }
@@ -442,6 +447,37 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               </>
             )}
+            {/* Beta: duration bubbles */}
+            {viewMode === 'beta' && (() => {
+              const durations = [...new Set(allTranslated.filter(a => !a.core && a.durationMinutes).map(a => a.durationMinutes!))].sort((a, b) => a - b);
+              return durations.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                  {durations.map(d => (
+                    <button key={`dur-${d}`}
+                      onClick={() => setSelectedDurationSync(selectedDuration === d ? null : d)}
+                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${selectedDuration === d ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-faint hover:border-themed-medium'}`}
+                    >{d} m</button>
+                  ))}
+                </div>
+              ) : null;
+            })()}
+            {/* Beta: activity bubbles */}
+            {viewMode === 'beta' && (
+              <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                {allTranslated.filter(a => !a.core).map((activity) => (
+                  <button key={activity.type}
+                    onClick={() => {
+                      if (selectedDuration) {
+                        handleActivityClick({ ...activity, durationMinutes: selectedDuration });
+                      } else {
+                        handleActivityClick(activity);
+                      }
+                    }}
+                    className={`px-2 py-1 text-xs rounded-full border transition-colors ${completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'}`}
+                  >{activity.emoji} {activity.name}</button>
+                ))}
+              </div>
+            )}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
@@ -471,20 +507,20 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }, 0);
               return (
                 <div className="flex items-center justify-between mt-3">
-                  <span className={`text-sm px-3 py-1 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
                     {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     {(totalCountPerActivity.get('nalada') || 0) > 0 && (
                       <span className="text-xs text-themed-faint opacity-50">{totalCountPerActivity.get('nalada')}</span>
                     )}
                     {(completedTodayCounts.get('nalada') || 0) >= 1 && (
                       <span className="text-xs font-medium text-themed-accent-solid">{completedTodayCounts.get('nalada')}</span>
                     )}
-                    <span className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${
+                    <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${
                       completedTodayCounts.has('nalada') ? '' : 'opacity-20'
                     }`} style={{ backgroundColor: completedTodayCounts.has('nalada') ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
-                      <svg className="w-3 h-3" style={{ color: completedTodayCounts.has('nalada') ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-2.5 h-2.5" style={{ color: completedTodayCounts.has('nalada') ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                       </svg>
                     </span>
@@ -512,34 +548,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {/* Beta: separator + activity bubbles with time + session total + records */}
             {viewMode === 'beta' && allTranslated.filter(a => !a.core).length > 0 && (
               <>
-                {/* Duration bubbles + Activity bubbles */}
-                <div className="flex flex-wrap gap-1.5 mb-2 mt-4 justify-center">
-                  {(() => {
-                    const durations = [...new Set(allTranslated.filter(a => !a.core && a.durationMinutes).map(a => a.durationMinutes!))].sort((a, b) => a - b);
-                    return durations.map(d => (
-                      <button key={`dur-${d}`}
-                        onClick={() => setSelectedDuration(selectedDuration === d ? null : d)}
-                        className={`px-2 py-1 text-xs rounded-full border transition-colors ${selectedDuration === d ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-faint hover:border-themed-medium'}`}
-                      >
-                        {d} m
-                      </button>
-                    ));
-                  })()}
-                  {allTranslated.filter(a => !a.core).map((activity) => (
-                    <button key={activity.type}
-                      onClick={() => {
-                        if (selectedDuration) {
-                          handleActivityClick({ ...activity, durationMinutes: selectedDuration });
-                        } else {
-                          handleActivityClick(activity);
-                        }
-                      }}
-                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'}`}
-                    >
-                      {activity.emoji} {activity.name}
-                    </button>
-                  ))}
-                </div>
                 {/* Activity records */}
                 <div className="space-y-1">
                   {allTranslated.filter(a => !a.core).map((activity) => (
