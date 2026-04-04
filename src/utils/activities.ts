@@ -196,6 +196,17 @@ const getDefaultFromConfig = (lang?: string): ActivityDefinition[] => {
   });
 };
 
+// Extract emoji from the first property of a record's selectedVariant
+export const getRecordEmoji = (selectedVariant?: string, defaultEmoji?: string): string => {
+  if (!selectedVariant) return defaultEmoji || '';
+  const firstProp = selectedVariant.split(',')[0].trim();
+  if (!firstProp) return defaultEmoji || '';
+  // Check if the property starts with an emoji
+  const emojiMatch = firstProp.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/u);
+  if (emojiMatch) return emojiMatch[0];
+  return defaultEmoji || '';
+};
+
 // Get config properties for an activity type
 export const getConfigProperties = (type: string): string[] => {
   const config = getCachedConfig();

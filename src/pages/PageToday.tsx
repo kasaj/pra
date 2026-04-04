@@ -8,6 +8,7 @@ import {
   getTranslatedActivity,
   markActivityModified,
   getConfigProperties,
+  getRecordEmoji,
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import ActivityCard from '../components/ActivityCard';
@@ -767,7 +768,49 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               <>
                 {/* Activity records */}
                 <div className="space-y-1 mt-3">
-                  {allTranslated.map((activity) => (
+                  {allTranslated.map((activity) => {
+                    // For core activity, show individual records with property emojis
+                    if (activity.core) {
+                      const todayEntry = getDayEntry(getTodayDate());
+                      const coreRecords = (todayEntry?.activities || [])
+                        .filter(a => a.type === activity.type)
+                        .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime());
+                      if (coreRecords.length === 0) {
+                        return (
+                          <div key={activity.type} className="flex items-center gap-2 opacity-50">
+                            <span className="text-sm">{activity.emoji}</span>
+                            <span className="text-xs text-themed-muted flex-1">{activity.name}</span>
+                            <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center opacity-20`} style={{ backgroundColor: 'var(--text-faint)' }}>
+                              <svg className="w-2.5 h-2.5" style={{ color: 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          </div>
+                        );
+                      }
+                      return coreRecords.map((record) => {
+                        const recordEmoji = getRecordEmoji(record.selectedVariant, activity.emoji);
+                        const inSession = new Date(record.completedAt || record.startedAt) >= new Date(sessionStart);
+                        return (
+                          <div key={record.id} className="flex items-center gap-2 opacity-50">
+                            <span className="text-sm">{recordEmoji}</span>
+                            <span className="text-xs text-themed-muted flex-1">
+                              {record.selectedVariant ? record.selectedVariant.split(',')[0].trim() : activity.name}
+                            </span>
+                            <span className="text-xs text-themed-faint">
+                              {new Date(record.completedAt || record.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${inSession ? '' : 'opacity-20'}`}
+                              style={{ backgroundColor: inSession ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
+                              <svg className="w-2.5 h-2.5" style={{ color: inSession ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          </div>
+                        );
+                      });
+                    }
+                    return (
                     <div key={activity.type} className="flex items-center gap-2 opacity-50">
                       <span className="text-sm">{activity.emoji}</span>
                       <span className="text-xs text-themed-muted flex-1">{activity.name}</span>
@@ -793,7 +836,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         </svg>
                       </span>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 {/* Session total bubble with dokoncit checkbox */}
                 <div className="flex justify-center mt-2">

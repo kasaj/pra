@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { loadAllData, deleteActivitiesByIds, updateActivityById, findActivityById, createLinkedActivity } from '../utils/storage';
 import { getChartColors } from '../utils/theme';
-import { getActivityByType, getTranslatedActivity } from '../utils/activities';
+import { getActivityByType, getTranslatedActivity, getRecordEmoji } from '../utils/activities';
 import { useLanguage } from '../i18n';
 import { Activity, ActivityComment, ActivityDefinition, DayEntry } from '../types';
 import { loadMoodScale, getMoodEmoji } from '../utils/moodScale';
@@ -237,8 +237,11 @@ function ActivityRow({ activity, lang, selected, onToggleSelect, onClickEdit, on
         {/* Row 1: time left, right: linkCount emoji avgEmoji */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm">{def?.emoji}</span>
-            {def?.name && <span className="text-xs text-themed-muted truncate">{def.name}</span>}
+            <span className="text-sm">{def?.core ? getRecordEmoji(activity.selectedVariant, def.emoji) : def?.emoji}</span>
+            {def?.core && activity.selectedVariant
+              ? <span className="text-xs text-themed-muted truncate">{activity.selectedVariant.split(',')[0].trim()}</span>
+              : def?.name && <span className="text-xs text-themed-muted truncate">{def.name}</span>
+            }
           </div>
           <div className="flex items-center gap-2">
             {linkCount > 0 && (
