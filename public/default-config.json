@@ -130,20 +130,6 @@
       }
     }
   ],
-  "properties": {
-    "cs": [
-       "❗️","☀️", "☕️", "🍵","🐕","🍩","💩","💨 Dlouhý výdech, uklidnění", "Nový návyk", "Aha", "Pocit", "Společnost", "👫 Rodina",
-       "🙏 Fail", "👌 Gesto klidu", "💻 Práce", "🏡 Práce", "😴 Spánek 8h", "🏃‍♂️ Sport", "🌘 Stín", "😨 Strach", "🥱 Únava", "📜 Záměr", "🤗 Obejmutí",
-      "🍲 Jídlo", "💭 Myšlenka", "📝 Poznámka", "🔭 Pozornost", "🚶‍♂️ Procházka","🌅 Probuzení", "🛌 Usínání","💤 Sen"
-    ],
-    "en": [
-      "💨 Long exhale, calming", "New habit", "Aha",
-      "Feeling", "Experience", "Society", "🙏 Fail", "👌 Calm gesture", "💻 Work", "🏡 Work", "🍩 Sweet", "😴 Sleep 8h",
-      "🏋️ Strength", "🏃‍♂️ Sport", "🌘 Shadow", "😨 Fear", "🥱 Fatigue", "📜 Intention", "🤗 Embrace",
-      "☀️", "☕️", "🍵", "♟️", "🌅 Waking up", "🍲", "🐕", "👫 Family", "💤 Dream", "💩", "💭 Thought", "📝 Note",
-      "🔭 Attention", "🚶‍♂️ Walk", "🛌 Falling asleep"
-    ]
-  },
   "moodScale": [
     { "value": 1, "emoji": "😡", "labelCs": "Vztek", "labelEn": "Anger" },
     { "value": 2, "emoji": "😰", "labelCs": "Úzkost", "labelEn": "Anxiety" },
