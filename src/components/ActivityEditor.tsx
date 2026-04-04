@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { ActivityDefinition } from '../types';
 import { useLanguage } from '../i18n';
 import { generateActivityType } from '../utils/activities';
-import { addToRegistry, removeFromRegistry, loadVariantRegistry } from '../utils/variantRegistry';
 
 interface ActivityEditorProps {
   activity?: ActivityDefinition;
@@ -12,7 +11,7 @@ interface ActivityEditorProps {
 }
 
 export default function ActivityEditor({ activity, onSave, onDelete, onClose }: ActivityEditorProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const isNew = !activity;
 
   const [name, setName] = useState(activity?.name || '');
@@ -20,24 +19,7 @@ export default function ActivityEditor({ activity, onSave, onDelete, onClose }: 
   const [description, setDescription] = useState(activity?.description || '');
   const [isTimed, setIsTimed] = useState(activity?.durationMinutes !== null);
   const [duration, setDuration] = useState(activity?.durationMinutes?.toString() || '15');
-  const [variants, setVariants] = useState<string[]>(activity?.properties || []);
-  const [newVariant, setNewVariant] = useState('');
-  const [editingProps, setEditingProps] = useState(false);
-  const [registryVersion, setRegistryVersion] = useState(0);
-  const [hiddenProperties, setHiddenProperties] = useState<Set<string>>(() => {
-    try {
-      const stored = localStorage.getItem('pra_hidden_properties');
-      return stored ? new Set(JSON.parse(stored)) : new Set();
-    } catch { return new Set(); }
-  });
-  const toggleHideProperty = (prop: string) => {
-    setHiddenProperties(prev => {
-      const next = new Set(prev);
-      if (next.has(prop)) next.delete(prop); else next.add(prop);
-      localStorage.setItem('pra_hidden_properties', JSON.stringify([...next]));
-      return next;
-    });
-  };
+  const [variants] = useState<string[]>(activity?.properties || []);
 
   const initialRender = useRef(true);
 
@@ -175,60 +157,6 @@ export default function ActivityEditor({ activity, onSave, onDelete, onClose }: 
             </div>
           )}
 
-          <div>
-            <label className="block text-sm text-themed-muted mb-2">{t.editor.variants}</label>
-            <div className="flex flex-wrap gap-2">
-              {(() => { void registryVersion; return loadVariantRegistry(); })().slice().sort((a, b) => {
-                const aIsEmoji = /^\p{Emoji}/u.test(a);
-                const bIsEmoji = /^\p{Emoji}/u.test(b);
-                if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
-                return a.localeCompare(b, language);
-              }).filter(prop => editingProps || !hiddenProperties.has(prop)).map((prop) => (
-                <span key={prop} className="relative inline-flex">
-                  <button
-                    onClick={() => {
-                      if (editingProps) { toggleHideProperty(prop); return; }
-                      const updated = variants.includes(prop)
-                        ? variants.filter(v => v !== prop)
-                        : [...variants, prop];
-                      setVariants(updated);
-                    }}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                      editingProps && hiddenProperties.has(prop)
-                        ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
-                        : variants.includes(prop)
-                          ? 'bg-themed-accent border-themed-accent text-themed-accent'
-                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                    }`}
-                  >{prop}</button>
-                  {editingProps && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); removeFromRegistry(prop); setRegistryVersion(v => v + 1); }}
-                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
-                    >✕</button>
-                  )}
-                </span>
-              ))}
-              {editingProps && (
-                <input
-                  type="text"
-                  value={newVariant}
-                  onChange={(e) => setNewVariant(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const text = newVariant.trim(); if (text) { addToRegistry(text); setNewVariant(''); setRegistryVersion(v => v + 1); } } }}
-                  onBlur={() => { const text = newVariant.trim(); if (text) { addToRegistry(text); setNewVariant(''); setRegistryVersion(v => v + 1); } }}
-                  placeholder="+"
-                  className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input
-                           text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent"
-                />
-              )}
-              <button
-                onClick={() => setEditingProps(!editingProps)}
-                className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
-                  editingProps ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
-                }`}
-              >{editingProps ? '✓' : '✎'}</button>
-            </div>
-          </div>
         </div>
 
         <div className="p-4 border-t border-themed space-y-3">
