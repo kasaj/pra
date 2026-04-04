@@ -795,7 +795,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                           <div key={record.id} className="flex items-center gap-2 opacity-50">
                             <span className="text-sm">{recordEmoji}</span>
                             <span className="text-xs text-themed-muted flex-1">
-                              {record.selectedVariant ? record.selectedVariant.split(',')[0].trim() : activity.name}
+                              {record.selectedVariant
+                                ? record.selectedVariant.split(',')[0].trim().replace(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)\s*/u, '')
+                                  || record.selectedVariant.split(',')[0].trim()
+                                : activity.name}
                             </span>
                             <span className="text-xs text-themed-faint">
                               {new Date(record.completedAt || record.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
