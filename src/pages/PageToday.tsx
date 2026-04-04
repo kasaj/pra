@@ -459,7 +459,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                        focus:outline-none focus:border-themed-accent resize-none
                        text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
             />
-            <div className="flex items-center justify-end gap-2 mt-2">
+            <div className="flex items-center justify-end gap-2 mt-3">
               {viewMode === 'beta' && (() => {
                 const todayEntry = getDayEntry(getTodayDate());
                 const ss = localStorage.getItem('pra_session_start') || '';
