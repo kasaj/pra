@@ -132,10 +132,15 @@ interface ActivityFlowProps {
 
 export default function ActivityFlow({ activity, onClose, onEdit, existingActivity, onUpdateExisting, onAddComment, onUpdateComment: _onUpdateComment, onNavigateLinked, onNavigatePrev: _onNavigatePrev, onNavigateNext: _onNavigateNext, onCreateLinked: _onCreateLinked, onNavigatePage }: ActivityFlowProps) {
   const { t, language } = useLanguage();
-  const isTimed = activity.durationMinutes !== null;
+  const [overrideDuration, setOverrideDuration] = useState<number | null>(null);
+  const effectiveDuration = overrideDuration ?? activity.durationMinutes;
+  const isTimed = effectiveDuration !== null;
   const isEditing = !!existingActivity;
 
   const [timedStep, setTimedStep] = useState<TimedFlowStep>(isEditing ? 'rating-after' : 'rating-before');
+  const [editingDurations, setEditingDurations] = useState(false);
+  const [newDurationText, setNewDurationText] = useState('');
+  const [durationVersion, setDurationVersion] = useState(0);
   const [selectedVariant] = useState<string | null>(existingActivity?.selectedVariant || null);
   const ratingBefore = existingActivity?.ratingBefore || null;
   const ratingAfter = existingActivity?.ratingAfter || null;
@@ -217,8 +222,8 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
       type: activity.type,
       startedAt,
       completedAt: now,
-      durationMinutes: isTimed ? activity.durationMinutes : null,
-      actualDurationSeconds: isTimed ? actualDurationRef.current || (activity.durationMinutes || 0) * 60 : undefined,
+      durationMinutes: isTimed ? effectiveDuration : null,
+      actualDurationSeconds: isTimed ? actualDurationRef.current || (effectiveDuration || 0) * 60 : undefined,
       selectedVariant: selectedVariant || undefined,
       ratingBefore: isTimed ? (ratingBefore || undefined) : undefined,
       ratingAfter: isTimed ? (ratingAfter || undefined) : undefined,
@@ -328,7 +333,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
           completedAt,
           selectedVariant: selectedVariant || undefined,
           comments: finalComments.length > 0 ? finalComments : undefined,
-          actualDurationSeconds: actualDurationRef.current || (isTimed ? (activity.durationMinutes || 0) * 60 : Math.max(60, Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000))),
+          actualDurationSeconds: actualDurationRef.current || (isTimed ? (effectiveDuration || 0) * 60 : Math.max(60, Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000))),
         });
       }
     } else if (finalComments.length > 0 || (isTimed && actualDurationRef.current > 0)) {
@@ -388,6 +393,79 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
               ? (language === 'cs' ? 'Jak se teď cítíš?' : 'How do you feel now?')
               : activity.description}
           </p>
+          {/* Duration bubbles */}
+          {!isEditing && (
+            <div className="flex flex-wrap gap-1.5 mb-3 justify-center items-center">
+              {(() => {
+                void durationVersion;
+                const stored = localStorage.getItem('pra_duration_bubbles');
+                const defaultDurations = [...new Set(loadActivities().filter(a => !a.core && a.durationMinutes).map(a => a.durationMinutes!))].sort((a, b) => a - b);
+                const durations: number[] = stored ? JSON.parse(stored) : defaultDurations;
+                const hiddenDurs: number[] = (() => { try { const s = localStorage.getItem('pra_hidden_durations'); return s ? JSON.parse(s) : []; } catch { return []; } })();
+                const hiddenSet = new Set(hiddenDurs);
+                return (editingDurations ? durations : durations.filter(d => !hiddenSet.has(d))).map(d => (
+                  <span key={`dur-${d}`} className="relative inline-flex">
+                    <button
+                      onClick={() => {
+                        if (editingDurations) {
+                          const next = hiddenSet.has(d) ? hiddenDurs.filter(x => x !== d) : [...hiddenDurs, d];
+                          localStorage.setItem('pra_hidden_durations', JSON.stringify(next));
+                          setDurationVersion(v => v + 1);
+                        } else {
+                          setOverrideDuration(overrideDuration === d ? null : d);
+                        }
+                      }}
+                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                        editingDurations
+                          ? hiddenSet.has(d) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-faint'
+                          : overrideDuration === d ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-faint hover:border-themed-medium'
+                      }`}
+                    >{d} m</button>
+                    {editingDurations && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const next = durations.filter(x => x !== d);
+                          localStorage.setItem('pra_duration_bubbles', JSON.stringify(next));
+                          if (overrideDuration === d) setOverrideDuration(null);
+                          setDurationVersion(v => v + 1);
+                        }}
+                        className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
+                      >✕</button>
+                    )}
+                  </span>
+                ));
+              })()}
+              {editingDurations && (
+                <input type="number" value={newDurationText} onChange={(e) => setNewDurationText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const val = parseInt(newDurationText);
+                      if (val > 0) {
+                        const stored = localStorage.getItem('pra_duration_bubbles');
+                        const durations: number[] = stored ? JSON.parse(stored) : [];
+                        if (!durations.includes(val)) {
+                          localStorage.setItem('pra_duration_bubbles', JSON.stringify([...durations, val].sort((a, b) => a - b)));
+                          setDurationVersion(v => v + 1);
+                        }
+                        setNewDurationText('');
+                      }
+                    }
+                  }}
+                  placeholder="+ m"
+                  className="w-14 px-2 py-1 text-xs rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent text-center"
+                />
+              )}
+              <button
+                onClick={() => setEditingDurations(!editingDurations)}
+                className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
+                  editingDurations ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
+                }`}
+              >{editingDurations ? '✓' : '✎'}</button>
+            </div>
+          )}
+
           <div className="flex flex-col items-center gap-1 mb-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
@@ -755,11 +833,11 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
                 <div className="flex gap-2 max-w-xs mx-auto">
                   <button onClick={handleTimedBeforeSubmit} className="btn-primary flex-1">
-                    {t.flow.start} ({activity.durationMinutes} min)
+                    {t.flow.start} ({effectiveDuration} min)
                   </button>
                   <button
                     onClick={() => {
-                      actualDurationRef.current = (activity.durationMinutes || 0) * 60;
+                      actualDurationRef.current = (effectiveDuration || 0) * 60;
                       handleClose();
                     }}
                     className="px-3 py-2 rounded-xl border transition-colors text-sm text-themed-faint hover:text-themed-muted"
@@ -773,9 +851,9 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
           )}
 
           {/* Časové aktivity - timer */}
-          {isTimed && timedStep === 'timer' && activity.durationMinutes && (
+          {isTimed && timedStep === 'timer' && effectiveDuration && (
             <Timer
-              durationMinutes={activity.durationMinutes}
+              durationMinutes={effectiveDuration}
               onComplete={handleTimerComplete}
               onCancel={handleClose}
               onElapsedChange={(s) => { actualDurationRef.current = s; }}

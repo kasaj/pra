@@ -806,9 +806,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     return rows.map(row => (
                       <div key={row.key} className="flex items-center gap-2 opacity-50">
                         <span className="text-sm">{row.emoji}</span>
-                        <span className="text-xs text-themed-muted flex-1">
-                          {row.total > 0 ? `${language === 'cs' ? 'celkem' : 'total'} ${row.total}` : row.label}
-                        </span>
+                        <span className="flex-1" />
+                        {row.total > 0 && (
+                          <span className="text-xs text-themed-faint">{row.total}</span>
+                        )}
                         {row.totalMin > 0 && (
                           <span className="text-xs text-themed-faint">
                             {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
