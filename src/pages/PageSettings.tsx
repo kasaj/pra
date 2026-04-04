@@ -151,6 +151,8 @@ function generateConfigExport(lang: string, currentTheme: string, profileName: s
     activities: exportActivities,
     info: { cs: infoCs, en: infoEn },
     moodScale: loadMoodScale(),
+    hiddenProperties: (() => { try { const s = localStorage.getItem('pra_hidden_properties'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
+    hiddenActivities: (() => { try { const s = localStorage.getItem('pra_hidden_activities'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
   };
 }
 
@@ -285,10 +287,11 @@ function importPraFile(file: PraFile, currentLang: string): void {
   if (file.moodScale && Array.isArray(file.moodScale) && file.moodScale.length > 0) {
     saveMoodScale(file.moodScale);
   }
-  // Hidden properties, activities, durations + duration bubbles (backup only)
+  // Hidden properties + activities (both backup and config)
+  if (file.hiddenProperties) localStorage.setItem('pra_hidden_properties', JSON.stringify(file.hiddenProperties));
+  if (file.hiddenActivities) localStorage.setItem('pra_hidden_activities', JSON.stringify(file.hiddenActivities));
+  // Legacy duration fields (backup only)
   if (file.type === 'backup') {
-    if (file.hiddenProperties) localStorage.setItem('pra_hidden_properties', JSON.stringify(file.hiddenProperties));
-    if (file.hiddenActivities) localStorage.setItem('pra_hidden_activities', JSON.stringify(file.hiddenActivities));
     if (file.hiddenDurations) localStorage.setItem('pra_hidden_durations', JSON.stringify(file.hiddenDurations));
     if (file.durationBubbles) localStorage.setItem('pra_duration_bubbles', JSON.stringify(file.durationBubbles));
   }
