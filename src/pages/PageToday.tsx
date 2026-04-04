@@ -654,7 +654,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                           setNewDurationText('');
                         }
                       }}
-                      placeholder="+ min"
+                      placeholder="+ m"
                       className="w-16 px-2 py-1 text-xs rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent text-center"
                     />
                   )}

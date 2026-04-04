@@ -336,6 +336,9 @@ export default function PageSettings() {
   const [importStatus, setImportStatus] = useState<'success' | 'error' | null>(null);
   const [exportTab, setExportTab] = useState<'backup' | 'config'>('backup');
   const [infoTab, setInfoTab] = useState<'info' | 'install'>('info');
+  const [viewMode, setViewMode] = useState<string>(() =>
+    localStorage.getItem('pra_view_mode') || 'beta'
+  );
   const [theme, setThemeState] = useState<Theme>(loadTheme);
   const [moodScale, setMoodScale] = useState<MoodScaleItem[]>(() => loadMoodScale());
   const [editingMoodIdx, setEditingMoodIdx] = useState<number | null>(null);
@@ -665,6 +668,32 @@ export default function PageSettings() {
                 }}
               >
                 {th === 'classic' ? t.settings.themeClassic : th === 'modern' ? t.settings.themeModern : t.settings.themeDark}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* View */}
+        <section className="card">
+          <h2 className="font-serif text-lg mb-4" style={{ color: 'var(--text-secondary)' }}>
+            View
+          </h2>
+          <div className="flex gap-3">
+            {(['beta', 'new'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => {
+                  setViewMode(mode);
+                  localStorage.setItem('pra_view_mode', mode);
+                }}
+                className="flex-1 py-3 px-2 rounded-xl border transition-colors text-sm"
+                style={{
+                  backgroundColor: viewMode === mode ? 'var(--accent-bg)' : 'var(--bg-input)',
+                  borderColor: viewMode === mode ? 'var(--accent-border)' : 'var(--border-light)',
+                  color: viewMode === mode ? 'var(--accent-text)' : 'var(--text-muted)',
+                }}
+              >
+                {mode === 'beta' ? 'Default' : 'New'}
               </button>
             ))}
           </div>
