@@ -33,6 +33,10 @@ interface PraFile {
   sessionStart?: string;
   activityStats?: Record<string, { count: number; totalSeconds: number; avgRating?: number; avgMood?: number; totalLinks?: number }>;
   moodScale?: MoodScaleItem[];
+  hiddenProperties?: string[];
+  hiddenActivities?: string[];
+  hiddenDurations?: number[];
+  durationBubbles?: number[];
 }
 
 function generateBackup(lang: string, currentTheme: string, profileName: string): PraFile {
@@ -112,6 +116,10 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
     sessionStart: localStorage.getItem('pra_session_start') || undefined,
     moodScale: loadMoodScale(),
     activityStats,
+    hiddenProperties: (() => { try { const s = localStorage.getItem('pra_hidden_properties'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
+    hiddenActivities: (() => { try { const s = localStorage.getItem('pra_hidden_activities'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
+    hiddenDurations: (() => { try { const s = localStorage.getItem('pra_hidden_durations'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
+    durationBubbles: (() => { try { const s = localStorage.getItem('pra_duration_bubbles'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
   } as PraFile;
 }
 
@@ -255,6 +263,13 @@ function importPraFile(file: PraFile, currentLang: string): void {
   // Mood scale
   if (file.moodScale && Array.isArray(file.moodScale) && file.moodScale.length > 0) {
     saveMoodScale(file.moodScale);
+  }
+  // Hidden properties, activities, durations + duration bubbles (backup only)
+  if (file.type === 'backup') {
+    if (file.hiddenProperties) localStorage.setItem('pra_hidden_properties', JSON.stringify(file.hiddenProperties));
+    if (file.hiddenActivities) localStorage.setItem('pra_hidden_activities', JSON.stringify(file.hiddenActivities));
+    if (file.hiddenDurations) localStorage.setItem('pra_hidden_durations', JSON.stringify(file.hiddenDurations));
+    if (file.durationBubbles) localStorage.setItem('pra_duration_bubbles', JSON.stringify(file.durationBubbles));
   }
 }
 

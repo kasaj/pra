@@ -160,6 +160,25 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
     const idx = all.findIndex(a => a.type === activity.type);
     if (idx >= 0) {
       all[idx] = { ...all[idx], properties: updated };
+      // Bubble new properties to core activity (nalada), hidden by default
+      if (!all[idx].core) {
+        const coreIdx = all.findIndex(a => a.core);
+        if (coreIdx >= 0) {
+          const coreProps = all[coreIdx].properties || [];
+          const newForCore = updated.filter(p => !coreProps.includes(p));
+          if (newForCore.length > 0) {
+            all[coreIdx] = { ...all[coreIdx], properties: [...coreProps, ...newForCore] };
+            markActivityModified(all[coreIdx].type);
+            // Mark new ones as hidden on Today view
+            try {
+              const stored = localStorage.getItem('pra_hidden_properties');
+              const hidden: string[] = stored ? JSON.parse(stored) : [];
+              const merged = [...new Set([...hidden, ...newForCore])];
+              localStorage.setItem('pra_hidden_properties', JSON.stringify(merged));
+            } catch { /* */ }
+          }
+        }
+      }
       saveActivities(all);
       markActivityModified(activity.type);
     }
