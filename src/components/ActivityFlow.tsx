@@ -547,11 +547,13 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     <button
                       onClick={() => {
                         if (editingVariants) {
-                          const updated = localVariants.includes(prop)
-                            ? localVariants.filter(v => v !== prop)
-                            : [...localVariants, prop];
-                          setLocalVariants(updated);
-                          persistVariants(updated);
+                          // Toggle: only local state, persist on edit close
+                          setLocalVariants(prev => {
+                            const updated = prev.includes(prop)
+                              ? prev.filter(v => v !== prop)
+                              : [...prev, prop];
+                            return updated;
+                          });
                         } else {
                           setNewComment((prev) => prev ? `${prev}, ${prop}` : prop);
                         }
@@ -600,7 +602,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   />
                 )}
                 <button
-                  onClick={() => setEditingVariants(!editingVariants)}
+                  onClick={() => { if (editingVariants) persistVariants(localVariants); setEditingVariants(!editingVariants); }}
                   className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
                     editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
                   }`}
@@ -656,11 +658,13 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     <button
                       onClick={() => {
                         if (editingVariants) {
-                          const updated = localVariants.includes(prop)
-                            ? localVariants.filter(v => v !== prop)
-                            : [...localVariants, prop];
-                          setLocalVariants(updated);
-                          persistVariants(updated);
+                          // Toggle: only local state, persist on edit close
+                          setLocalVariants(prev => {
+                            const updated = prev.includes(prop)
+                              ? prev.filter(v => v !== prop)
+                              : [...prev, prop];
+                            return updated;
+                          });
                         } else {
                           setNewComment((prev) => prev ? `${prev}, ${prop}` : prop);
                         }
@@ -709,7 +713,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   />
                 )}
                 <button
-                  onClick={() => setEditingVariants(!editingVariants)}
+                  onClick={() => { if (editingVariants) persistVariants(localVariants); setEditingVariants(!editingVariants); }}
                   className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
                     editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
                   }`}
@@ -792,11 +796,13 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                     <button
                       onClick={() => {
                         if (editingVariants) {
-                          const updated = localVariants.includes(prop)
-                            ? localVariants.filter(v => v !== prop)
-                            : [...localVariants, prop];
-                          setLocalVariants(updated);
-                          persistVariants(updated);
+                          // Toggle: only local state, persist on edit close
+                          setLocalVariants(prev => {
+                            const updated = prev.includes(prop)
+                              ? prev.filter(v => v !== prop)
+                              : [...prev, prop];
+                            return updated;
+                          });
                         } else {
                           setNewComment((prev) => prev ? `${prev}, ${prop}` : prop);
                         }
@@ -845,7 +851,7 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                   />
                 )}
                 <button
-                  onClick={() => setEditingVariants(!editingVariants)}
+                  onClick={() => { if (editingVariants) persistVariants(localVariants); setEditingVariants(!editingVariants); }}
                   className={`w-7 h-7 text-xs rounded-full border flex items-center justify-center transition-colors ${
                     editingVariants ? 'border-themed-accent text-themed-accent' : 'border-themed text-themed-faint'
                   }`}
