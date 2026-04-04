@@ -9,7 +9,7 @@ import {
   markActivityModified,
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
-import { loadVariantRegistry, addToRegistry } from '../utils/variantRegistry';
+import { loadVariantRegistry, addToRegistry, removeFromRegistry } from '../utils/variantRegistry';
 import ActivityCard from '../components/ActivityCard';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
@@ -410,12 +410,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
               return a.localeCompare(b, language);
             }).filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
-              <div key={prop} className="relative">
+              <span key={prop} className="relative inline-flex">
                 <button
                   onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
                   className={`px-2 py-1 text-xs rounded-full border transition-colors ${
                     editMode && hiddenProperties.has(prop)
-                      ? 'opacity-30 border-themed bg-themed-input text-themed-faint line-through'
+                      ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
                       : selectedProperties.has(prop)
                         ? 'bg-themed-accent border-themed-accent text-themed-accent'
                         : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
@@ -423,7 +423,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 >
                   {prop}
                 </button>
-              </div>
+                {editMode && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeFromRegistry(prop); setRegistryVersion(v => v + 1); }}
+                    className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
+                  >✕</button>
+                )}
+              </span>
             ))}
             {editMode && (
               <input
@@ -474,19 +480,26 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
                     return a.localeCompare(b, language);
                   }).filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
-                    <button
-                      key={prop}
-                      onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
-                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${
-                        editMode && hiddenProperties.has(prop)
-                          ? 'opacity-30 border-themed bg-themed-input text-themed-faint line-through'
-                          : selectedProperties.has(prop)
-                            ? 'bg-themed-accent border-themed-accent text-themed-accent'
-                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                      }`}
-                    >
-                      {prop}
-                    </button>
+                    <span key={prop} className="relative inline-flex">
+                      <button
+                        onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
+                        className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                          editMode && hiddenProperties.has(prop)
+                            ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
+                            : selectedProperties.has(prop)
+                              ? 'bg-themed-accent border-themed-accent text-themed-accent'
+                              : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        }`}
+                      >
+                        {prop}
+                      </button>
+                      {editMode && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeFromRegistry(prop); setRegistryVersion(v => v + 1); }}
+                          className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
+                        >✕</button>
+                      )}
+                    </span>
                   ))}
                   {editMode && (
                     <input type="text" value={newPropertyText} onChange={(e) => setNewPropertyText(e.target.value)}
