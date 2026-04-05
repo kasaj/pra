@@ -311,7 +311,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   }, [editingActivity]);
 
   return (
-    <div className={`page-container ${viewMode === 'beta' ? 'min-h-screen flex flex-col' : ''}`}>
+    <div className={`page-container ${viewMode === 'beta' ? 'min-h-screen flex flex-col justify-center' : ''}`}>
       <div className="flex items-center justify-between mb-1.5">
           <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
           {viewMode !== 'beta' && (
