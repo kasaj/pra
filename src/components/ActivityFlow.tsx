@@ -159,7 +159,13 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
   }, [activity.type]);
 
   const [startedAt, setStartedAt] = useState(existingActivity?.startedAt || new Date().toISOString());
-  const [completedAt, setCompletedAt] = useState(existingActivity?.completedAt || new Date().toISOString());
+  const [completedAt, setCompletedAt] = useState(() => {
+    if (existingActivity?.completedAt) return existingActivity.completedAt;
+    if (!isOriginallyTimed && !existingActivity && activity.defaultDuration) {
+      return new Date(Date.now() + activity.defaultDuration * 60 * 1000).toISOString();
+    }
+    return new Date().toISOString();
+  });
   const originalCompletedAt = useRef(existingActivity?.completedAt || new Date().toISOString());
   const originalDuration = useRef(existingActivity?.actualDurationSeconds || 0);
   const [nowActive, setNowActive] = useState(false);
