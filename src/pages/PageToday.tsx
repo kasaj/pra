@@ -276,20 +276,23 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
   return (
     <div className="page-container min-h-screen flex flex-col">
-      <header className="flex items-center justify-between mb-1.5">
+      <header className="mb-1.5">
         <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
-        <button
-          onClick={() => setEditMode(!editMode)}
-          className="p-1 transition-colors"
-          style={{ color: editMode ? 'var(--accent-solid)' : 'var(--text-faint)' }}
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
       </header>
       <section className="flex-1 flex flex-col justify-center">
+          {/* Edit button centered */}
+          <div className="flex justify-center mb-1">
+            <button
+              onClick={() => setEditMode(!editMode)}
+              className="p-1 transition-colors"
+              style={{ color: editMode ? 'var(--accent-solid)' : 'var(--text-faint)' }}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          </div>
           {/* Date/time - editable */}
           <div className="flex items-center mb-1.5">
             <div className="flex-1" />
