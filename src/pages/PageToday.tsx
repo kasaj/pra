@@ -8,7 +8,6 @@ import {
   getTranslatedActivity,
   markActivityModified,
   getConfigProperties,
-  getRecordEmoji,
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import ActivityCard from '../components/ActivityCard';
@@ -734,29 +733,19 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   {(() => {
                     const todayEntry = getDayEntry(getTodayDate());
                     const todayActivities = todayEntry?.activities || [];
-                    // Build cumulative rows: group by emoji
+                    // Build cumulative rows
                     const rows: { key: string; emoji: string; label: string; total: number; totalMin: number; sessionCount: number }[] = [];
-                    // Core activity: group by record emoji
+                    // Core activity: single row with core emoji
                     const coreActivity = allTranslated.find(a => a.core);
                     if (coreActivity) {
                       const coreRecords = todayActivities.filter(a => a.type === coreActivity.type);
-                      const byEmoji = new Map<string, { total: number; totalMin: number; sessionCount: number; hasProperty: boolean }>();
+                      let total = 0, totalMin = 0, sessionCount = 0;
                       coreRecords.forEach(r => {
-                        const emoji = getRecordEmoji(r.selectedVariant, coreActivity.emoji);
-                        const hasProperty = !!r.selectedVariant;
-                        const entry = byEmoji.get(emoji) || { total: 0, totalMin: 0, sessionCount: 0, hasProperty };
-                        entry.total++;
-                        entry.totalMin += hasProperty ? Math.round((r.actualDurationSeconds || 900) / 60) : 1;
-                        if (new Date(r.completedAt || r.startedAt) >= new Date(sessionStart)) entry.sessionCount++;
-                        byEmoji.set(emoji, entry);
+                        total++;
+                        totalMin += Math.round((r.actualDurationSeconds || 900) / 60);
+                        if (new Date(r.completedAt || r.startedAt) >= new Date(sessionStart)) sessionCount++;
                       });
-                      if (byEmoji.size === 0) {
-                        rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, label: coreActivity.name, total: 0, totalMin: 0, sessionCount: 0 });
-                      } else {
-                        byEmoji.forEach((val, emoji) => {
-                          rows.push({ key: `core_${emoji}`, emoji, label: coreActivity.name, total: val.total, totalMin: val.totalMin, sessionCount: val.sessionCount });
-                        });
-                      }
+                      rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, label: coreActivity.name, total, totalMin, sessionCount });
                     }
                     // Non-core activities
                     allTranslated.filter(a => !a.core).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
@@ -769,7 +758,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     return rows.map(row => (
                       <div key={row.key} className="flex items-center gap-2 opacity-50 w-full">
                         <div className="flex items-center gap-2 flex-1 justify-end">
-                          <span className="text-sm">{row.key.startsWith('core_') || row.key === coreActivity?.type ? '' : row.emoji}</span>
+                          <span className="text-sm">{row.key === coreActivity?.type ? coreActivity.emoji : row.emoji}</span>
                           {row.total > 0 && (
                             <span className="text-xs text-themed-faint">{row.total}</span>
                           )}
