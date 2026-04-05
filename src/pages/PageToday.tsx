@@ -689,76 +689,44 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {/* Beta: separator + activity bubbles with time + session total + records */}
             {viewMode === 'beta' && allTranslated.length > 0 && (
               <>
-                {/* Records + session bubble below */}
-                <div className="flex flex-col items-end mt-3 gap-1">
-                  {/* Activity records */}
-                  <div className="flex flex-col space-y-1">
-                  {(() => {
-                    const todayEntry = getDayEntry(getTodayDate());
-                    const todayActivities = todayEntry?.activities || [];
-                    // Build cumulative rows
-                    const rows: { key: string; emoji: string; label: string; total: number; totalMin: number; sessionCount: number }[] = [];
-                    // Core activity: single row with core emoji
-                    const coreActivity = allTranslated.find(a => a.core);
-                    if (coreActivity) {
-                      const coreRecords = todayActivities.filter(a => a.type === coreActivity.type);
-                      let total = 0, totalMin = 0, sessionCount = 0;
-                      coreRecords.forEach(r => {
-                        total++;
-                        totalMin += Math.round((r.actualDurationSeconds || 900) / 60);
-                        if (new Date(r.completedAt || r.startedAt) >= new Date(sessionStart)) sessionCount++;
-                      });
-                      rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, label: coreActivity.name, total, totalMin, sessionCount });
-                    }
-                    // Non-core activities
-                    allTranslated.filter(a => !a.core).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
-                      const total = totalCountPerActivity.get(activity.type) || 0;
-                      const totalSecs = totalTimePerActivity.get(activity.type) || 0;
-                      const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
-                      const sessionCount = completedTodayCounts.get(activity.type) || 0;
-                      rows.push({ key: activity.type, emoji: activity.emoji, label: activity.name, total, totalMin, sessionCount });
+                {/* Session bubble (left, aligned to last row) + records (right) */}
+                {(() => {
+                  const todayEntry = getDayEntry(getTodayDate());
+                  const todayActivities = todayEntry?.activities || [];
+                  const coreActivity = allTranslated.find(a => a.core);
+                  const rows: { key: string; emoji: string; total: number; totalMin: number; sessionCount: number }[] = [];
+                  if (coreActivity) {
+                    const coreRecords = todayActivities.filter(a => a.type === coreActivity.type);
+                    let total = 0, totalMin = 0, sessionCount = 0;
+                    coreRecords.forEach(r => {
+                      total++;
+                      totalMin += Math.round((r.actualDurationSeconds || 900) / 60);
+                      if (new Date(r.completedAt || r.startedAt) >= new Date(sessionStart)) sessionCount++;
                     });
-                    return rows.map(row => (
-                      <div key={row.key} className="flex items-center gap-2 opacity-50 w-full">
-                        <div className="flex items-center gap-2 flex-1 justify-end">
-                          <span className="text-sm">{row.key === coreActivity?.type ? coreActivity.emoji : row.emoji}</span>
-                          {row.total > 0 && (
-                            <span className="text-xs text-themed-faint">{row.total}</span>
-                          )}
-                          {row.totalMin > 0 && (
-                            <span className="text-xs text-themed-faint">
-                              {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
-                            </span>
-                          )}
-                          {row.sessionCount > 0 && (
-                            <span className="text-xs font-medium text-themed-accent-solid">{row.sessionCount}</span>
-                          )}
-                        </div>
-                        <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${
-                          row.sessionCount > 0 ? '' : 'opacity-20'
-                        }`} style={{ backgroundColor: row.sessionCount > 0 ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
-                          <svg className="w-2.5 h-2.5" style={{ color: row.sessionCount > 0 ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </span>
-                      </div>
-                    ));
-                  })()}
-                  </div>
-                  {/* Session total bubble with checkbox - below records */}
-                  {(() => {
-                    const allDone = allTranslated.every(a => completedTodayCounts.has(a.type));
-                    const todayEntry = getDayEntry(getTodayDate());
-                    const ss = localStorage.getItem('pra_session_start') || '';
-                    const sessionActivities = todayEntry?.activities.filter(act =>
-                      new Date(act.completedAt || act.startedAt) >= new Date(ss)
-                    ) || [];
-                    const sessionTotal = sessionActivities.reduce((sum, act) => {
-                      const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
-                      return sum + Math.round(secs / 60);
-                    }, 0);
-                    return (
-                      <div className="flex items-center gap-1.5">
+                    rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, total, totalMin, sessionCount });
+                  }
+                  allTranslated.filter(a => !a.core).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
+                    const total = totalCountPerActivity.get(activity.type) || 0;
+                    const totalSecs = totalTimePerActivity.get(activity.type) || 0;
+                    const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
+                    const sessionCount = completedTodayCounts.get(activity.type) || 0;
+                    rows.push({ key: activity.type, emoji: activity.emoji, total, totalMin, sessionCount });
+                  });
+
+                  const allDone = allTranslated.every(a => completedTodayCounts.has(a.type));
+                  const ss = localStorage.getItem('pra_session_start') || '';
+                  const sessionActivities = todayEntry?.activities.filter(act =>
+                    new Date(act.completedAt || act.startedAt) >= new Date(ss)
+                  ) || [];
+                  const sessionTotal = sessionActivities.reduce((sum, act) => {
+                    const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
+                    return sum + Math.round(secs / 60);
+                  }, 0);
+
+                  return (
+                    <div className="flex items-end gap-3 mt-3">
+                      {/* Session bubble - left, aligned to last record row */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         <span className={`text-xs px-2 py-0.5 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
                           {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
                         </span>
@@ -778,9 +746,32 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                           </svg>
                         </button>
                       </div>
-                    );
-                  })()}
-                </div>
+                      {/* Records - right */}
+                      <div className="flex flex-col space-y-1">
+                        {rows.map(row => (
+                          <div key={row.key} className="flex items-center gap-2 opacity-50">
+                            <div className="flex items-center gap-2 flex-1 justify-end">
+                              <span className="text-sm">{row.key === coreActivity?.type ? coreActivity.emoji : row.emoji}</span>
+                              {row.total > 0 && <span className="text-xs text-themed-faint">{row.total}</span>}
+                              {row.totalMin > 0 && (
+                                <span className="text-xs text-themed-faint">
+                                  {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
+                                </span>
+                              )}
+                              {row.sessionCount > 0 && <span className="text-xs font-medium text-themed-accent-solid">{row.sessionCount}</span>}
+                            </div>
+                            <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${row.sessionCount > 0 ? '' : 'opacity-20'}`}
+                              style={{ backgroundColor: row.sessionCount > 0 ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
+                              <svg className="w-2.5 h-2.5" style={{ color: row.sessionCount > 0 ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
               </>
             )}
           </div>
