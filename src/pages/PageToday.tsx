@@ -509,6 +509,38 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
           )}
 
+          {/* Beta: core duration setting in edit mode */}
+          {viewMode === 'beta' && editMode && (
+            <div className="flex justify-center mb-2">
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-themed-faint">{language === 'cs' ? 'Délka' : 'Duration'}</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="120"
+                  defaultValue={(() => {
+                    const core = loadActivities().find(a => a.core);
+                    return core?.defaultDuration ?? 1;
+                  })()}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (val > 0) {
+                      const all = loadActivities();
+                      const cIdx = all.findIndex(a => a.core);
+                      if (cIdx >= 0) {
+                        all[cIdx] = { ...all[cIdx], defaultDuration: val };
+                        saveActivities(all);
+                        markActivityModified(all[cIdx].type);
+                      }
+                    }
+                  }}
+                  className="w-16 px-2 py-1 text-xs rounded-xl bg-themed-input border border-themed focus:outline-none focus:border-themed-accent text-themed-primary text-center"
+                />
+                <span className="text-xs text-themed-faint">m</span>
+              </div>
+            </div>
+          )}
+
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
           {viewMode !== 'beta' && <div className="w-5" />}
@@ -628,32 +660,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 )}
               </div>
               ); })()}
-            {viewMode === 'beta' && editMode && (
-              <div className="flex justify-center mb-2">
-                <button
-                  onClick={() => {
-                    if (!window.confirm(language === 'cs' ? 'Obnovit výchozí nastavení?' : 'Reset to defaults?')) return;
-                    // Reset view settings to defaults, keep user records
-                    localStorage.removeItem('pra_user_modified_activities');
-                    localStorage.removeItem('pra_user_deleted_activities');
-                    localStorage.removeItem('pra_hidden_properties');
-                    localStorage.removeItem('pra_hidden_activities');
-                    localStorage.removeItem('pra_hidden_durations');
-                    localStorage.removeItem('pra_duration_bubbles');
-                    localStorage.removeItem('pra_activities');
-                    localStorage.removeItem('pra_variant_registry_modified');
-                    localStorage.removeItem('pra_variant_registry');
-                    // Reload activities from config (mergeWithConfig with empty will load defaults)
-                    setActivities(loadActivities());
-                    setRegistryVersion(v => v + 1);
-                    setEditMode(false);
-                  }}
-                  className="text-xs text-red-500 hover:text-red-400"
-                >
-                  Reset
-                </button>
-              </div>
-            )}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
