@@ -509,37 +509,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
           )}
 
-          {/* Beta: core duration setting in edit mode */}
-          {viewMode === 'beta' && editMode && (
-            <div className="flex justify-center mb-2">
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-themed-faint">{language === 'cs' ? 'Délka' : 'Duration'}</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="120"
-                  defaultValue={(() => {
-                    const core = loadActivities().find(a => a.core);
-                    return core?.defaultDuration ?? 1;
-                  })()}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    if (val > 0) {
-                      const all = loadActivities();
-                      const cIdx = all.findIndex(a => a.core);
-                      if (cIdx >= 0) {
-                        all[cIdx] = { ...all[cIdx], defaultDuration: val };
-                        saveActivities(all);
-                        markActivityModified(all[cIdx].type);
-                      }
-                    }
-                  }}
-                  className="w-16 px-2 py-1 text-xs rounded-xl bg-themed-input border border-themed focus:outline-none focus:border-themed-accent text-themed-primary text-center"
-                />
-                <span className="text-xs text-themed-faint">m</span>
-              </div>
-            </div>
-          )}
 
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
@@ -660,6 +629,37 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       placeholder="+" className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent" />
                   )}
                 </div>
+            )}
+            {/* Beta: core duration setting in edit mode */}
+            {viewMode === 'beta' && editMode && (
+              <div className="flex justify-center mb-2">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-themed-faint">{language === 'cs' ? 'Délka' : 'Duration'}</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="120"
+                    defaultValue={(() => {
+                      const core = loadActivities().find(a => a.core);
+                      return core?.defaultDuration ?? 1;
+                    })()}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val > 0) {
+                        const all = loadActivities();
+                        const cIdx = all.findIndex(a => a.core);
+                        if (cIdx >= 0) {
+                          all[cIdx] = { ...all[cIdx], defaultDuration: val };
+                          saveActivities(all);
+                          markActivityModified(all[cIdx].type);
+                        }
+                      }
+                    }}
+                    className="w-16 px-2 py-1 text-xs rounded-xl bg-themed-input border border-themed focus:outline-none focus:border-themed-accent text-themed-primary text-center"
+                  />
+                  <span className="text-xs text-themed-faint">m</span>
+                </div>
+              </div>
             )}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
