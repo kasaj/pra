@@ -431,7 +431,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               <span key={prop} className="relative inline-flex">
                 <button
                   onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
-                  className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                     editMode && hiddenProperties.has(prop)
                       ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
                       : selectedProperties.has(prop)
@@ -574,7 +574,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     <span key={prop} className="relative inline-flex">
                       <button
                         onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
-                        className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                           editMode && hiddenProperties.has(prop)
                             ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
                             : selectedProperties.has(prop)
@@ -634,7 +634,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                           handleActivityClick(activity);
                         }
                       }}
-                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                         editMode
                           ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
                           : completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
@@ -759,14 +759,14 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         {rows.map(row => (
                           <div key={row.key} className="flex items-center gap-2 opacity-50">
                             <div className="flex items-center gap-2 flex-1 justify-end">
-                              <span className="text-sm">{row.key === coreActivity?.type ? coreActivity.emoji : row.emoji}</span>
-                              {row.total > 0 && <span className="text-xs text-themed-faint">{row.total}</span>}
+                              <span className="text-base">{row.key === coreActivity?.type ? coreActivity.emoji : row.emoji}</span>
+                              {row.total > 0 && <span className="text-sm text-themed-faint">{row.total}</span>}
                               {row.totalMin > 0 && (
-                                <span className="text-xs text-themed-faint">
+                                <span className="text-sm text-themed-faint">
                                   {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
                                 </span>
                               )}
-                              {row.sessionCount > 0 && <span className="text-xs font-medium text-themed-accent-solid">{row.sessionCount}</span>}
+                              {row.sessionCount > 0 && <span className="text-sm font-medium text-themed-accent-solid">{row.sessionCount}</span>}
                             </div>
                             <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${row.sessionCount > 0 ? '' : 'opacity-20'}`}
                               style={{ backgroundColor: row.sessionCount > 0 ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
