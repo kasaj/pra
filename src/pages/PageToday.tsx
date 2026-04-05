@@ -546,7 +546,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           {viewMode !== 'beta' && <div className="w-5" />}
           <div className="flex-1">
           <div
-            className="card"
             onBlur={(e) => {
               setTimeout(() => {
                 if (!e.currentTarget.contains(document.activeElement)) flushMood();
