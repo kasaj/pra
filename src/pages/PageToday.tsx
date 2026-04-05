@@ -275,11 +275,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   }, [editingActivity]);
 
   return (
-    <div className="page-container">
+    <div className="page-container min-h-screen flex flex-col">
       <header className="mb-1.5">
         <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
       </header>
-      <section className="flex flex-col">
+      <section className="flex-1 flex flex-col justify-center">
           {/* Edit button centered above date/time */}
           <div className="flex justify-center mb-1">
             <button
