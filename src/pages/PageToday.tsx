@@ -520,7 +520,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     rows.push({ key: activity.type, emoji: activity.emoji, total, totalMin, sessionCount });
                   });
 
-                  rows.sort((a, b) => b.sessionCount - a.sessionCount || b.total - a.total);
+                  const fmtMin = (m: number) => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 > 0 ? ` ${m % 60} m` : ''}` : `${m} m`;
+                  rows.sort((a, b) => fmtMin(b.totalMin).length - fmtMin(a.totalMin).length || b.totalMin - a.totalMin);
 
                   const allDone = allTranslated.every(a => completedTodayCounts.has(a.type));
                   const ss = localStorage.getItem('pra_session_start') || '';
