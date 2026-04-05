@@ -355,7 +355,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                       editMode
                         ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                        : completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                     }`}
                   >{activity.emoji} {activity.name}</button>
                   {editMode && (
