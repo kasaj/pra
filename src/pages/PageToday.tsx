@@ -534,7 +534,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     <div className="flex items-end gap-3 mt-3">
                       {/* Session bubble - left, aligned to last record row */}
                       <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <span className={`text-sm px-3 py-1 rounded-full ${sessionTotal > 0 ? 'text-themed-accent-solid bg-themed-accent' : 'text-themed-faint bg-themed-input'}`}>
+                        <span className={`text-sm px-3 py-1 ${sessionTotal > 0 ? 'text-themed-accent-solid' : 'text-themed-faint'}`}>
                           {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
                         </span>
                         <button
