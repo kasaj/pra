@@ -55,7 +55,7 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
     .map((a) => ({
       type: a.type, emoji: a.emoji, durationMinutes: a.durationMinutes,
       name: a.name, description: a.description,
-      properties: a.properties ? a.properties.filter(p => !hiddenPropertiesSet.has(p)) : undefined,
+      properties: a.core && a.properties ? a.properties.filter(p => !hiddenPropertiesSet.has(p)) : a.properties,
       core: a.core, durationOptions: a.durationOptions, defaultDuration: a.defaultDuration,
     }));
 
