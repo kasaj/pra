@@ -554,6 +554,45 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }, 100);
             }}
           >
+            {/* Beta: activity bubbles from config */}
+            {viewMode === 'beta' && (() => { return (
+                <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
+                  <span key={activity.type} className="relative inline-flex">
+                    <button
+                      onClick={() => {
+                        if (editMode) {
+                          toggleHideActivity(activity.type);
+                        } else {
+                          handleActivityClick(activity);
+                        }
+                      }}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        editMode
+                          ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
+                          : completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >{activity.emoji} {activity.name}</button>
+                    {editMode && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteActivity(activity.type);
+                          setActivities(loadActivities());
+                        }}
+                        className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
+                      >✕</button>
+                    )}
+                  </span>
+                ))}
+                {editMode && (
+                  <button
+                    onClick={() => setShowNewActivity(true)}
+                    className="px-2 py-1 text-xs rounded-full border border-dashed border-themed text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid transition-colors"
+                  >+</button>
+                )}
+              </div>
+              ); })()}
             {/* Beta: properties from nalada (stored + config fallback) */}
             {viewMode === 'beta' && (
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
@@ -622,45 +661,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   )}
                 </div>
             )}
-            {viewMode === 'beta' && (() => { return (
-                <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                {/* Activity bubbles from config */}
-                {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
-                  <span key={activity.type} className="relative inline-flex">
-                    <button
-                      onClick={() => {
-                        if (editMode) {
-                          toggleHideActivity(activity.type);
-                        } else {
-                          handleActivityClick(activity);
-                        }
-                      }}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        editMode
-                          ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                          : completedTodayCounts.has(activity.type) ? 'bg-themed-accent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                      }`}
-                    >{activity.emoji} {activity.name}</button>
-                    {editMode && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteActivity(activity.type);
-                          setActivities(loadActivities());
-                        }}
-                        className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
-                      >✕</button>
-                    )}
-                  </span>
-                ))}
-                {editMode && (
-                  <button
-                    onClick={() => setShowNewActivity(true)}
-                    className="px-2 py-1 text-xs rounded-full border border-dashed border-themed text-themed-faint hover:border-themed-accent hover:text-themed-accent-solid transition-colors"
-                  >+</button>
-                )}
-              </div>
-              ); })()}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
