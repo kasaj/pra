@@ -124,7 +124,10 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
     notes: { [lang]: loadNotes(lang) },
     userModified,
     sessionStart: localStorage.getItem('pra_session_start') || undefined,
-    moodScale: loadMoodScale(),
+    moodScale: loadMoodScale().map(item => ({
+      value: item.value, emoji: item.emoji,
+      ...(lang === 'en' ? { labelEn: item.labelEn } : { labelCs: item.labelCs }),
+    })),
     activityStats,
     hiddenProperties: (() => { try { const s = localStorage.getItem('pra_hidden_properties'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
     hiddenActivities: (() => { try { const s = localStorage.getItem('pra_hidden_activities'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
@@ -183,7 +186,10 @@ function generateConfigExport(lang: string, currentTheme: string, profileName: s
     theme: currentTheme,
     activities: exportActivities,
     info: { [lang]: infoLang },
-    moodScale: loadMoodScale(),
+    moodScale: loadMoodScale().map(item => ({
+      value: item.value, emoji: item.emoji,
+      ...(lang === 'en' ? { labelEn: item.labelEn } : { labelCs: item.labelCs }),
+    })),
   };
 }
 
