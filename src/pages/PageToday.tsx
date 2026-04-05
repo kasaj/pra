@@ -364,31 +364,19 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
         <section className={viewMode === 'beta' ? 'flex-1 flex flex-col' : ''}>
           {/* Beta: edit button centered above date/time */}
           {viewMode === 'beta' && (
-            <div className="flex justify-center gap-2 mb-1">
+            <div className="flex justify-center mb-1">
               <button
                 onClick={() => setEditMode(!editMode)}
-                className="px-3 py-1.5 text-sm rounded-xl transition-colors flex items-center gap-1.5"
+                className="px-2.5 py-1.5 text-sm rounded-xl transition-colors flex items-center"
                 style={{
                   backgroundColor: editMode ? 'var(--accent-solid)' : 'var(--bg-input)',
-                  color: editMode ? 'var(--accent-text-on-solid)' : 'var(--text-primary)',
-                  border: editMode ? 'none' : '1px solid var(--border-medium)',
+                  color: editMode ? 'var(--accent-text-on-solid)' : 'var(--text-secondary)',
                 }}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                <span>{language === 'cs' ? 'Editace' : 'Edit'}</span>
-              </button>
-              <button
-                onClick={() => setShowNewActivity(true)}
-                className="px-3 py-1.5 text-sm rounded-xl transition-colors flex items-center gap-1.5"
-                style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span>{language === 'cs' ? 'Aktivita' : 'Activity'}</span>
               </button>
             </div>
           )}
