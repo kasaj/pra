@@ -664,7 +664,7 @@ export default function PageSettings() {
           </h2>
           <div className="flex gap-3">
             <button
-              onClick={() => setLanguage('cs')}
+              onClick={() => { setLanguage('cs'); setTimeout(() => { window.scrollTo(0, 0); window.location.reload(); }, 100); }}
               className={`flex-1 py-3 px-4 rounded-xl border transition-colors ${
                 language === 'cs'
                   ? 'bg-themed-accent border-themed-accent text-themed-accent'
@@ -674,7 +674,7 @@ export default function PageSettings() {
               Čeština
             </button>
             <button
-              onClick={() => setLanguage('en')}
+              onClick={() => { setLanguage('en'); setTimeout(() => { window.scrollTo(0, 0); window.location.reload(); }, 100); }}
               className={`flex-1 py-3 px-4 rounded-xl border transition-colors ${
                 language === 'en'
                   ? 'bg-themed-accent border-themed-accent text-themed-accent'

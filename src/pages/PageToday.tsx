@@ -361,7 +361,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           }
         </div>
       {(
-        <section className={viewMode === 'beta' ? 'flex-1 flex flex-col' : ''}>
+        <section className={viewMode === 'beta' ? 'flex flex-col' : ''}>
           {/* Beta: edit button centered above date/time */}
           {viewMode === 'beta' && (
             <div className="flex justify-center mb-1">
