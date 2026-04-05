@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "language": "cs",
+  "theme": "modern",
+  "activities": [
+    {
+      "type": "rozjimani",
+      "emoji": "🗃️",
+      "durationMinutes": null,
+      "name": "Záznamy",
+      "description": "Vědomé aktivity...",
+      "properties": [
+        "💻 Práce",
+        "🍲 Jídlo",
+        "🏡 Práce",
+        "☕️",
+        "🍵",
+        "💧 Hydratace",
+        "🍺",
+        "📝 Poznámka",
+        "😨 Strach",
+        "🥱 Únava",
+        "🌘 Stín",
+        "☀️ Slunce",
+        "💩 WC",
+        "👫 Rodina",
+        "🍩 Sladkost",
+        "💭 Myšlenka",
+        "😴 Spánek 8h",
+        "💤 Sen",
+        "📜 Zkušenost",
+        "🏃‍♂️ Sport",
+        "🐕",
+        "🐓",
+        "🚴"
+      ],
+      "durationOptions": [1],
+      "defaultDuration": 15
+    },
+    {
+      "type": "sobe",
+      "emoji": "⏸️",
+      "durationMinutes": 2,
+      "name": "Pauza",
+      "description": "Vědomá pauza...",
+      "properties": [
+        "Sken těla",
+        "Pozorování",
+        "Klid gesta 👌",
+        "Energie života",
+        "☀️ Slunce",
+        "👃 Klid dechu",
+        "Kontakt se zemí"
+      ],
+      "durationOptions": [2],
+      "defaultDuration": 2
+    },
+    {
+      "type": "nalada",
+      "emoji": "🌌",
+      "durationMinutes": null,
+      "core": true,
+      "name": "Prostor",
+      "description": "Zaznamenej svůj aktuální stav",
+      "properties": [
+        "🏃‍♂️ Pohyb",
+        "🤸 Protažení",
+        "🤗 Vztahy",
+        "🛌 Uvolnění",
+        "😌 Sebereflexe",
+        "🌅  Probuzení 🙏"
+      ],
+      "durationOptions": [10],
+      "defaultDuration": 15
+    },
+    {
+      "type": "vyzva",
+      "emoji": "🔥",
+      "durationMinutes": null,
+      "name": "Změna",
+      "description": "Vědomá změna proti automatismu...",
+      "properties": [
+        "Přijetí bolesti nebo pocitu",
+        "Klid gesta 👌",
+        "Konfrontace strachu",
+        "👫 Rodina",
+        "🏡 Práce",
+        "💻 Práce",
+        "💨 Dlouhý výdech - zklidnění",
+        "🙏 Fail je výhrou",
+        "👁️ Vůle jen pozorovat",
+        "Společnost",
+        "🦴 Nový návyk",
+        "⚖️ Kontrola emocí",
+        "😨 Překonání strachu",
+        "🌘 Integrace stínu",
+        "Sebeúcta",
+        "♥️ Malý krok středem"
+      ],
+      "durationOptions": [1],
+      "defaultDuration": 1
+    },
+    {
+      "type": "custom_1775388274735",
+      "emoji": "🧎‍♂️",
+      "durationMinutes": null,
+      "name": "Usebrání",
+      "description": "Vědomé bytí...",
+      "properties": [
+        "☀️ Slunce",
+        "Imaginace",
+        "Kontemplace",
+        "Pozorování myšlenek",
+        "Soustředěné dýchání",
+        "Procítění štěstí",
+        "🧘‍♂️ Meditace",
+        "🌿 Rozjímání"
+      ],
+      "durationOptions": [1],
+      "defaultDuration": 15
+    }
+  ],
+  "moodScale": [
+    { "value": 1, "emoji": "😡", "labelCs": "Vztek" },
+    { "value": 2, "emoji": "😰", "labelCs": "Úzkost" },
+    { "value": 3, "emoji": "🙁", "labelCs": "Sklíčenost" },
+    { "value": 4, "emoji": "😐", "labelCs": "Neutrál" },
+    { "value": 5, "emoji": "🙂", "labelCs": "Pohoda" },
+    { "value": 6, "emoji": "😊", "labelCs": "Radost" },
+    { "value": 7, "emoji": "😄", "labelCs": "Nadšení" }
+  ],
+  "info": {
+    "cs": {
+      "title": "Info",
+      "subtitle": "",
+      "quotes": [
+        { "text": "Nejsem tím, co se mi přihodilo, ale tím, čím jsem se rozhodl stát.", "author": "Carl Gustav Jung" },
+        { "text": "Žádný problém nelze vyřešit na stejné úrovni vědomí, na kterém vznikl.", "author": "Albert Einstein" },
+        { "text": "Kde vědomí (pozornost) bloudí, tam energie proudí.", "author": "Gurudéva" }
+      ],
+      "why": "Ale než se ptáme, jak na výše a co konkrétně dělat, musíme se ptát hlouběji: proč. Člověk bez zakořenění ve smyslu, směru, důvodu — nemůže žádnou praxi dlouhodobě udržet. Z čeho u tebe vše ostatní vyrůstá?",
+      "noteWhy": "Např. radost z pomoci druhým a šířením světla - dobra, pravdy, sebe.",
+      "how": "Teprve pak nastupuje jak — a zde nejde o techniku, ale o způsob bytí. Disciplína je forma lásky k tomu, čím se chceme stát. Co je tvým mostem mezi záměrem a skutečností?",
+      "noteHow": "Např. snaha být bdělý a silný přijímat skutečnost za zodpovědnost.",
+      "what": "A teprve na tomto základě má smysl mluvit o co — o metodě a konkrétní praxi. Obsah bez směru je hluk, metoda bez formy chaos. Co pro mě funguje a je transformačním?",
+      "noteWhat": "Např. vědomá tvorba a zdravý životní styl - spánek, vztahy, přirozenost.",
+      "body": "Kvalita života závisí na tom, kde jsme, co tvoříme a jak vnímáme sebe i svět kolem nás — a to se promítá zpět do světa i do nás samých. Jde o neustálý proces stávání se, jedinou jistotou je změna.\n\nMechanika života: myšlenka → slovo → čin → zvyk → charakter → osud.\n\nVědomí může vnímat realitu jako celek — fyzickou (objektivní), vnitřní (subjektivní) a společenskou (domluva, nikoli fakt). Jsme transcendentální bytosti, zároveň však teritoriální, stádoví a logicko-emoční tvorové.\n\nV psychice se zjevuje mnohé — s přijetím bez ztotožnění zůstáváme sami sebou, v té nejlepší verzi sebe sama. Svět jednoduše pracuje vždy pro nás.",
+      "featuredQuote": { "text": "Poznej sám sebe a poznáš svět (ty jsi ten svět).", "author": "Věštírna v Delfách" },
+      "bioTitle": "Biologický základ",
+      "bioText": "Praxe je ukotvena v nervovém systému: pozornost, dech a pohyb přímo regulují autonomní nervový systém, snižují kortizol, posilují parasympatikus a umožňují integraci těla a mysli.",
+      "psychTitle": "Psychologický rámec",
+      "psychText": "Pracuje s archetypy, stínem (Jung), přijetím (buddhismus, stoicismus) a sebeurčením (Maslow, Frankl).",
+      "philoTitle": "Filozofický základ",
+      "philoText": "Stojí na průniku bytí (Heidegger), přítomnosti (Tao) a etiky středu (Aristotelova mesotés — srdce mezi hlavou a emocí)."
+    }
+  }
+}
