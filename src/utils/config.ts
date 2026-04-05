@@ -86,15 +86,10 @@ function getConfigUrl(): string {
 // Normalize flat single-language config into AppConfig (bilingual internal format)
 function normalizeFlatConfig(flat: FlatAppConfig): AppConfig {
   const lang = flat.language as 'cs' | 'en';
-  const other = lang === 'cs' ? 'en' : 'cs';
-  const activities: ConfigActivity[] = flat.activities.map((a) => ({
-    type: a.type,
-    emoji: a.emoji,
-    durationMinutes: a.durationMinutes,
-    core: a.core,
-    [lang]: { name: a.name, description: a.description, properties: a.properties },
-    [other]: { name: a.name, description: a.description, properties: a.properties },
-  })) as ConfigActivity[];
+  const activities: ConfigActivity[] = flat.activities.map((a) => {
+    const localized = { name: a.name, description: a.description, properties: a.properties };
+    return { type: a.type, emoji: a.emoji, durationMinutes: a.durationMinutes, core: a.core, cs: localized, en: localized };
+  });
 
   const infoLang = flat.info[lang] || {};
   return {
