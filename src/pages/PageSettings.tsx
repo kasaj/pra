@@ -30,7 +30,7 @@ interface PraFile {
   activities: ExportActivity[];
   info: Record<string, unknown>;
   history?: DayEntry[];
-  notes?: { cs: Record<string, string>; en: Record<string, string> };
+  notes?: { cs?: Record<string, string>; en?: Record<string, string> };
   userModified?: string[];
   sessionStart?: string;
   activityStats?: Record<string, { count: number; totalSeconds: number; avgRating?: number; avgMood?: number; totalLinks?: number }>;
@@ -121,7 +121,7 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
     activities: exportActivities,
     info: cfgInfo,
     history,
-    notes: { cs: loadNotes('cs'), en: loadNotes('en') },
+    notes: { [lang]: loadNotes(lang) },
     userModified,
     sessionStart: localStorage.getItem('pra_session_start') || undefined,
     moodScale: loadMoodScale(),
@@ -172,8 +172,7 @@ function generateConfigExport(lang: string, currentTheme: string, profileName: s
   };
 
   const cachedConfig = getCachedConfig();
-  const infoCs = { ...(cachedConfig?.info?.cs || {}), ...loadNotes('cs') };
-  const infoEn = { ...(cachedConfig?.info?.en || {}), ...loadNotes('en') };
+  const infoLang = { ...(cachedConfig?.info?.[lang as 'cs' | 'en'] || {}), ...loadNotes(lang) };
 
   return {
     type: 'config',
@@ -183,7 +182,7 @@ function generateConfigExport(lang: string, currentTheme: string, profileName: s
     language: lang,
     theme: currentTheme,
     activities: exportActivities,
-    info: { cs: infoCs, en: infoEn },
+    info: { [lang]: infoLang },
     moodScale: loadMoodScale(),
   };
 }
