@@ -501,15 +501,8 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
 
               <div className="flex flex-wrap gap-2 justify-center">
-                {/* Show: activity properties (normal) or activity+config+core (edit) */}
-                {(() => {
-                  const activityProps = localVariants;
-                  const configProps = getConfigProperties(activity.type);
-                  const allProps = editingVariants
-                    ? [...new Set([...configProps, ...activityProps])]
-                    : activityProps;
-                  return allProps;
-                })().map((prop) => (
+                {/* Show: activity properties */}
+                {localVariants.map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
                       onClick={() => {
@@ -580,15 +573,8 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
               <div className="pt-2 space-y-3">
               <div className="flex flex-wrap gap-2 justify-center">
-                {/* Show: activity properties (normal) or activity+config (edit) */}
-                {(() => {
-                  const activityProps = localVariants;
-                  const configProps = getConfigProperties(activity.type);
-                  const allProps = editingVariants
-                    ? [...new Set([...configProps, ...activityProps])]
-                    : activityProps;
-                  return allProps;
-                })().map((prop) => (
+                {/* Show: activity properties */}
+                {localVariants.map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
                       onClick={() => {
@@ -686,15 +672,8 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
 
 
               <div className="flex flex-wrap gap-2 justify-center">
-                {/* Show: activity properties (normal) or activity+config (edit) */}
-                {(() => {
-                  const activityProps = localVariants;
-                  const configProps = getConfigProperties(activity.type);
-                  const allProps = editingVariants
-                    ? [...new Set([...configProps, ...activityProps])]
-                    : activityProps;
-                  return allProps;
-                })().map((prop) => (
+                {/* Show: activity properties */}
+                {localVariants.map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
                       onClick={() => {
