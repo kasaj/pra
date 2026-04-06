@@ -10,11 +10,11 @@
 
 **[Launch App](https://kasaj.github.io/app/)**
 
-**[kasaj.github.io/app](https://kasaj.github.io/app/)**
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/kasaj/app/main/public/screenshot.png" alt="PRA – app screenshot" width="100%" />
 </p>
+
+**[kasaj.github.io/app](https://kasaj.github.io/app/)**
 
 ## About
 
