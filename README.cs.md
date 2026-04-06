@@ -2,9 +2,9 @@
   <img src="public/logo.png" alt="PRA" width="120" />
 </p>
 
-# PRA
+<h1 align="center">PRA</h1>
 
-Vědomý prostor pro každodenní praxi.
+<p align="center">Vědomý prostor pro každodenní praxi.</p>
 
 Česky | **[English](README.md)**
 

@@ -2,9 +2,9 @@
   <img src="public/logo.png" alt="PRA" width="120" />
 </p>
 
-# PRA
+<h1 align="center">PRA</h1>
 
-A conscious space for daily practice.
+<p align="center">A conscious space for daily practice.</p>
 
 **[Česky](README.cs.md)** | English
 
