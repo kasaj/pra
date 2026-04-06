@@ -11,7 +11,7 @@
 **[Spustit aplikaci](https://kasaj.github.io/app/)**
 
 <p align="center">
-  <img src="public/screenshot.png" alt="PRA – ukázka aplikace" width="100%" />
+  <img src="https://raw.githubusercontent.com/kasaj/app/main/public/screenshot.png" alt="PRA – ukázka aplikace" width="100%" />
 </p>
 
 ## O aplikaci
