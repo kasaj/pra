@@ -10,6 +10,10 @@ A conscious space for daily practice.
 
 **[Launch App](https://kasaj.github.io/app/)**
 
+<p align="center">
+  <img src="public/screenshot.png" alt="PRA – app screenshot" width="100%" />
+</p>
+
 ## About
 
 PRA is a mindfulness app built around a simple idea: the quality of life depends on awareness — how finely we perceive reality and ourselves, and how consciously we act.

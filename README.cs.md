@@ -10,6 +10,10 @@ Vědomý prostor pro každodenní praxi.
 
 **[Spustit aplikaci](https://kasaj.github.io/app/)**
 
+<p align="center">
+  <img src="public/screenshot.png" alt="PRA – ukázka aplikace" width="100%" />
+</p>
+
 ## O aplikaci
 
 PRA je aplikace pro vědomou praxi postavená na jednoduché myšlence: kvalita života se odvíjí od bdělosti — jak jemně vnímáme skutečnost i sebe sama a jak vědomě jednáme.
