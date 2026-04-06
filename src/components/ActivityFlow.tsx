@@ -372,11 +372,6 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
               ? (language === 'cs' ? 'Jak se teď cítíš?' : 'How do you feel now?')
               : activity.description}
           </p>
-          {isOriginallyTimed && timedStep === 'rating-before' && activity.durationMinutes && (
-            <p className="text-sm text-themed-faint text-center mb-3">
-              {new Date(new Date(startedAt).getTime() + activity.durationMinutes * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </p>
-          )}
           <div className="flex flex-col items-center gap-1 mb-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
