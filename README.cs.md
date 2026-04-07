@@ -157,6 +157,36 @@ npm run build      # Build pro produkci
 
 Push na `main` automaticky nasadí přes GitHub Actions.
 
+## Synchronizace (volitelné)
+
+PRA umí synchronizovat data mezi zařízeními přes Azure Function. Funkce merguje data od všech klientů a ukládá je do Azure Blob Storage.
+
+### Nasazení vlastního sync backendu
+
+**Předpoklady:** [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli), [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local), Node.js
+
+```powershell
+cd azure-function/infra
+
+.\deploy.ps1 `
+  -ResourceGroup "MojeResourceGroup" `
+  -StorageAccountName "mojeunikatniuloziste" `
+  -SyncSecret "zvol-silny-secret"
+```
+
+Skript vytvoří všechny Azure prostředky (Storage Account, Function App, Application Insights) přes Bicep a nasadí kód funkce. Po dokončení vypíše **Sync URL** a **Secret** pro zadání v PRA Nastavení → Synchronizace.
+
+**Cena:** Azure consumption plan — pro osobní použití prakticky zdarma (1M požadavků/měsíc zdarma).
+
+### Manuální záloha přes PowerShell
+
+```powershell
+$r = Invoke-RestMethod -Uri "https://<tvoje-app>.azurewebsites.net/api/sync" `
+  -Method POST -ContentType "application/json" `
+  -Body '{"secret":"<tvuj-secret>","data":{"version":1,"exportedAt":"2000-01-01T00:00:00.000Z","history":[],"activities":[],"hiddenDefaultActivities":[]}}'
+$r | ConvertTo-Json -Depth 20 | Out-File backup.json
+```
+
 ## Licence
 
 MIT

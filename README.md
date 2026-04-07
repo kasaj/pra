@@ -157,6 +157,36 @@ npm run build      # Build for production
 
 Push to `main` auto-deploys via GitHub Actions.
 
+## Sync (optional)
+
+PRA can sync data between devices using an Azure Function as a backend. The function merges data from all clients and stores it in Azure Blob Storage.
+
+### Deploy your own sync backend
+
+**Prerequisites:** [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli), [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local), Node.js
+
+```powershell
+cd azure-function/infra
+
+.\deploy.ps1 `
+  -ResourceGroup "MyResourceGroup" `
+  -StorageAccountName "myuniquestorage" `
+  -SyncSecret "choose-a-strong-secret"
+```
+
+The script provisions all Azure resources (Storage Account, Function App, Application Insights) via Bicep and deploys the function code. On completion it prints the **Sync URL** and **Secret** to enter in PRA Settings → Synchronizace.
+
+**Cost:** Azure consumption plan — effectively free for personal use (1M free requests/month).
+
+### Manual backup via PowerShell
+
+```powershell
+$r = Invoke-RestMethod -Uri "https://<your-app>.azurewebsites.net/api/sync" `
+  -Method POST -ContentType "application/json" `
+  -Body '{"secret":"<your-secret>","data":{"version":1,"exportedAt":"2000-01-01T00:00:00.000Z","history":[],"activities":[],"hiddenDefaultActivities":[]}}'
+$r | ConvertTo-Json -Depth 20 | Out-File backup.json
+```
+
 ## License
 
 MIT
