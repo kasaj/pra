@@ -373,6 +373,26 @@ function importPraFile(file: PraFile, currentLang: string): void {
   }
 }
 
+// Full replacement import used after sync — applies server's merged result as-is
+function applyFullSync(file: PraFile): void {
+  if (file.history) saveAllData(file.history);
+  if (file.activities) saveActivities(file.activities);
+  if (file.language) localStorage.setItem('pra_language', file.language);
+  if (file.theme) saveTheme(file.theme as Theme);
+  if (file.name) { const s = loadSettings(); saveSettings({ ...s, name: file.name }); }
+  if (file.sessionStart) localStorage.setItem('pra_session_start', file.sessionStart);
+  if (file.moodScale && file.moodScale.length > 0) saveMoodScale(file.moodScale);
+  localStorage.setItem('pra_hidden_activities', JSON.stringify(file.hiddenActivities || []));
+  localStorage.setItem('pra_hidden_properties', JSON.stringify(file.hiddenProperties || []));
+  localStorage.setItem('pra_hidden_durations', JSON.stringify(file.hiddenDurations || []));
+  localStorage.setItem('pra_duration_bubbles', JSON.stringify(file.durationBubbles || []));
+  localStorage.setItem('pra_user_modified_activities', JSON.stringify(file.userModified || []));
+  localStorage.setItem('pra_user_deleted_activities', JSON.stringify(file.userDeleted || []));
+  localStorage.setItem('pra_deleted_record_ids', JSON.stringify(file.deletedRecordIds || []));
+  if (file.notes?.cs) localStorage.setItem('pra_info_notes_cs', JSON.stringify(file.notes.cs));
+  if (file.notes?.en) localStorage.setItem('pra_info_notes_en', JSON.stringify(file.notes.en));
+}
+
 function generatePraFileContent(data: PraFile): string {
   return JSON.stringify(data, null, 2);
 }
@@ -459,7 +479,7 @@ export default function PageSettings() {
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const merged = await response.json() as PraFile;
-      importPraFile(merged, language);
+      applyFullSync(merged);
       const now = new Date().toISOString();
       localStorage.setItem('pra_last_synced', now);
       setLastSynced(now);
