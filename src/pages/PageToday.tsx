@@ -377,6 +377,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 >+</button>
               )}
             </div>
+            {/* Separator */}
+            <hr className="border-t border-themed mx-4 mb-2" />
             {/* Properties from nalada (stored + config fallback) */}
             {(
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
