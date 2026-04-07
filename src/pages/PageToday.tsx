@@ -10,6 +10,7 @@ import {
   getConfigProperties,
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
+import { runSync } from '../utils/sync';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -26,6 +27,22 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [moodComment, setMoodComment] = useState('');
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [editMode, setEditMode] = useState(false);
+  const syncConfigured = !!(localStorage.getItem('pra_sync_url') && localStorage.getItem('pra_sync_secret'));
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const handleSync = useCallback(async () => {
+    if (syncStatus === 'syncing') return;
+    setSyncStatus('syncing');
+    try {
+      const theme = localStorage.getItem('pra_theme') || 'modern';
+      const name = (() => { try { return JSON.parse(localStorage.getItem('pra_settings') || '{}').name || ''; } catch { return ''; } })();
+      await runSync(language, theme, name);
+      setSyncStatus('success');
+      setTimeout(() => { window.scrollTo(0, 0); window.location.reload(); }, 1000);
+    } catch {
+      setSyncStatus('error');
+      setTimeout(() => setSyncStatus('idle'), 3000);
+    }
+  }, [syncStatus, language]);
   const [registryVersion, setRegistryVersion] = useState(0);
   const [customTime, setCustomTime] = useState<string | null>(null);
   const customTimeRef = useRef<string | null>(null);
@@ -280,8 +297,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
         <h1 className="font-serif text-3xl text-themed-primary">{t.today.title}</h1>
       </header>
       <section className="flex-1 flex flex-col justify-center">
-          {/* Edit button centered */}
-          <div className="flex justify-center mb-1">
+          {/* Edit + Sync buttons centered */}
+          <div className="flex justify-center items-center gap-3 mb-1">
             <button
               onClick={() => setEditMode(!editMode)}
               className="p-1 transition-colors"
@@ -292,6 +309,19 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
+            {syncConfigured && (
+              <button
+                onClick={handleSync}
+                disabled={syncStatus === 'syncing'}
+                className="p-1 transition-colors disabled:opacity-40"
+                style={{ color: syncStatus === 'success' ? 'var(--accent-solid)' : syncStatus === 'error' ? '#ef4444' : 'var(--text-faint)' }}
+              >
+                <svg className={`w-5 h-5 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            )}
           </div>
           {/* Date/time - editable */}
           <div className="flex items-center mb-1.5">
