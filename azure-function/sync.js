@@ -21,7 +21,8 @@ app.http('sync', {
       return { status: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
 
-    const { action } = body;
+    const action = (body.action || '').toString().trim();
+    context.log('action received:', JSON.stringify(action));
 
     try {
       const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
@@ -36,23 +37,22 @@ app.http('sync', {
         await blobClient.upload(str, Buffer.byteLength(str), {
           blobHTTPHeaders: { blobContentType: 'application/json' },
           conditions: {},
+          overwrite: true,
         });
         return { status: 200, body: JSON.stringify({ ok: true }) };
       }
 
       // --- DOWNLOAD: return stored data ---
       if (action === 'download') {
-        try {
-          const download = await blobClient.download();
-          const chunks = [];
-          for await (const chunk of download.readableStreamBody) chunks.push(chunk);
-          return { status: 200, body: Buffer.concat(chunks).toString('utf-8') };
-        } catch {
-          return { status: 404, body: JSON.stringify({ error: 'No data stored yet' }) };
-        }
+        const exists = await blobClient.exists();
+        if (!exists) return { status: 404, body: JSON.stringify({ error: 'No data stored yet' }) };
+        const download = await blobClient.download();
+        const chunks = [];
+        for await (const chunk of download.readableStreamBody) chunks.push(chunk);
+        return { status: 200, body: Buffer.concat(chunks).toString('utf-8') };
       }
 
-      return { status: 400, body: JSON.stringify({ error: 'action must be upload or download' }) };
+      return { status: 400, body: JSON.stringify({ error: `unknown action: ${action}` }) };
     } catch (e) {
       context.error('Sync error:', e);
       return { status: 500, body: JSON.stringify({ error: 'Internal error', detail: e.message }) };

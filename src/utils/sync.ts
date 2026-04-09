@@ -130,7 +130,10 @@ export async function downloadSync(): Promise<{ status: number }> {
     body: JSON.stringify({ secret, action: 'download' }),
   });
   if (!response.ok) {
-    const err = new Error(`HTTP ${response.status}`) as Error & { status: number };
+    let detail = '';
+    try { detail = await response.text(); } catch { /* */ }
+    console.error('downloadSync failed', response.status, detail);
+    const err = new Error(`HTTP ${response.status}: ${detail}`) as Error & { status: number };
     err.status = response.status;
     throw err;
   }
