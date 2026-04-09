@@ -124,8 +124,12 @@ export async function uploadSync(lang: string, theme: string, name: string): Pro
 
 export async function downloadSync(): Promise<void> {
   const { url, secret } = getSyncConfig();
-  const downloadUrl = `${url}?secret=${encodeURIComponent(secret)}`;
-  const response = await fetch(downloadUrl, { method: 'GET' });
+  // POST without "data" = download
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ secret }),
+  });
   if (!response.ok) {
     let detail = '';
     try { detail = await response.text(); } catch { /* */ }

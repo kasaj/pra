@@ -7,9 +7,18 @@ const CONTAINER_NAME = process.env.CONTAINER_NAME || 'pra-sync';
 const BLOB_NAME = process.env.BLOB_NAME || 'sync.json';
 
 app.http('sync', {
-  methods: ['GET', 'POST'],
+  methods: ['POST'],
   authLevel: 'anonymous',
   handler: async (request, context) => {
+    let body;
+    try { body = await request.json(); } catch {
+      return { status: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    }
+
+    if (!SYNC_SECRET || body.secret !== SYNC_SECRET) {
+      return { status: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+    }
+
     try {
       const container = BlobServiceClient
         .fromConnectionString(CONNECTION_STRING)
@@ -17,16 +26,10 @@ app.http('sync', {
       await container.createIfNotExists();
       const blob = container.getBlockBlobClient(BLOB_NAME);
 
-      // ── DOWNLOAD: GET /api/sync?secret=... ──────────────────────────
-      if (request.method === 'GET') {
-        const secret = new URL(request.url).searchParams.get('secret');
-        if (!SYNC_SECRET || secret !== SYNC_SECRET) {
-          return { status: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-        }
+      // Download: body has no "data" field
+      if (!body.data) {
         const exists = await blob.exists();
-        if (!exists) {
-          return { status: 404, body: JSON.stringify({ error: 'No data stored yet' }) };
-        }
+        if (!exists) return { status: 404, body: JSON.stringify({ error: 'No data stored yet' }) };
         const dl = await blob.download();
         const chunks = [];
         for await (const chunk of dl.readableStreamBody) chunks.push(chunk);
@@ -34,28 +37,15 @@ app.http('sync', {
         return { status: 200, body: Buffer.concat(chunks).toString('utf-8') };
       }
 
-      // ── UPLOAD: POST /api/sync  body: { secret, data } ─────────────
-      if (request.method === 'POST') {
-        let body;
-        try { body = await request.json(); } catch {
-          return { status: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
-        }
-        if (!SYNC_SECRET || body.secret !== SYNC_SECRET) {
-          return { status: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
-        }
-        if (!body.data) {
-          return { status: 400, body: JSON.stringify({ error: 'Missing data' }) };
-        }
-        const str = JSON.stringify(body.data);
-        await blob.upload(str, Buffer.byteLength(str), {
-          blobHTTPHeaders: { blobContentType: 'application/json' },
-          overwrite: true,
-        });
-        context.log('Uploaded', Buffer.byteLength(str), 'bytes');
-        return { status: 200, body: JSON.stringify({ ok: true }) };
-      }
+      // Upload: body has "data" field
+      const str = JSON.stringify(body.data);
+      await blob.upload(str, Buffer.byteLength(str), {
+        blobHTTPHeaders: { blobContentType: 'application/json' },
+        overwrite: true,
+      });
+      context.log('Uploaded', Buffer.byteLength(str), 'bytes');
+      return { status: 200, body: JSON.stringify({ ok: true }) };
 
-      return { status: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
     } catch (e) {
       context.error('Sync error:', e);
       return { status: 500, body: JSON.stringify({ error: e.message }) };
