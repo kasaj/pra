@@ -122,13 +122,10 @@ export async function uploadSync(lang: string, theme: string, name: string): Pro
   localStorage.setItem('pra_last_synced', new Date().toISOString());
 }
 
-export async function downloadSync(): Promise<{ status: number }> {
+export async function downloadSync(): Promise<void> {
   const { url, secret } = getSyncConfig();
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ secret, action: 'download' }),
-  });
+  const downloadUrl = `${url}?secret=${encodeURIComponent(secret)}`;
+  const response = await fetch(downloadUrl, { method: 'GET' });
   if (!response.ok) {
     let detail = '';
     try { detail = await response.text(); } catch { /* */ }
@@ -140,5 +137,4 @@ export async function downloadSync(): Promise<{ status: number }> {
   const data = await response.json() as PraFile;
   applyFullSync(data);
   localStorage.setItem('pra_last_synced', new Date().toISOString());
-  return { status: response.status };
 }
