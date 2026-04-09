@@ -67,17 +67,19 @@ app.http('syncDownload', {
       const container = BlobServiceClient
         .fromConnectionString(CONNECTION_STRING)
         .getContainerClient(CONTAINER_NAME);
+      await container.createIfNotExists();
       const blob = container.getBlockBlobClient(BLOB_NAME);
       const exists = await blob.exists();
+      context.log(`Download check: container=${CONTAINER_NAME} blob=${BLOB_NAME} exists=${exists}`);
       if (!exists) {
-        return { status: 404, body: JSON.stringify({ error: 'No data stored yet' }) };
+        return { status: 404, body: JSON.stringify({ error: 'No data stored yet', container: CONTAINER_NAME, blob: BLOB_NAME }) };
       }
-      const download = await blob.download();
+      const dl = await blob.download();
       const chunks = [];
-      for await (const chunk of download.readableStreamBody) chunks.push(chunk);
-      const body = Buffer.concat(chunks).toString('utf-8');
-      context.log('Downloaded', body.length, 'bytes');
-      return { status: 200, body };
+      for await (const chunk of dl.readableStreamBody) chunks.push(chunk);
+      const responseBody = Buffer.concat(chunks).toString('utf-8');
+      context.log('Downloaded', responseBody.length, 'bytes');
+      return { status: 200, body: responseBody };
     } catch (e) {
       context.error('Download error:', e);
       return { status: 500, body: JSON.stringify({ error: e.message }) };
