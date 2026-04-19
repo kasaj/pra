@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "language": "en",
+  "theme": "modern",
+  "activities": [
+    {
+      "type": "rozjimani",
+      "emoji": "🗃️",
+      "durationMinutes": null,
+      "name": "Records",
+      "description": "Conscious activities...",
+      "properties": [
+        "💻 Work",
+        "🍲 Food",
+        "🏡 Home",
+        "☕️",
+        "🍵",
+        "💧 Hydration",
+        "🍺",
+        "📝 Note",
+        "😨 Fear",
+        "🥱 Fatigue",
+        "🌘 Shadow",
+        "☀️ Sun",
+        "💩 Toilet",
+        "👫 Family",
+        "🍩 Sweets",
+        "💭 Thought",
+        "😴 Sleep 8h",
+        "💤 Dream",
+        "📜 Experience",
+        "🏃‍♂️ Sport",
+        "🐕",
+        "🐓",
+        "🚴"
+      ],
+      "durationOptions": [1],
+      "defaultDuration": 15
+    },
+    {
+      "type": "sobe",
+      "emoji": "⏸️",
+      "durationMinutes": 2,
+      "name": "Pause",
+      "description": "Conscious pause...",
+      "properties": [
+        "Body scan",
+        "Observation",
+        "Calm gesture 👌",
+        "Life energy",
+        "☀️ Sun",
+        "👃 Calm breath",
+        "Ground contact"
+      ],
+      "durationOptions": [2],
+      "defaultDuration": 2
+    },
+    {
+      "type": "nalada",
+      "emoji": "🌌",
+      "durationMinutes": null,
+      "core": true,
+      "name": "Space",
+      "description": "Record your current state",
+      "properties": [
+        "🏃‍♂️ Movement",
+        "🤸 Stretching",
+        "🤗 Relationships",
+        "🛌 Relaxation",
+        "😌 Self-reflection",
+        "🌅  Awakening 🙏"
+      ],
+      "durationOptions": [10],
+      "defaultDuration": 15
+    },
+    {
+      "type": "vyzva",
+      "emoji": "🔥",
+      "durationMinutes": null,
+      "name": "Change",
+      "description": "Conscious change against automatism...",
+      "properties": [
+        "Accepting pain or feeling",
+        "Calm gesture 👌",
+        "Confronting fear",
+        "👫 Family",
+        "🏡 Home",
+        "💻 Work",
+        "💨 Long exhale - calming",
+        "🙏 Fail is a win",
+        "👁️ Will to only observe",
+        "Company",
+        "🦴 New habit",
+        "⚖️ Emotion control",
+        "😨 Overcoming fear",
+        "🌘 Shadow integration",
+        "Self-respect",
+        "♥️ Small step from the center"
+      ],
+      "durationOptions": [1],
+      "defaultDuration": 1
+    },
+    {
+      "type": "custom_1775388274735",
+      "emoji": "🧎‍♂️",
+      "durationMinutes": 15,
+      "name": "Recollection",
+      "description": "Conscious being...",
+      "properties": [
+        "☀️ Sun",
+        "Imagination",
+        "Contemplation",
+        "Observing thoughts",
+        "Focused breathing",
+        "Feeling happiness",
+        "🧘‍♂️ Meditation",
+        "🌿 Reflection"
+      ],
+      "durationOptions": [1],
+      "defaultDuration": 15
+    }
+  ],
+  "moodScale": [
+    { "value": 1, "emoji": "😡", "labelEn": "Anger" },
+    { "value": 2, "emoji": "😰", "labelEn": "Anxiety" },
+    { "value": 3, "emoji": "🙁", "labelEn": "Gloom" },
+    { "value": 4, "emoji": "😐", "labelEn": "Neutral" },
+    { "value": 5, "emoji": "🙂", "labelEn": "Fine" },
+    { "value": 6, "emoji": "😊", "labelEn": "Joy" },
+    { "value": 7, "emoji": "😄", "labelEn": "Excitement" }
+  ],
+  "info": {
+    "en": {
+      "title": "Info",
+      "subtitle": "",
+      "quotes": [
+        { "text": "I am not what happened to me, I am what I choose to become.", "author": "Carl Gustav Jung" },
+        { "text": "No problem can be solved from the same level of consciousness that created it.", "author": "Albert Einstein" },
+        { "text": "Where consciousness (attention) wanders, there energy flows.", "author": "Gurudeva" }
+      ],
+      "why": "But before we ask how to cultivate this sequence and what exactly to do, we must ask a deeper question: why. A person without a foundation in meaning, direction, and purpose cannot sustain any practice in the long run. Is yours the root from which everything else grows?",
+      "noteWhy": "E.g. joy from helping others and spreading light — goodness, truth, self.",
+      "how": "Only then comes how — and here it is not about technique, but about a way of being. Discipline is a form of love for what we are becoming. What is your bridge between intention and reality?",
+      "noteHow": "E.g. striving to be awake and strong enough to accept reality as responsibility.",
+      "what": "And only on this basis does it make sense to talk about what — about method and concrete practice. Content without direction is noise; method without form is chaos. What works for me and is transformative?",
+      "noteWhat": "E.g. conscious creation and a healthy lifestyle — sleep, relationships, naturalness.",
+      "body": "The quality of life depends on where we are, what we create, and how we perceive ourselves and the world around us — and this reflects back into the world and into ourselves. It is a continuous process of becoming; the only certainty is change.\n\nThe mechanics of life: thought → word → action → habit → character → destiny.\n\nConsciousness can perceive reality as a whole — physical (objective), inner (subjective), and social (agreement, not fact). We are transcendental beings, yet also territorial, herd-driven, and logical-emotional creatures.\n\nMuch is revealed in the psyche — with acceptance without identification, we remain ourselves, in the best version of ourselves. The world simply always works for us.",
+      "featuredQuote": { "text": "Know thyself and you will know the world (you are that world).", "author": "Oracle at Delphi" },
+      "bioTitle": "Biological Foundation",
+      "bioText": "The practice is grounded in the nervous system: attention, breath, and movement directly regulate the autonomic nervous system, reduce cortisol, strengthen the parasympathetic response, and enable body-mind integration.",
+      "psychTitle": "Psychological Framework",
+      "psychText": "Works with archetypes, the shadow (Jung), acceptance (Buddhism, Stoicism), and self-determination (Maslow, Frankl).",
+      "philoTitle": "Philosophical Foundation",
+      "philoText": "Stands at the intersection of being (Heidegger), presence (Tao), and the ethics of the middle (Aristotle's mesotes — the heart between head and emotion)."
+    }
+  }
+}

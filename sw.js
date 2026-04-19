@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pra-v3';
+const CACHE_NAME = 'pra-v5';
 const BASE_PATH = '/app';
 
 const ASSETS_TO_CACHE = [
@@ -31,12 +31,15 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch - network first, fallback to cache
+// Fetch - network first, fallback to cache (never cache POST/non-GET)
 self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests entirely — don't cache API calls
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful responses
+        // Cache successful GET responses
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
