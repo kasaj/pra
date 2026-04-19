@@ -147,6 +147,22 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
   });
   const [newVariantText, setNewVariantText] = useState('');
   const [editingVariants, setEditingVariants] = useState(false);
+  const [selectedProps, setSelectedProps] = useState<Set<string>>(new Set());
+
+  const toggleProp = (prop: string) => {
+    if (editingVariants) return;
+    setSelectedProps(prev => {
+      const next = new Set(prev);
+      if (next.has(prop)) {
+        next.delete(prop);
+        setNewComment(c => c.split('\n').filter(l => l.trim() !== prop.trim()).join('\n').trimStart());
+      } else {
+        next.add(prop);
+        setNewComment(c => c.trimEnd() ? c.trimEnd() + '\n' + prop : prop);
+      }
+      return next;
+    });
+  };
 
   const persistVariants = useCallback((updated: string[]) => {
     const all = loadActivities();
@@ -505,12 +521,12 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {localVariants.map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
-                      onClick={() => {
-                        if (!editingVariants) {
-                          setNewComment((prev) => prev ? `${prev}, ${prop}` : prop);
-                        }
-                      }}
-                      className="px-3 py-1.5 text-sm rounded-full border transition-colors bg-themed-input border-themed text-themed-muted hover:border-themed-accent hover:text-themed-accent-solid"
+                      onClick={() => toggleProp(prop)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        selectedProps.has(prop)
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-accent hover:text-themed-accent-solid'
+                      }`}
                     >{prop}</button>
                     {editingVariants && (
                       <button
@@ -577,12 +593,12 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {localVariants.map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
-                      onClick={() => {
-                        if (!editingVariants) {
-                          setNewComment((prev) => prev ? `${prev}, ${prop}` : prop);
-                        }
-                      }}
-                      className="px-3 py-1.5 text-sm rounded-full border transition-colors bg-themed-input border-themed text-themed-muted hover:border-themed-accent hover:text-themed-accent-solid"
+                      onClick={() => toggleProp(prop)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        selectedProps.has(prop)
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-accent hover:text-themed-accent-solid'
+                      }`}
                     >{prop}</button>
                     {editingVariants && (
                       <button
@@ -676,12 +692,12 @@ export default function ActivityFlow({ activity, onClose, onEdit, existingActivi
                 {localVariants.map((prop) => (
                   <span key={prop} className="relative inline-flex">
                     <button
-                      onClick={() => {
-                        if (!editingVariants) {
-                          setNewComment((prev) => prev ? `${prev}, ${prop}` : prop);
-                        }
-                      }}
-                      className="px-3 py-1.5 text-sm rounded-full border transition-colors bg-themed-input border-themed text-themed-muted hover:border-themed-accent hover:text-themed-accent-solid"
+                      onClick={() => toggleProp(prop)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        selectedProps.has(prop)
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-accent hover:text-themed-accent-solid'
+                      }`}
                     >{prop}</button>
                     {editingVariants && (
                       <button
