@@ -67,7 +67,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   // Re-render once config finishes loading (it's async, app renders before it resolves)
   useEffect(() => {
     loadConfig().then(() => setRegistryVersion(v => v + 1));
-  }, []);
+  }, [language]);
   const [customTime, setCustomTime] = useState<string | null>(null);
   const customTimeRef = useRef<string | null>(null);
   const setCustomTimeSync = (t: string | null) => { customTimeRef.current = t; setCustomTime(t); };

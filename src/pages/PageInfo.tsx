@@ -59,7 +59,7 @@ export default function PageInfo() {
   // Ensure config is loaded (it's fetched async at app start)
   useEffect(() => {
     loadConfig().then(() => setConfigVersion(v => v + 1));
-  }, []);
+  }, [language]);
 
   // Config is always source of truth for content
   const config = getCachedConfig();

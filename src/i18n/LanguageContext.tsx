@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { Language, translations, Translations } from './translations';
-import { getCachedConfig } from '../utils/config';
+import { getCachedConfig, clearConfigCache } from '../utils/config';
 
 interface LanguageContextType {
   language: Language;
@@ -27,6 +27,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem(STORAGE_KEY, lang);
+    clearConfigCache(); // force re-fetch of language-specific config
   };
 
   const t = translations[language];

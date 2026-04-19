@@ -162,3 +162,7 @@ function simpleHash(str: string): string {
 export function getCachedConfig(): AppConfig | null {
   return cachedConfig;
 }
+
+export function clearConfigCache(): void {
+  cachedConfig = null;
+}
