@@ -9,9 +9,8 @@ import {
   markActivityModified,
   getConfigProperties,
 } from '../utils/activities';
-import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, findActivityById } from '../utils/storage';
+import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
-
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -26,7 +25,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [refreshKey, setRefreshKey] = useState(0);
   const [moodRating, setMoodRating] = useState<Rating | null>(null);
   const [moodComment, setMoodComment] = useState('');
-  const [selectedActivitiesMulti, setSelectedActivitiesMulti] = useState<Set<string>>(new Set());
+  const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [editMode, setEditMode] = useState(false);
   const syncConfigured = !!(localStorage.getItem('pra_sync_url') && localStorage.getItem('pra_sync_secret'));
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'busy' | 'success' | 'error'>('idle');
@@ -111,6 +110,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const moodRatingRef = useRef<Rating | null>(null);
   const moodCommentRef = useRef('');
   const moodTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const selectedPropertiesRef = useRef<Set<string>>(new Set());
 
   const setMoodRatingSync = (r: Rating | null) => {
     moodRatingRef.current = r;
@@ -120,31 +120,58 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     moodCommentRef.current = c;
     setMoodComment(c);
   };
+  const toggleProperty = (prop: string) => {
+    setSelectedProperties(prev => {
+      const next = prev.has(prop) ? new Set<string>() : new Set([prop]);
+      selectedPropertiesRef.current = next;
+      return next;
+    });
+  };
 
   const flushMood = useCallback(() => {
     const r = moodRatingRef.current;
     const c = moodCommentRef.current;
-    if (!r && !c.trim()) return;
+    const props = [...selectedPropertiesRef.current];
+    if (!r && !c.trim() && props.length === 0) return;
     const now = customTimeRef.current || new Date().toISOString();
     const id = generateId();
 
+    const ss = localStorage.getItem('pra_session_start') || now;
+    const todayEntry = getDayEntry(getTodayDate());
+    const prevInSession = todayEntry?.activities
+      .filter(a => a.type === 'nalada' && new Date(a.completedAt || a.startedAt) >= new Date(ss))
+      .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime())
+      [0];
+
+    const coreAct = loadActivities().find(a => a.core);
+    const coreDur = coreAct?.defaultDuration ?? 1;
     addActivity({
       id,
-      type: 'komentar',
+      type: 'nalada',
       startedAt: now,
       completedAt: now,
       durationMinutes: null,
-      actualDurationSeconds: 60,
+      actualDurationSeconds: coreDur * 60,
       comments: [{
         id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-        text: c.trim(),
+        text: [props.length > 0 ? props.join(', ') : '', c.trim()].filter(Boolean).join(' — '),
         createdAt: now,
         rating: r || undefined,
       }],
+      linkedFromId: prevInSession?.id,
+      selectedVariant: props.length > 0 ? props.join(', ') : undefined,
     });
+
+    if (prevInSession) {
+      updateActivityById(prevInSession.id, {
+        linkedActivityIds: [...(prevInSession.linkedActivityIds || []), id],
+      });
+    }
 
     setMoodRatingSync(null);
     setMoodCommentSync('');
+    selectedPropertiesRef.current = new Set();
+    setSelectedProperties(new Set());
     setCustomTimeSync(null);
     if (moodTextareaRef.current) {
       moodTextareaRef.current.style.height = 'auto';
@@ -201,7 +228,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
   }, [sessionStart]);
 
-  // Current session (blue) - counts per activity type for bubble highlighting
+  // Current session (blue) - activities after sessionStart today
   const completedTodayCounts = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
     const counts = new Map<string, number>();
@@ -231,13 +258,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // 🌌 Prostor text-props used in session (from 'prostor' records)
+  // Properties used in current session (from stored core activities)
   const usedPropertiesInSession = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
     const used = new Set<string>();
     if (!todayEntry) return used;
     todayEntry.activities.forEach((a) => {
-      if (a.type === 'prostor' && new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
+      if (new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
         if (a.selectedVariant) {
           a.selectedVariant.split(', ').forEach(p => used.add(p.trim()));
         }
@@ -247,31 +274,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-
-  const handleBatchRecord = useCallback(() => {
-    const now = customTimeRef.current || new Date().toISOString();
-    const coreAct = loadActivities().find(a => a.core);
-    const coreDur = coreAct?.defaultDuration ?? 1;
-    selectedActivitiesMulti.forEach((prop) => {
-      addActivity({
-        id: generateId(),
-        type: 'prostor',
-        startedAt: now,
-        completedAt: now,
-        durationMinutes: coreDur,
-        actualDurationSeconds: coreDur * 60,
-        selectedVariant: prop,
-        comments: [{
-          id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-          text: prop,
-          createdAt: now,
-        }],
-      });
-    });
-    setSelectedActivitiesMulti(new Set());
-    setRefreshKey((k) => k + 1);
-  }, [selectedActivitiesMulti]);
-
+  const handleActivityClick = (activity: ActivityDefinition) => {
+    flushMood();
+    setActiveActivity(activity);
+  };
 
 
   const handleSaveActivity = useCallback((activity: ActivityDefinition) => {
@@ -408,34 +414,90 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           <div className="flex-1">
           <div
             className="card"
-            data-build="20260419b"
             style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}
+            onBlur={(e) => {
+              setTimeout(() => {
+                if (!e.currentTarget.contains(document.activeElement)) flushMood();
+              }, 100);
+            }}
           >
-            {/* 🌌 Prostor — ALL core activity properties, multi-select → batch record */}
-            {(() => {
-              void registryVersion;
-              const freshActivities = loadActivities();
-              const coreActivity = freshActivities.find(a => a.core);
-              const storedProps = coreActivity?.properties || [];
-              const configProps = getConfigProperties(coreActivity?.type || 'nalada');
-              const activityProps = storedProps.length > 0 ? storedProps : configProps;
-
-              if (editMode) {
-                return (
-                  <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                    {activityProps.filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
-                      <span key={prop} className="relative inline-flex">
-                        <button
-                          onClick={() => toggleHideProperty(prop)}
-                          className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                            hiddenProperties.has(prop)
-                              ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
-                              : 'bg-themed-input border-themed text-themed-muted'
-                          }`}
-                        >{prop}</button>
+            {/* Activity bubbles from config */}
+            <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+              {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
+                <span key={activity.type} className="relative inline-flex">
+                  <button
+                    onClick={() => {
+                      if (editMode) {
+                        toggleHideActivity(activity.type);
+                      } else {
+                        handleActivityClick(activity);
+                      }
+                    }}
+                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                      editMode
+                        ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
+                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                    }`}
+                  >{activity.emoji} {activity.name}</button>
+                  {editMode && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteActivity(activity.type);
+                        setActivities(loadActivities());
+                      }}
+                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
+                    >✕</button>
+                  )}
+                </span>
+              ))}
+              {editMode && (
+                <button
+                  onClick={() => setShowNewActivity(true)}
+                  className="px-3 py-1.5 text-sm rounded-full border border-themed-accent text-themed-accent-solid hover:bg-themed-accent transition-colors"
+                >+</button>
+              )}
+            </div>
+            {/* Separator */}
+            <hr className="border-t border-themed mx-4 mb-2" />
+            {/* Properties from nalada (stored + config fallback) */}
+            {(
+              <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                  {(() => {
+                    void registryVersion;
+                    // Always read fresh from storage to catch bubbled properties
+                    const freshActivities = loadActivities();
+                    const naladaActivity = freshActivities.find(a => a.core);
+                    const storedProps = naladaActivity?.properties || [];
+                    const configProps = getConfigProperties('nalada');
+                    const activityProps = storedProps.length > 0 ? storedProps : configProps;
+                    return activityProps;
+                  })().slice().sort((a, b) => {
+                    const aIsEmoji = /^\p{Emoji}/u.test(a);
+                    const bIsEmoji = /^\p{Emoji}/u.test(b);
+                    if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
+                    return a.localeCompare(b, language);
+                  }).filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
+                    <span key={prop} className="relative inline-flex">
+                      <button
+                        onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                          editMode && hiddenProperties.has(prop)
+                            ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
+                            : selectedProperties.has(prop)
+                              ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                              : usedPropertiesInSession.has(prop)
+                                ? 'bg-transparent border-themed-accent text-themed-accent'
+                                : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        }`}
+                      >
+                        {prop}
+                      </button>
+                      {editMode && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            // Remove from core activity properties
                             const all = loadActivities();
                             const coreIdx = all.findIndex(a => a.core);
                             if (coreIdx >= 0 && all[coreIdx].properties?.includes(prop)) {
@@ -447,8 +509,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                           }}
                           className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
                         >✕</button>
-                      </span>
-                    ))}
+                      )}
+                    </span>
+                  ))}
+                  {editMode && (
                     <input type="text" value={newPropertyText} onChange={(e) => setNewPropertyText(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const text = newPropertyText.trim(); if (text) {
                         const all = loadActivities(); const coreIdx = all.findIndex(a => a.core);
@@ -461,50 +525,9 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         setNewPropertyText(''); setRegistryVersion(v => v + 1);
                       } }}
                       placeholder="+" className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent" />
-                  </div>
-                );
-              }
-
-              return (
-                <>
-                  {/* 🌌 Prostor — all core props, multi-select */}
-                  {activityProps.filter(p => !hiddenProperties.has(p)).length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                      {activityProps.filter(p => !hiddenProperties.has(p)).map((prop) => (
-                        <button
-                          key={prop}
-                          onClick={() => setSelectedActivitiesMulti(prev => {
-                            const next = new Set(prev);
-                            if (next.has(prop)) next.delete(prop); else next.add(prop);
-                            return next;
-                          })}
-                          className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                            selectedActivitiesMulti.has(prop)
-                              ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
-                              : usedPropertiesInSession.has(prop)
-                                ? 'bg-transparent border-themed-accent text-themed-accent'
-                                : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                          }`}
-                        >{prop}</button>
-                      ))}
-                    </div>
                   )}
-                  {/* Batch record button — 🌌 + count */}
-                  {selectedActivitiesMulti.size > 0 && (
-                    <div className="flex justify-center mb-2">
-                      <button
-                        onClick={handleBatchRecord}
-                        className="px-4 py-1.5 text-sm rounded-full border border-themed-accent bg-themed-accent text-themed-accent font-medium transition-colors hover:opacity-90"
-                      >
-                        🌌
-                      </button>
-                    </div>
-                  )}
-
-                </>
-              );
-            })()}
-
+                </div>
+            )}
             {/* Core duration setting in edit mode */}
             {editMode && (
               <div className="flex justify-center mb-2">
@@ -536,158 +559,114 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               </div>
             )}
-
-            {/* Timed / jednorazové aktivity — below core props, click = ActivityFlow */}
-            <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-              {allTranslated.filter(a => !a.core && !a.synthetic).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
-                <span key={activity.type} className="relative inline-flex">
-                  <button
-                    onClick={() => {
-                      if (editMode) {
-                        toggleHideActivity(activity.type);
-                      } else {
-                        setActiveActivity(activity);
-                      }
-                    }}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                      editMode
-                        ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                    }`}
-                  >{activity.emoji} {activity.name}</button>
-                  {editMode && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteActivity(activity.type);
-                        setActivities(loadActivities());
-                      }}
-                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
-                    >✕</button>
-                  )}
-                </span>
-              ))}
-              {editMode && (
-                <button
-                  onClick={() => setShowNewActivity(true)}
-                  className="px-3 py-1.5 text-sm rounded-full border border-themed-accent text-themed-accent-solid hover:bg-themed-accent transition-colors"
-                >+</button>
-              )}
-            </div>
-
-            {/* Comment area: star rating + textarea — flushed on nav/visibility, NOT on blur */}
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-base">📝</span>
+            <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
-            <div className="flex items-start gap-2">
-              <textarea
-                ref={moodTextareaRef}
-                value={moodComment}
-                onChange={(e) => {
-                  setMoodCommentSync(e.target.value);
-                  e.target.style.height = 'auto';
-                  e.target.style.height = e.target.scrollHeight + 'px';
-                }}
-                placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
-                rows={1}
-                className="flex-1 px-3 py-2 rounded-xl bg-themed-input border border-themed
-                         focus:outline-none focus:border-themed-accent resize-none
-                         text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
-              />
-            </div>
+            <textarea
+              ref={moodTextareaRef}
+              value={moodComment}
+              onChange={(e) => {
+                setMoodCommentSync(e.target.value);
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+              }}
+              placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
+              rows={1}
+              className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
+                       focus:outline-none focus:border-themed-accent resize-none
+                       text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
+            />
             {/* Session total + records */}
-            {(() => {
-              const todayEntry = getDayEntry(getTodayDate());
-              const todayActivities = todayEntry?.activities || [];
-              const ss = localStorage.getItem('pra_session_start') || '';
+            {allTranslated.length > 0 && (
+              <>
+                {/* Session bubble (left, aligned to last row) + records (right) */}
+                {(() => {
+                  const todayEntry = getDayEntry(getTodayDate());
+                  const todayActivities = todayEntry?.activities || [];
+                  const coreActivity = allTranslated.find(a => a.core);
+                  const rows: { key: string; emoji: string; total: number; totalMin: number; sessionCount: number }[] = [];
+                  if (coreActivity) {
+                    const coreRecords = todayActivities.filter(a => a.type === coreActivity.type);
+                    let total = 0, totalMin = 0, sessionCount = 0;
+                    coreRecords.forEach(r => {
+                      total++;
+                      totalMin += Math.round((r.actualDurationSeconds || 900) / 60);
+                      if (new Date(r.completedAt || r.startedAt) >= new Date(sessionStart)) sessionCount++;
+                    });
+                    rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, total, totalMin, sessionCount });
+                  }
+                  allTranslated.filter(a => !a.core).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
+                    const total = totalCountPerActivity.get(activity.type) || 0;
+                    const totalSecs = totalTimePerActivity.get(activity.type) || 0;
+                    const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
+                    const sessionCount = completedTodayCounts.get(activity.type) || 0;
+                    rows.push({ key: activity.type, emoji: activity.emoji, total, totalMin, sessionCount });
+                  });
 
-              // Core recording types: prostor, emoce, komentar
-              const coreTypes = [
-                { key: 'prostor', emoji: '🌌' },
-                { key: 'emoce', emoji: '🤡' },
-                { key: 'komentar', emoji: '📝' },
-              ];
-              const rows: { key: string; emoji: string; total: number; totalMin: number; sessionCount: number }[] = [];
+                  const fmtMin = (m: number) => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 > 0 ? ` ${m % 60} m` : ''}` : `${m} m`;
+                  rows.sort((a, b) => fmtMin(b.totalMin).length - fmtMin(a.totalMin).length || b.totalMin - a.totalMin);
 
-              coreTypes.forEach(({ key, emoji }) => {
-                const records = todayActivities.filter(a => a.type === key);
-                const total = records.length;
-                const totalMin = records.reduce((s, r) => s + Math.round((r.actualDurationSeconds || 60) / 60), 0);
-                const sessionCount = records.filter(r => new Date(r.completedAt || r.startedAt) >= new Date(ss)).length;
-                rows.push({ key, emoji, total, totalMin, sessionCount });
-              });
+                  const allDone = allTranslated.every(a => completedTodayCounts.has(a.type));
+                  const ss = localStorage.getItem('pra_session_start') || '';
+                  const sessionActivities = todayEntry?.activities.filter(act =>
+                    new Date(act.completedAt || act.startedAt) >= new Date(ss)
+                  ) || [];
+                  const sessionTotal = sessionActivities.reduce((sum, act) => {
+                    const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
+                    return sum + Math.round(secs / 60);
+                  }, 0);
 
-              // Non-core, non-synthetic activities (backward compat with existing records)
-              allTranslated.filter(a => !a.core && !a.synthetic).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
-                const total = totalCountPerActivity.get(activity.type) || 0;
-                const totalSecs = totalTimePerActivity.get(activity.type) || 0;
-                const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
-                const sessionCount = completedTodayCounts.get(activity.type) || 0;
-                if (total > 0 || sessionCount > 0) rows.push({ key: activity.type, emoji: activity.emoji, total, totalMin, sessionCount });
-              });
-
-              const anyCoreDone = coreTypes.some(({ key }) =>
-                todayActivities.some(a => a.type === key && new Date(a.completedAt || a.startedAt) >= new Date(ss))
-              );
-
-              const sessionActivities = todayActivities.filter(act =>
-                new Date(act.completedAt || act.startedAt) >= new Date(ss)
-              );
-              const sessionTotal = sessionActivities.reduce((sum, act) => {
-                const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
-                return sum + Math.round(secs / 60);
-              }, 0);
-
-              return (
-                <div className="flex items-end gap-3 mt-3">
-                  {/* Session bubble - left */}
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <span className={`text-sm px-3 py-1 ${sessionTotal > 0 ? 'text-themed-accent-solid' : 'text-themed-faint'}`}>
-                      {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
-                    </span>
-                    <button
-                      onClick={() => {
-                        flushMood();
-                        const now = new Date().toISOString();
-                        setSessionStart(now);
-                        localStorage.setItem('pra_session_start', now);
-                        setRefreshKey((k) => k + 1);
-                      }}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${anyCoreDone ? '' : 'opacity-40'}`}
-                      style={{ backgroundColor: anyCoreDone ? 'var(--accent-solid)' : 'var(--text-faint)' }}
-                    >
-                      <svg className="w-4 h-4" style={{ color: anyCoreDone ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </button>
-                  </div>
-                  {/* Records - right */}
-                  <div className="flex flex-col space-y-1">
-                    {rows.map(row => (
-                      <div key={row.key} className="flex items-center gap-2">
-                        <div className="flex items-center gap-2 flex-1 justify-end">
-                          <span className="text-base">{row.emoji}</span>
-                          {row.total > 0 && <span className="text-sm text-themed-faint">{row.total}</span>}
-                          {row.totalMin > 0 && (
-                            <span className="text-sm text-themed-faint">
-                              {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
-                            </span>
-                          )}
-                          {row.sessionCount > 0 && <span className="text-sm font-medium text-themed-accent-solid">{row.sessionCount}</span>}
-                        </div>
-                        <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${row.sessionCount > 0 ? '' : 'opacity-40'}`}
-                          style={{ backgroundColor: row.sessionCount > 0 ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
-                          <svg className="w-2.5 h-2.5" style={{ color: row.sessionCount > 0 ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  return (
+                    <div className="flex items-end gap-3 mt-3">
+                      {/* Session bubble - left, aligned to last record row */}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <span className={`text-sm px-3 py-1 ${sessionTotal > 0 ? 'text-themed-accent-solid' : 'text-themed-faint'}`}>
+                          {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
+                        </span>
+                        <button
+                          onClick={() => {
+                            flushMood();
+                            const now = new Date().toISOString();
+                            setSessionStart(now);
+                            localStorage.setItem('pra_session_start', now);
+                            setRefreshKey((k) => k + 1);
+                          }}
+                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${allDone ? '' : 'opacity-40'}`}
+                          style={{ backgroundColor: allDone ? 'var(--accent-solid)' : 'var(--text-faint)' }}
+                        >
+                          <svg className="w-4 h-4" style={{ color: allDone ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                           </svg>
-                        </span>
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
+                      {/* Records - right */}
+                      <div className="flex flex-col space-y-1">
+                        {rows.map(row => (
+                          <div key={row.key} className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-1 justify-end">
+                              <span className="text-base">{row.key === coreActivity?.type ? coreActivity.emoji : row.emoji}</span>
+                              {row.total > 0 && <span className="text-sm text-themed-faint">{row.total}</span>}
+                              {row.totalMin > 0 && (
+                                <span className="text-sm text-themed-faint">
+                                  {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
+                                </span>
+                              )}
+                              {row.sessionCount > 0 && <span className="text-sm font-medium text-themed-accent-solid">{row.sessionCount}</span>}
+                            </div>
+                            <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${row.sessionCount > 0 ? '' : 'opacity-40'}`}
+                              style={{ backgroundColor: row.sessionCount > 0 ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
+                              <svg className="w-2.5 h-2.5" style={{ color: row.sessionCount > 0 ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
+            )}
           </div>
           </div>
           </div>

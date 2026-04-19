@@ -6,5 +6,5 @@ export default defineConfig({
   base: '/app/',
   server: {
     port: 3000
-  },
+  }
 })

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pra-v5';
+const CACHE_NAME = 'pra-v4';
 const BASE_PATH = '/app';
 
 const ASSETS_TO_CACHE = [

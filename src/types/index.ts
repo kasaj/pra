@@ -17,7 +17,6 @@ export interface ActivityDefinition {
   durationMinutes: number | null; // null = nečasová aktivita
   properties?: string[]; // Vlastnosti aktivity
   core?: boolean; // speciální aktivita (např. nálada) - nezobrazuje se v běžném seznamu
-  synthetic?: boolean; // syntetický typ (komentar/emoce/prostor) — skrytý z bubble listu
   durationOptions?: number[];
   defaultDuration?: number;
 }

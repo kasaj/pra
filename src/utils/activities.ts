@@ -42,26 +42,20 @@ function markUserModified(type: string): void {
 }
 
 // Default activity types that have translations
-const TRANSLATABLE_TYPES = ['sobe', 'pohyb', 'rozjimani', 'komentar', 'objeti', 'vyzva', 'emoce', 'prostor'] as const;
-
-// Synthetic types — used for core-section recording, hidden from activity bubble list
-export const SYNTHETIC_TYPES = new Set(['emoce', 'prostor']);
+const TRANSLATABLE_TYPES = ['sobe', 'pohyb', 'rozjimani', 'komentar', 'objeti', 'vyzva'] as const;
 
 // Base activity definitions (without translations)
 const DEFAULT_ACTIVITY_BASE: Array<{
   type: ActivityType;
   emoji: string;
   durationMinutes: number | null;
-  synthetic?: boolean;
 }> = [
   { type: 'sobe', emoji: '⏸️', durationMinutes: 3 },
   { type: 'pohyb', emoji: '🚶', durationMinutes: 30 },
   { type: 'rozjimani', emoji: '🌅', durationMinutes: 15 },
-  { type: 'komentar', emoji: '📝', durationMinutes: null },
+  { type: 'komentar', emoji: '📜', durationMinutes: null },
   { type: 'objeti', emoji: '🤗', durationMinutes: null },
   { type: 'vyzva', emoji: '🔥', durationMinutes: null },
-  { type: 'emoce', emoji: '🤡', durationMinutes: null, synthetic: true },
-  { type: 'prostor', emoji: '🌌', durationMinutes: null, synthetic: true },
 ];
 
 // Get localized default activities
@@ -76,7 +70,6 @@ export const getDefaultActivities = (t: Translations): ActivityDefinition[] => {
       name: activityTrans.name,
       description: activityTrans.desc,
       properties,
-      ...(base.synthetic ? { synthetic: true } : {}),
     };
   });
 };
@@ -162,7 +155,7 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
   {
     type: 'komentar',
     name: 'Komentář',
-    emoji: '📝',
+    emoji: '📜',
     description: 'Reflexe, záměr, slovo nebo věta která provede dnem',
     durationMinutes: null,
     properties: ['Ranní záměr', 'Večerní reflexe', 'Vděčnost', 'Afirmace'],
@@ -182,23 +175,6 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
     description: 'Vědomé čelení tomu, čemu se vyhýbám. Jediná konkrétní akce uprostřed nepřehlednosti.',
     durationMinutes: null,
     properties: ['Konfrontace strachu', 'Těžký rozhovor', 'Nový návyk', 'Malý krok'],
-  },
-  // Syntetické typy — záznamy z core sekce
-  {
-    type: 'emoce',
-    name: 'Emoce',
-    emoji: '🤡',
-    description: 'Emocionální ladění — okamžitý záznam pocitu',
-    durationMinutes: null,
-    synthetic: true,
-  },
-  {
-    type: 'prostor',
-    name: 'Prostor',
-    emoji: '🌌',
-    description: 'Aktivita vědomého prostoru',
-    durationMinutes: null,
-    synthetic: true,
   },
 ];
 
@@ -288,48 +264,20 @@ export const mergeWithConfig = (existing: ActivityDefinition[]): ActivityDefinit
   return merged;
 };
 
-// Always replace synthetic types and fix known emoji overrides (never trust localStorage for these)
-const EMOJI_OVERRIDES: Record<string, string> = {
-  komentar: '📝',
-  emoce: '🤡',
-  prostor: '🌌',
-};
-
-const normalizeSyntheticTypes = (activities: ActivityDefinition[]): ActivityDefinition[] => {
-  const syntheticDefs = DEFAULT_ACTIVITIES.filter(a => a.synthetic);
-  // Strip existing synthetic entries, always re-add from canonical definitions
-  const withoutSynthetic = activities.filter(a => !SYNTHETIC_TYPES.has(a.type));
-  // Also normalize emoji overrides for builtin types (e.g. komentar 📜→📝)
-  let emojiChanged = false;
-  const normalized = withoutSynthetic.map(a => {
-    if (EMOJI_OVERRIDES[a.type] && a.emoji !== EMOJI_OVERRIDES[a.type]) {
-      emojiChanged = true;
-      return { ...a, emoji: EMOJI_OVERRIDES[a.type] };
-    }
-    return a;
-  });
-  const result = [...normalized, ...syntheticDefs];
-  // Persist emoji fixes so next load has correct values
-  if (emojiChanged) {
-    localStorage.setItem(ACTIVITIES_STORAGE_KEY, JSON.stringify(result));
-  }
-  return result;
-};
-
 export const loadActivities = (): ActivityDefinition[] => {
   try {
     const stored = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
     if (stored) {
       const activities = JSON.parse(stored) as ActivityDefinition[];
       // Auto-merge new activities from config
-      return normalizeSyntheticTypes(mergeWithConfig(activities));
+      return mergeWithConfig(activities);
     }
   } catch {
     // Při chybě vrátíme výchozí
   }
   const defaults = getDefaultFromConfig();
   saveActivities(defaults);
-  return normalizeSyntheticTypes(defaults);
+  return defaults;
 };
 
 export const saveActivities = (activities: ActivityDefinition[]): void => {
