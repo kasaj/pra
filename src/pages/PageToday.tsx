@@ -11,7 +11,7 @@ import {
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
-import { loadMoodScale } from '../utils/moodScale';
+
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -247,19 +247,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // 🤡 Emoce emoji used in session (from 'emoce' records)
-  const usedEmojisInSession = useMemo(() => {
-    const todayEntry = getDayEntry(getTodayDate());
-    const used = new Set<string>();
-    if (!todayEntry) return used;
-    todayEntry.activities.forEach((a) => {
-      if (a.type === 'emoce' && new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
-        if (a.selectedVariant) used.add(a.selectedVariant);
-      }
-    });
-    return used;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshKey, sessionStart]);
 
   const handleBatchRecord = useCallback(() => {
     const now = customTimeRef.current || new Date().toISOString();
@@ -285,21 +272,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     setRefreshKey((k) => k + 1);
   }, [selectedActivitiesMulti]);
 
-  // Immediate emoji record → type 'emoce'
-  const handleEmojiRecord = useCallback((emoji: string) => {
-    const now = customTimeRef.current || new Date().toISOString();
-    addActivity({
-      id: generateId(),
-      type: 'emoce',
-      startedAt: now,
-      completedAt: now,
-      durationMinutes: null,
-      actualDurationSeconds: 60,
-      selectedVariant: emoji,
-      comments: [],
-    });
-    setRefreshKey((k) => k + 1);
-  }, []);
 
 
   const handleSaveActivity = useCallback((activity: ActivityDefinition) => {
@@ -440,7 +412,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}
           >
             {/* 🌌 Prostor — ALL core activity properties, multi-select → batch record */}
-            {/* 🤡 Emoce — moodScale emojis → immediate single record */}
             {(() => {
               void registryVersion;
               const freshActivities = loadActivities();
@@ -448,7 +419,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               const storedProps = coreActivity?.properties || [];
               const configProps = getConfigProperties(coreActivity?.type || 'nalada');
               const activityProps = storedProps.length > 0 ? storedProps : configProps;
-              const moodEmojis = loadMoodScale();
 
               if (editMode) {
                 return (
@@ -530,20 +500,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       </button>
                     </div>
                   )}
-                  {/* 🤡 Emoce — moodScale emojis, tap = immediate 'emoce' record */}
-                  <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                    {moodEmojis.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => handleEmojiRecord(item.emoji)}
-                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                          usedEmojisInSession.has(item.emoji)
-                            ? 'bg-transparent border-themed-accent text-themed-accent'
-                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                        }`}
-                      >{item.emoji}</button>
-                    ))}
-                  </div>
+
                 </>
               );
             })()}
