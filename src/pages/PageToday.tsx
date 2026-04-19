@@ -25,7 +25,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [refreshKey, setRefreshKey] = useState(0);
   const [moodRating, setMoodRating] = useState<Rating | null>(null);
   const [moodComment, setMoodComment] = useState('');
-  const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
+  const [selectedActivitiesMulti, setSelectedActivitiesMulti] = useState<Set<string>>(new Set());
   const [editMode, setEditMode] = useState(false);
   const syncConfigured = !!(localStorage.getItem('pra_sync_url') && localStorage.getItem('pra_sync_secret'));
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'busy' | 'success' | 'error'>('idle');
@@ -110,7 +110,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const moodRatingRef = useRef<Rating | null>(null);
   const moodCommentRef = useRef('');
   const moodTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const selectedPropertiesRef = useRef<Set<string>>(new Set());
 
   const setMoodRatingSync = (r: Rating | null) => {
     moodRatingRef.current = r;
@@ -120,19 +119,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     moodCommentRef.current = c;
     setMoodComment(c);
   };
-  const toggleProperty = (prop: string) => {
-    setSelectedProperties(prev => {
-      const next = prev.has(prop) ? new Set<string>() : new Set([prop]);
-      selectedPropertiesRef.current = next;
-      return next;
-    });
-  };
 
   const flushMood = useCallback(() => {
     const r = moodRatingRef.current;
     const c = moodCommentRef.current;
-    const props = [...selectedPropertiesRef.current];
-    if (!r && !c.trim() && props.length === 0) return;
+    if (!r && !c.trim()) return;
     const now = customTimeRef.current || new Date().toISOString();
     const id = generateId();
 
@@ -154,12 +145,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       actualDurationSeconds: coreDur * 60,
       comments: [{
         id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-        text: [props.length > 0 ? props.join(', ') : '', c.trim()].filter(Boolean).join(' — '),
+        text: c.trim(),
         createdAt: now,
         rating: r || undefined,
       }],
       linkedFromId: prevInSession?.id,
-      selectedVariant: props.length > 0 ? props.join(', ') : undefined,
     });
 
     if (prevInSession) {
@@ -170,8 +160,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
     setMoodRatingSync(null);
     setMoodCommentSync('');
-    selectedPropertiesRef.current = new Set();
-    setSelectedProperties(new Set());
     setCustomTimeSync(null);
     if (moodTextareaRef.current) {
       moodTextareaRef.current.style.height = 'auto';
@@ -274,10 +262,59 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  const handleActivityClick = (activity: ActivityDefinition) => {
-    flushMood();
-    setActiveActivity(activity);
-  };
+  const handleBatchRecord = useCallback(() => {
+    const now = customTimeRef.current || new Date().toISOString();
+    const coreAct = loadActivities().find(a => a.core);
+    const coreDur = coreAct?.defaultDuration ?? 1;
+    selectedActivitiesMulti.forEach((type) => {
+      const id = generateId();
+      addActivity({
+        id,
+        type,
+        startedAt: now,
+        completedAt: now,
+        durationMinutes: coreDur,
+        actualDurationSeconds: coreDur * 60,
+        comments: [],
+      });
+    });
+    setSelectedActivitiesMulti(new Set());
+    setRefreshKey((k) => k + 1);
+  }, [selectedActivitiesMulti]);
+
+  const handleEmojiRecord = useCallback((emoji: string) => {
+    const now = customTimeRef.current || new Date().toISOString();
+    const id = generateId();
+    const ss = localStorage.getItem('pra_session_start') || now;
+    const todayEntry = getDayEntry(getTodayDate());
+    const prevInSession = todayEntry?.activities
+      .filter(a => a.type === 'nalada' && new Date(a.completedAt || a.startedAt) >= new Date(ss))
+      .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime())
+      [0];
+    const coreAct = loadActivities().find(a => a.core);
+    const coreDur = coreAct?.defaultDuration ?? 1;
+    addActivity({
+      id,
+      type: 'nalada',
+      startedAt: now,
+      completedAt: now,
+      durationMinutes: null,
+      actualDurationSeconds: coreDur * 60,
+      comments: [{
+        id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+        text: emoji,
+        createdAt: now,
+      }],
+      linkedFromId: prevInSession?.id,
+      selectedVariant: emoji,
+    });
+    if (prevInSession) {
+      updateActivityById(prevInSession.id, {
+        linkedActivityIds: [...(prevInSession.linkedActivityIds || []), id],
+      });
+    }
+    setRefreshKey((k) => k + 1);
+  }, []);
 
 
   const handleSaveActivity = useCallback((activity: ActivityDefinition) => {
@@ -421,7 +458,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }, 100);
             }}
           >
-            {/* Activity bubbles from config */}
+            {/* Activity bubbles — multi-select mode */}
             <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
               {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
                 <span key={activity.type} className="relative inline-flex">
@@ -430,13 +467,19 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       if (editMode) {
                         toggleHideActivity(activity.type);
                       } else {
-                        handleActivityClick(activity);
+                        setSelectedActivitiesMulti(prev => {
+                          const next = new Set(prev);
+                          if (next.has(activity.type)) next.delete(activity.type); else next.add(activity.type);
+                          return next;
+                        });
                       }
                     }}
                     className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                       editMode
                         ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        : selectedActivitiesMulti.has(activity.type)
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                          : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                     }`}
                   >{activity.emoji} {activity.name}</button>
                   {editMode && (
@@ -458,46 +501,46 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 >+</button>
               )}
             </div>
-            {/* Separator */}
-            <hr className="border-t border-themed mx-4 mb-2" />
-            {/* Properties from nalada (stored + config fallback) */}
-            {(
-              <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                  {(() => {
-                    void registryVersion;
-                    // Always read fresh from storage to catch bubbled properties
-                    const freshActivities = loadActivities();
-                    const naladaActivity = freshActivities.find(a => a.core);
-                    const storedProps = naladaActivity?.properties || [];
-                    const configProps = getConfigProperties('nalada');
-                    const activityProps = storedProps.length > 0 ? storedProps : configProps;
-                    return activityProps;
-                  })().slice().sort((a, b) => {
-                    const aIsEmoji = /^\p{Emoji}/u.test(a);
-                    const bIsEmoji = /^\p{Emoji}/u.test(b);
-                    if (aIsEmoji !== bIsEmoji) return aIsEmoji ? 1 : -1;
-                    return a.localeCompare(b, language);
-                  }).filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
-                    <span key={prop} className="relative inline-flex">
-                      <button
-                        onClick={() => editMode ? toggleHideProperty(prop) : toggleProperty(prop)}
-                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                          editMode && hiddenProperties.has(prop)
-                            ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
-                            : selectedProperties.has(prop)
-                              ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
-                              : usedPropertiesInSession.has(prop)
-                                ? 'bg-transparent border-themed-accent text-themed-accent'
-                                : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                        }`}
-                      >
-                        {prop}
-                      </button>
-                      {editMode && (
+            {/* Batch record button — shown when any activities selected */}
+            {selectedActivitiesMulti.size > 0 && (
+              <div className="flex justify-center mb-2">
+                <button
+                  onClick={handleBatchRecord}
+                  className="px-4 py-1.5 text-sm rounded-full border border-themed-accent bg-themed-accent text-themed-accent font-medium transition-colors hover:opacity-90"
+                >
+                  ⏺ {selectedActivitiesMulti.size}
+                </button>
+              </div>
+            )}
+            {/* Emoji properties from core activity */}
+            {(() => {
+              void registryVersion;
+              const freshActivities = loadActivities();
+              const naladaActivity = freshActivities.find(a => a.core);
+              const storedProps = naladaActivity?.properties || [];
+              const configProps = getConfigProperties('nalada');
+              const activityProps = storedProps.length > 0 ? storedProps : configProps;
+              const emojiProps = activityProps.filter(prop => /^\p{Emoji}/u.test(prop));
+              const allProps = activityProps;
+              if (editMode) {
+                // In edit mode show all props with hide/delete/add controls
+                return (
+                  <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                    {allProps.filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
+                      <span key={prop} className="relative inline-flex">
+                        <button
+                          onClick={() => toggleHideProperty(prop)}
+                          className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                            hiddenProperties.has(prop)
+                              ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
+                              : 'bg-themed-input border-themed text-themed-muted'
+                          }`}
+                        >
+                          {prop}
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Remove from core activity properties
                             const all = loadActivities();
                             const coreIdx = all.findIndex(a => a.core);
                             if (coreIdx >= 0 && all[coreIdx].properties?.includes(prop)) {
@@ -509,10 +552,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                           }}
                           className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
                         >✕</button>
-                      )}
-                    </span>
-                  ))}
-                  {editMode && (
+                      </span>
+                    ))}
                     <input type="text" value={newPropertyText} onChange={(e) => setNewPropertyText(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const text = newPropertyText.trim(); if (text) {
                         const all = loadActivities(); const coreIdx = all.findIndex(a => a.core);
@@ -525,9 +566,28 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         setNewPropertyText(''); setRegistryVersion(v => v + 1);
                       } }}
                       placeholder="+" className="w-20 px-3 py-1.5 text-sm rounded-full border border-dashed border-themed bg-themed-input text-themed-primary placeholder:text-themed-faint focus:outline-none focus:border-themed-accent" />
-                  )}
+                  </div>
+                );
+              }
+              if (emojiProps.length === 0) return null;
+              return (
+                <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                  {emojiProps.filter(prop => !hiddenProperties.has(prop)).map((prop) => (
+                    <button
+                      key={prop}
+                      onClick={() => handleEmojiRecord(prop)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        usedPropertiesInSession.has(prop)
+                          ? 'bg-transparent border-themed-accent text-themed-accent'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >
+                      {prop}
+                    </button>
+                  ))}
                 </div>
-            )}
+              );
+            })()}
             {/* Core duration setting in edit mode */}
             {editMode && (
               <div className="flex justify-center mb-2">
@@ -559,23 +619,27 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               </div>
             )}
+            {/* Comment area: star rating + textarea */}
             <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
-            <textarea
-              ref={moodTextareaRef}
-              value={moodComment}
-              onChange={(e) => {
-                setMoodCommentSync(e.target.value);
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
-              }}
-              placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
-              rows={1}
-              className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
-                       focus:outline-none focus:border-themed-accent resize-none
-                       text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
-            />
+            <div className="flex items-start gap-2">
+              <span className="text-base mt-2 flex-shrink-0 select-none" style={{ color: 'var(--text-faint)' }}>📝</span>
+              <textarea
+                ref={moodTextareaRef}
+                value={moodComment}
+                onChange={(e) => {
+                  setMoodCommentSync(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
+                rows={1}
+                className="flex-1 px-3 py-2 rounded-xl bg-themed-input border border-themed
+                         focus:outline-none focus:border-themed-accent resize-none
+                         text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
+              />
+            </div>
             {/* Session total + records */}
             {allTranslated.length > 0 && (
               <>
