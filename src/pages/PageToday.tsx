@@ -111,6 +111,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const moodCommentRef = useRef('');
   const moodTextareaRef = useRef<HTMLTextAreaElement>(null);
   const selectedPropertiesRef = useRef<Set<string>>(new Set());
+  const [selectedActivities, setSelectedActivities] = useState<Set<string>>(new Set());
+  const selectedActivitiesRef = useRef<Set<string>>(new Set());
 
   const setMoodRatingSync = (r: Rating | null) => {
     moodRatingRef.current = r;
@@ -120,13 +122,41 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     moodCommentRef.current = c;
     setMoodComment(c);
   };
+  const resizeTextarea = () => {
+    if (moodTextareaRef.current) {
+      moodTextareaRef.current.style.height = 'auto';
+      moodTextareaRef.current.style.height = moodTextareaRef.current.scrollHeight + 'px';
+    }
+  };
   const toggleProperty = (prop: string) => {
     setSelectedProperties(prev => {
-      const next = prev.has(prop) ? new Set<string>() : new Set([prop]);
+      const next = new Set(prev);
+      if (next.has(prop)) next.delete(prop); else next.add(prop);
       selectedPropertiesRef.current = next;
       return next;
     });
   };
+  const toggleActivity = useCallback((activity: ActivityDefinition) => {
+    const name = `${activity.emoji} ${activity.name}`;
+    setSelectedActivities(prev => {
+      const next = new Set(prev);
+      if (next.has(activity.type)) {
+        next.delete(activity.type);
+        // Remove this activity's line from textarea
+        const lines = moodCommentRef.current.split('\n');
+        const filtered = lines.filter(l => l.trim() !== name.trim());
+        setMoodCommentSync(filtered.join('\n').trimStart());
+      } else {
+        next.add(activity.type);
+        // Append activity name to textarea
+        const current = moodCommentRef.current.trimEnd();
+        setMoodCommentSync(current ? current + '\n' + name : name);
+      }
+      selectedActivitiesRef.current = next;
+      setTimeout(resizeTextarea, 0);
+      return next;
+    });
+  }, []);
 
   const flushMood = useCallback(() => {
     const r = moodRatingRef.current;
@@ -172,6 +202,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     setMoodCommentSync('');
     selectedPropertiesRef.current = new Set();
     setSelectedProperties(new Set());
+    selectedActivitiesRef.current = new Set();
+    setSelectedActivities(new Set());
     setCustomTimeSync(null);
     if (moodTextareaRef.current) {
       moodTextareaRef.current.style.height = 'auto';
@@ -274,10 +306,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  const handleActivityClick = (activity: ActivityDefinition) => {
-    flushMood();
-    setActiveActivity(activity);
-  };
 
 
   const handleSaveActivity = useCallback((activity: ActivityDefinition) => {
@@ -430,13 +458,17 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       if (editMode) {
                         toggleHideActivity(activity.type);
                       } else {
-                        handleActivityClick(activity);
+                        toggleActivity(activity);
                       }
                     }}
                     className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                       editMode
                         ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        : selectedActivities.has(activity.type)
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                          : completedTodayCounts.has(activity.type)
+                            ? 'bg-transparent border-themed-accent text-themed-accent'
+                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                     }`}
                   >{activity.emoji} {activity.name}</button>
                   {editMode && (
