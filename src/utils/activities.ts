@@ -42,13 +42,17 @@ function markUserModified(type: string): void {
 }
 
 // Default activity types that have translations
-const TRANSLATABLE_TYPES = ['sobe', 'pohyb', 'rozjimani', 'komentar', 'objeti', 'vyzva'] as const;
+const TRANSLATABLE_TYPES = ['sobe', 'pohyb', 'rozjimani', 'komentar', 'objeti', 'vyzva', 'emoce', 'prostor'] as const;
+
+// Synthetic types — used for core-section recording, hidden from activity bubble list
+export const SYNTHETIC_TYPES = new Set(['emoce', 'prostor']);
 
 // Base activity definitions (without translations)
 const DEFAULT_ACTIVITY_BASE: Array<{
   type: ActivityType;
   emoji: string;
   durationMinutes: number | null;
+  synthetic?: boolean;
 }> = [
   { type: 'sobe', emoji: '⏸️', durationMinutes: 3 },
   { type: 'pohyb', emoji: '🚶', durationMinutes: 30 },
@@ -56,6 +60,8 @@ const DEFAULT_ACTIVITY_BASE: Array<{
   { type: 'komentar', emoji: '📜', durationMinutes: null },
   { type: 'objeti', emoji: '🤗', durationMinutes: null },
   { type: 'vyzva', emoji: '🔥', durationMinutes: null },
+  { type: 'emoce', emoji: '🤡', durationMinutes: null, synthetic: true },
+  { type: 'prostor', emoji: '🌌', durationMinutes: null, synthetic: true },
 ];
 
 // Get localized default activities
@@ -70,6 +76,7 @@ export const getDefaultActivities = (t: Translations): ActivityDefinition[] => {
       name: activityTrans.name,
       description: activityTrans.desc,
       properties,
+      ...(base.synthetic ? { synthetic: true } : {}),
     };
   });
 };
@@ -176,6 +183,23 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
     durationMinutes: null,
     properties: ['Konfrontace strachu', 'Těžký rozhovor', 'Nový návyk', 'Malý krok'],
   },
+  // Syntetické typy — záznamy z core sekce
+  {
+    type: 'emoce',
+    name: 'Emoce',
+    emoji: '🤡',
+    description: 'Emocionální ladění — okamžitý záznam pocitu',
+    durationMinutes: null,
+    synthetic: true,
+  },
+  {
+    type: 'prostor',
+    name: 'Prostor',
+    emoji: '🌌',
+    description: 'Aktivita vědomého prostoru',
+    durationMinutes: null,
+    synthetic: true,
+  },
 ];
 
 const getDefaultFromConfig = (lang?: string): ActivityDefinition[] => {
@@ -264,20 +288,28 @@ export const mergeWithConfig = (existing: ActivityDefinition[]): ActivityDefinit
   return merged;
 };
 
+// Ensure synthetic types (emoce, prostor) are always in the list for record display
+const ensureSyntheticTypes = (activities: ActivityDefinition[]): ActivityDefinition[] => {
+  const syntheticDefs = DEFAULT_ACTIVITIES.filter(a => a.synthetic);
+  const existingTypes = new Set(activities.map(a => a.type));
+  const missing = syntheticDefs.filter(a => !existingTypes.has(a.type));
+  return missing.length > 0 ? [...activities, ...missing] : activities;
+};
+
 export const loadActivities = (): ActivityDefinition[] => {
   try {
     const stored = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
     if (stored) {
       const activities = JSON.parse(stored) as ActivityDefinition[];
       // Auto-merge new activities from config
-      return mergeWithConfig(activities);
+      return ensureSyntheticTypes(mergeWithConfig(activities));
     }
   } catch {
     // Při chybě vrátíme výchozí
   }
   const defaults = getDefaultFromConfig();
   saveActivities(defaults);
-  return defaults;
+  return ensureSyntheticTypes(defaults);
 };
 
 export const saveActivities = (activities: ActivityDefinition[]): void => {

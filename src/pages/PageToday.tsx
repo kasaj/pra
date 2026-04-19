@@ -9,7 +9,7 @@ import {
   markActivityModified,
   getConfigProperties,
 } from '../utils/activities';
-import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
+import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
@@ -127,36 +127,20 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     const now = customTimeRef.current || new Date().toISOString();
     const id = generateId();
 
-    const ss = localStorage.getItem('pra_session_start') || now;
-    const todayEntry = getDayEntry(getTodayDate());
-    const prevInSession = todayEntry?.activities
-      .filter(a => a.type === 'nalada' && new Date(a.completedAt || a.startedAt) >= new Date(ss))
-      .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime())
-      [0];
-
-    const coreAct = loadActivities().find(a => a.core);
-    const coreDur = coreAct?.defaultDuration ?? 1;
     addActivity({
       id,
-      type: 'nalada',
+      type: 'komentar',
       startedAt: now,
       completedAt: now,
       durationMinutes: null,
-      actualDurationSeconds: coreDur * 60,
+      actualDurationSeconds: 60,
       comments: [{
         id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
         text: c.trim(),
         createdAt: now,
         rating: r || undefined,
       }],
-      linkedFromId: prevInSession?.id,
     });
-
-    if (prevInSession) {
-      updateActivityById(prevInSession.id, {
-        linkedActivityIds: [...(prevInSession.linkedActivityIds || []), id],
-      });
-    }
 
     setMoodRatingSync(null);
     setMoodCommentSync('');
@@ -217,13 +201,18 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   }, [sessionStart]);
 
   // Current session (blue) - activities after sessionStart today
+  // For 'prostor' records: tracks selectedVariant (original activity type) for bubble highlighting
   const completedTodayCounts = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
     const counts = new Map<string, number>();
     if (!todayEntry) return counts;
     todayEntry.activities.forEach((a) => {
       if (new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
-        counts.set(a.type, (counts.get(a.type) || 0) + 1);
+        if (a.type === 'prostor' && a.selectedVariant) {
+          counts.set(a.selectedVariant, (counts.get(a.selectedVariant) || 0) + 1);
+        } else {
+          counts.set(a.type, (counts.get(a.type) || 0) + 1);
+        }
       }
     });
     return counts;
@@ -246,13 +235,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // Properties used in current session (from stored core activities)
+  // Emoji properties used in current session (from 'emoce' records)
   const usedPropertiesInSession = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
     const used = new Set<string>();
     if (!todayEntry) return used;
     todayEntry.activities.forEach((a) => {
-      if (new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
+      if (a.type === 'emoce' && new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
         if (a.selectedVariant) {
           a.selectedVariant.split(', ').forEach(p => used.add(p.trim()));
         }
@@ -270,11 +259,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       const id = generateId();
       addActivity({
         id,
-        type,
+        type: 'prostor',
         startedAt: now,
         completedAt: now,
         durationMinutes: coreDur,
         actualDurationSeconds: coreDur * 60,
+        selectedVariant: type,
         comments: [],
       });
     });
@@ -285,34 +275,16 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const handleEmojiRecord = useCallback((emoji: string) => {
     const now = customTimeRef.current || new Date().toISOString();
     const id = generateId();
-    const ss = localStorage.getItem('pra_session_start') || now;
-    const todayEntry = getDayEntry(getTodayDate());
-    const prevInSession = todayEntry?.activities
-      .filter(a => a.type === 'nalada' && new Date(a.completedAt || a.startedAt) >= new Date(ss))
-      .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime())
-      [0];
-    const coreAct = loadActivities().find(a => a.core);
-    const coreDur = coreAct?.defaultDuration ?? 1;
     addActivity({
       id,
-      type: 'nalada',
+      type: 'emoce',
       startedAt: now,
       completedAt: now,
       durationMinutes: null,
-      actualDurationSeconds: coreDur * 60,
-      comments: [{
-        id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-        text: emoji,
-        createdAt: now,
-      }],
-      linkedFromId: prevInSession?.id,
+      actualDurationSeconds: 60,
       selectedVariant: emoji,
+      comments: [],
     });
-    if (prevInSession) {
-      updateActivityById(prevInSession.id, {
-        linkedActivityIds: [...(prevInSession.linkedActivityIds || []), id],
-      });
-    }
     setRefreshKey((k) => k + 1);
   }, []);
 
@@ -460,7 +432,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           >
             {/* Activity bubbles — multi-select mode */}
             <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-              {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
+              {allTranslated.filter(a => !a.core && !a.synthetic).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
                 <span key={activity.type} className="relative inline-flex">
                   <button
                     onClick={() => {
@@ -624,7 +596,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-base mt-2 flex-shrink-0 select-none" style={{ color: 'var(--text-faint)' }}>📝</span>
               <textarea
                 ref={moodTextareaRef}
                 value={moodComment}
@@ -641,96 +612,97 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               />
             </div>
             {/* Session total + records */}
-            {allTranslated.length > 0 && (
-              <>
-                {/* Session bubble (left, aligned to last row) + records (right) */}
-                {(() => {
-                  const todayEntry = getDayEntry(getTodayDate());
-                  const todayActivities = todayEntry?.activities || [];
-                  const coreActivity = allTranslated.find(a => a.core);
-                  const rows: { key: string; emoji: string; total: number; totalMin: number; sessionCount: number }[] = [];
-                  if (coreActivity) {
-                    const coreRecords = todayActivities.filter(a => a.type === coreActivity.type);
-                    let total = 0, totalMin = 0, sessionCount = 0;
-                    coreRecords.forEach(r => {
-                      total++;
-                      totalMin += Math.round((r.actualDurationSeconds || 900) / 60);
-                      if (new Date(r.completedAt || r.startedAt) >= new Date(sessionStart)) sessionCount++;
-                    });
-                    rows.push({ key: coreActivity.type, emoji: coreActivity.emoji, total, totalMin, sessionCount });
-                  }
-                  allTranslated.filter(a => !a.core).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
-                    const total = totalCountPerActivity.get(activity.type) || 0;
-                    const totalSecs = totalTimePerActivity.get(activity.type) || 0;
-                    const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
-                    const sessionCount = completedTodayCounts.get(activity.type) || 0;
-                    rows.push({ key: activity.type, emoji: activity.emoji, total, totalMin, sessionCount });
-                  });
+            {(() => {
+              const todayEntry = getDayEntry(getTodayDate());
+              const todayActivities = todayEntry?.activities || [];
+              const ss = localStorage.getItem('pra_session_start') || '';
 
-                  const fmtMin = (m: number) => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 > 0 ? ` ${m % 60} m` : ''}` : `${m} m`;
-                  rows.sort((a, b) => fmtMin(b.totalMin).length - fmtMin(a.totalMin).length || b.totalMin - a.totalMin);
+              // Core recording types: prostor, emoce, komentar
+              const coreTypes = [
+                { key: 'prostor', emoji: '🌌' },
+                { key: 'emoce', emoji: '🤡' },
+                { key: 'komentar', emoji: '📜' },
+              ];
+              const rows: { key: string; emoji: string; total: number; totalMin: number; sessionCount: number }[] = [];
 
-                  const allDone = allTranslated.every(a => completedTodayCounts.has(a.type));
-                  const ss = localStorage.getItem('pra_session_start') || '';
-                  const sessionActivities = todayEntry?.activities.filter(act =>
-                    new Date(act.completedAt || act.startedAt) >= new Date(ss)
-                  ) || [];
-                  const sessionTotal = sessionActivities.reduce((sum, act) => {
-                    const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
-                    return sum + Math.round(secs / 60);
-                  }, 0);
+              coreTypes.forEach(({ key, emoji }) => {
+                const records = todayActivities.filter(a => a.type === key);
+                const total = records.length;
+                const totalMin = records.reduce((s, r) => s + Math.round((r.actualDurationSeconds || 60) / 60), 0);
+                const sessionCount = records.filter(r => new Date(r.completedAt || r.startedAt) >= new Date(ss)).length;
+                rows.push({ key, emoji, total, totalMin, sessionCount });
+              });
 
-                  return (
-                    <div className="flex items-end gap-3 mt-3">
-                      {/* Session bubble - left, aligned to last record row */}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <span className={`text-sm px-3 py-1 ${sessionTotal > 0 ? 'text-themed-accent-solid' : 'text-themed-faint'}`}>
-                          {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
-                        </span>
-                        <button
-                          onClick={() => {
-                            flushMood();
-                            const now = new Date().toISOString();
-                            setSessionStart(now);
-                            localStorage.setItem('pra_session_start', now);
-                            setRefreshKey((k) => k + 1);
-                          }}
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${allDone ? '' : 'opacity-40'}`}
-                          style={{ backgroundColor: allDone ? 'var(--accent-solid)' : 'var(--text-faint)' }}
-                        >
-                          <svg className="w-4 h-4" style={{ color: allDone ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              // Non-core, non-synthetic activities (backward compat with existing records)
+              allTranslated.filter(a => !a.core && !a.synthetic).filter(a => !hiddenActivities.has(a.type)).forEach(activity => {
+                const total = totalCountPerActivity.get(activity.type) || 0;
+                const totalSecs = totalTimePerActivity.get(activity.type) || 0;
+                const totalMin = activity.durationMinutes ? Math.round(totalSecs / 60) : total;
+                const sessionCount = completedTodayCounts.get(activity.type) || 0;
+                if (total > 0 || sessionCount > 0) rows.push({ key: activity.type, emoji: activity.emoji, total, totalMin, sessionCount });
+              });
+
+              const anyCoreDone = coreTypes.some(({ key }) =>
+                todayActivities.some(a => a.type === key && new Date(a.completedAt || a.startedAt) >= new Date(ss))
+              );
+
+              const sessionActivities = todayActivities.filter(act =>
+                new Date(act.completedAt || act.startedAt) >= new Date(ss)
+              );
+              const sessionTotal = sessionActivities.reduce((sum, act) => {
+                const secs = act.actualDurationSeconds || (act.durationMinutes ? act.durationMinutes * 60 : 60);
+                return sum + Math.round(secs / 60);
+              }, 0);
+
+              return (
+                <div className="flex items-end gap-3 mt-3">
+                  {/* Session bubble - left */}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className={`text-sm px-3 py-1 ${sessionTotal > 0 ? 'text-themed-accent-solid' : 'text-themed-faint'}`}>
+                      {sessionTotal >= 60 ? `${Math.floor(sessionTotal / 60)} h${sessionTotal % 60 > 0 ? ` ${sessionTotal % 60} m` : ''}` : `${sessionTotal} m`}
+                    </span>
+                    <button
+                      onClick={() => {
+                        flushMood();
+                        const now = new Date().toISOString();
+                        setSessionStart(now);
+                        localStorage.setItem('pra_session_start', now);
+                        setRefreshKey((k) => k + 1);
+                      }}
+                      className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${anyCoreDone ? '' : 'opacity-40'}`}
+                      style={{ backgroundColor: anyCoreDone ? 'var(--accent-solid)' : 'var(--text-faint)' }}
+                    >
+                      <svg className="w-4 h-4" style={{ color: anyCoreDone ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                  </div>
+                  {/* Records - right */}
+                  <div className="flex flex-col space-y-1">
+                    {rows.map(row => (
+                      <div key={row.key} className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-1 justify-end">
+                          <span className="text-base">{row.emoji}</span>
+                          {row.total > 0 && <span className="text-sm text-themed-faint">{row.total}</span>}
+                          {row.totalMin > 0 && (
+                            <span className="text-sm text-themed-faint">
+                              {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
+                            </span>
+                          )}
+                          {row.sessionCount > 0 && <span className="text-sm font-medium text-themed-accent-solid">{row.sessionCount}</span>}
+                        </div>
+                        <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${row.sessionCount > 0 ? '' : 'opacity-40'}`}
+                          style={{ backgroundColor: row.sessionCount > 0 ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
+                          <svg className="w-2.5 h-2.5" style={{ color: row.sessionCount > 0 ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                           </svg>
-                        </button>
+                        </span>
                       </div>
-                      {/* Records - right */}
-                      <div className="flex flex-col space-y-1">
-                        {rows.map(row => (
-                          <div key={row.key} className="flex items-center gap-2">
-                            <div className="flex items-center gap-2 flex-1 justify-end">
-                              <span className="text-base">{row.key === coreActivity?.type ? coreActivity.emoji : row.emoji}</span>
-                              {row.total > 0 && <span className="text-sm text-themed-faint">{row.total}</span>}
-                              {row.totalMin > 0 && (
-                                <span className="text-sm text-themed-faint">
-                                  {row.totalMin >= 60 ? `${Math.floor(row.totalMin / 60)} h${row.totalMin % 60 > 0 ? ` ${row.totalMin % 60} m` : ''}` : `${row.totalMin} m`}
-                                </span>
-                              )}
-                              {row.sessionCount > 0 && <span className="text-sm font-medium text-themed-accent-solid">{row.sessionCount}</span>}
-                            </div>
-                            <span className={`w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center ${row.sessionCount > 0 ? '' : 'opacity-40'}`}
-                              style={{ backgroundColor: row.sessionCount > 0 ? 'var(--accent-solid)' : 'var(--text-faint)' }}>
-                              <svg className="w-2.5 h-2.5" style={{ color: row.sessionCount > 0 ? 'var(--accent-text-on-solid)' : 'var(--bg-card)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </>
-            )}
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
           </div>
           </div>

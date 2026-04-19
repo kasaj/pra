@@ -139,6 +139,8 @@ export const translations = {
       komentar: { name: 'Komentář', desc: 'Reflexe, záměr, slovo nebo věta která provede dnem', variants: ['Ranní záměr', 'Večerní reflexe', 'Vděčnost', 'Afirmace'] },
       objeti: { name: 'Objetí nebo kontakt', desc: 'Vědomý kontakt s druhým člověkem', variants: ['Objetí', 'Podání ruky', 'Oční kontakt', 'Rozhovor'] },
       vyzva: { name: 'Výzva', desc: 'Vědomé čelení tomu, čemu se vyhýbám. Jediná konkrétní akce uprostřed nepřehlednosti.', variants: ['Konfrontace strachu', 'Těžký rozhovor', 'Nový návyk', 'Malý krok'] },
+      emoce: { name: 'Emoce', desc: 'Emocionální ladění — okamžitý záznam pocitu' },
+      prostor: { name: 'Prostor', desc: 'Aktivita vědomého prostoru' },
     },
     // Settings page
     settings: {
@@ -330,6 +332,8 @@ export const translations = {
       komentar: { name: 'Comment', desc: 'Reflection, intention, word or sentence to guide the day', variants: ['Morning intention', 'Evening reflection', 'Gratitude', 'Affirmation'] },
       objeti: { name: 'Embrace', desc: 'Conscious contact with another person', variants: ['Hug', 'Handshake', 'Eye contact', 'Conversation'] },
       vyzva: { name: 'Challenge', desc: 'Consciously facing what I avoid. Single concrete action amid confusion', variants: ['Facing fear', 'Difficult conversation', 'New habit', 'Small step'] },
+      emoce: { name: 'Emotion', desc: 'Emotional tone — instant feeling record' },
+      prostor: { name: 'Space', desc: 'Conscious space activity' },
     },
     // Settings page
     settings: {
