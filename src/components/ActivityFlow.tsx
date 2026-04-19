@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Activity, ActivityDefinition, ActivityComment, Rating } from '../types';
 import { useLanguage } from '../i18n';
 import { generateId, addActivity, updateActivityById, getDayEntry, getTodayDate, findActivityById, deleteActivitiesByIds } from '../utils/storage';
@@ -50,6 +50,12 @@ function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewR
   lang: string;
   t: ReturnType<typeof useLanguage>['t'];
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+  }, [newComment]);
+
   return (
     <div className="space-y-3">
       <div className="max-w-xs mx-auto w-full card p-3 space-y-2">
@@ -58,6 +64,7 @@ function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewR
         </div>
         <div>
           <textarea
+            ref={textareaRef}
             value={newComment}
             onChange={(e) => {
               setNewComment(e.target.value);
