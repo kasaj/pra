@@ -230,7 +230,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // Core emoji properties used in current session (from 'prostor' records with selectedVariant = emoji)
+  // 🌌 Prostor text-props used in session (from 'prostor' records)
   const usedPropertiesInSession = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
     const used = new Set<string>();
@@ -240,6 +240,20 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
         if (a.selectedVariant) {
           a.selectedVariant.split(', ').forEach(p => used.add(p.trim()));
         }
+      }
+    });
+    return used;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey, sessionStart]);
+
+  // 🤡 Emoce emoji used in session (from 'emoce' records)
+  const usedEmojisInSession = useMemo(() => {
+    const todayEntry = getDayEntry(getTodayDate());
+    const used = new Set<string>();
+    if (!todayEntry) return used;
+    todayEntry.activities.forEach((a) => {
+      if (a.type === 'emoce' && new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
+        if (a.selectedVariant) used.add(a.selectedVariant);
       }
     });
     return used;
@@ -267,17 +281,17 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     setRefreshKey((k) => k + 1);
   }, [selectedActivitiesMulti]);
 
-  // Record a non-core (timed/jednorazove) activity directly without modal
-  const handleDirectRecord = useCallback((activity: ActivityDefinition) => {
+  // Immediate emoji record → type 'emoce'
+  const handleEmojiRecord = useCallback((emoji: string) => {
     const now = customTimeRef.current || new Date().toISOString();
-    const id = generateId();
     addActivity({
-      id,
-      type: activity.type,
+      id: generateId(),
+      type: 'emoce',
       startedAt: now,
       completedAt: now,
-      durationMinutes: activity.durationMinutes,
-      actualDurationSeconds: (activity.durationMinutes || 1) * 60,
+      durationMinutes: null,
+      actualDurationSeconds: 60,
+      selectedVariant: emoji,
       comments: [],
     });
     setRefreshKey((k) => k + 1);
@@ -428,10 +442,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     onClick={() => {
                       if (editMode) {
                         toggleHideActivity(activity.type);
-                      } else if (activity.durationMinutes) {
-                        setActiveActivity(activity);
                       } else {
-                        handleDirectRecord(activity);
+                        setActiveActivity(activity);
                       }
                     }}
                     className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
@@ -460,7 +472,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               )}
             </div>
 
-            {/* Core activity (🌌 Prostor) — multi-select emoji properties */}
+            {/* Core activity properties — split: text = 🌌 Prostor multi-select, emoji = 🤡 Emoce immediate */}
             {(() => {
               void registryVersion;
               const freshActivities = loadActivities();
@@ -468,7 +480,9 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               const storedProps = coreActivity?.properties || [];
               const configProps = getConfigProperties(coreActivity?.type || 'nalada');
               const activityProps = storedProps.length > 0 ? storedProps : configProps;
-              const emojiProps = activityProps.filter(prop => /^\p{Emoji}/u.test(prop));
+              const isEmoji = (s: string) => /^\p{Emoji}/u.test(s);
+              const textProps = activityProps.filter(p => !isEmoji(p));
+              const emojiProps = activityProps.filter(p => isEmoji(p));
 
               if (editMode) {
                 return (
@@ -514,43 +528,61 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   </div>
                 );
               }
-              if (emojiProps.length === 0) return null;
+
               return (
-                <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                  {emojiProps.filter(prop => !hiddenProperties.has(prop)).map((prop) => (
-                    <button
-                      key={prop}
-                      onClick={() => {
-                        setSelectedActivitiesMulti(prev => {
-                          const next = new Set(prev);
-                          if (next.has(prop)) next.delete(prop); else next.add(prop);
-                          return next;
-                        });
-                      }}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        selectedActivitiesMulti.has(prop)
-                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
-                          : usedPropertiesInSession.has(prop)
-                            ? 'bg-transparent border-themed-accent text-themed-accent'
-                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                      }`}
-                    >{prop}</button>
-                  ))}
-                </div>
+                <>
+                  {/* 🌌 Prostor — text properties, multi-select, batch record */}
+                  {textProps.filter(p => !hiddenProperties.has(p)).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                      {textProps.filter(p => !hiddenProperties.has(p)).map((prop) => (
+                        <button
+                          key={prop}
+                          onClick={() => setSelectedActivitiesMulti(prev => {
+                            const next = new Set(prev);
+                            if (next.has(prop)) next.delete(prop); else next.add(prop);
+                            return next;
+                          })}
+                          className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                            selectedActivitiesMulti.has(prop)
+                              ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                              : usedPropertiesInSession.has(prop)
+                                ? 'bg-transparent border-themed-accent text-themed-accent'
+                                : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                          }`}
+                        >{prop}</button>
+                      ))}
+                    </div>
+                  )}
+                  {/* Batch record button — shows count */}
+                  {selectedActivitiesMulti.size > 0 && (
+                    <div className="flex justify-center mb-2">
+                      <button
+                        onClick={handleBatchRecord}
+                        className="px-4 py-1.5 text-sm rounded-full border border-themed-accent bg-themed-accent text-themed-accent font-medium transition-colors hover:opacity-90"
+                      >
+                        🌌 {selectedActivitiesMulti.size}
+                      </button>
+                    </div>
+                  )}
+                  {/* 🤡 Emoce — emoji properties, tap = immediate 'emoce' record */}
+                  {emojiProps.filter(p => !hiddenProperties.has(p)).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                      {emojiProps.filter(p => !hiddenProperties.has(p)).map((prop) => (
+                        <button
+                          key={prop}
+                          onClick={() => handleEmojiRecord(prop)}
+                          className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                            usedEmojisInSession.has(prop)
+                              ? 'bg-transparent border-themed-accent text-themed-accent'
+                              : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                          }`}
+                        >{prop}</button>
+                      ))}
+                    </div>
+                  )}
+                </>
               );
             })()}
-
-            {/* Batch record button for core (🌌 Prostor) — shown when emoji props selected */}
-            {selectedActivitiesMulti.size > 0 && (
-              <div className="flex justify-center mb-2">
-                <button
-                  onClick={handleBatchRecord}
-                  className="px-4 py-1.5 text-sm rounded-full border border-themed-accent bg-themed-accent text-themed-accent font-medium transition-colors hover:opacity-90"
-                >
-                  🌌 {selectedActivitiesMulti.size}
-                </button>
-              </div>
-            )}
 
             {/* Core duration setting in edit mode */}
             {editMode && (
@@ -618,9 +650,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               const todayActivities = todayEntry?.activities || [];
               const ss = localStorage.getItem('pra_session_start') || '';
 
-              // Core recording types: prostor, komentar
+              // Core recording types: prostor, emoce, komentar
               const coreTypes = [
                 { key: 'prostor', emoji: '🌌' },
+                { key: 'emoce', emoji: '🤡' },
                 { key: 'komentar', emoji: '📝' },
               ];
               const rows: { key: string; emoji: string; total: number; totalMin: number; sessionCount: number }[] = [];
