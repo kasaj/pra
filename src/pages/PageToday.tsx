@@ -457,6 +457,9 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     onClick={() => {
                       if (editMode) {
                         toggleHideActivity(activity.type);
+                      } else if (activity.durationMinutes !== null) {
+                        flushMood();
+                        setActiveActivity(activity);
                       } else {
                         toggleActivity(activity);
                       }
