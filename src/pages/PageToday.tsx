@@ -11,6 +11,7 @@ import {
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
+import { loadMoodScale } from '../utils/moodScale';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -264,17 +265,20 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     const now = customTimeRef.current || new Date().toISOString();
     const coreAct = loadActivities().find(a => a.core);
     const coreDur = coreAct?.defaultDuration ?? 1;
-    selectedActivitiesMulti.forEach((type) => {
-      const id = generateId();
+    selectedActivitiesMulti.forEach((prop) => {
       addActivity({
-        id,
+        id: generateId(),
         type: 'prostor',
         startedAt: now,
         completedAt: now,
         durationMinutes: coreDur,
         actualDurationSeconds: coreDur * 60,
-        selectedVariant: type,
-        comments: [],
+        selectedVariant: prop,
+        comments: [{
+          id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+          text: prop,
+          createdAt: now,
+        }],
       });
     });
     setSelectedActivitiesMulti(new Set());
@@ -434,7 +438,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             className="card"
             style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}
           >
-            {/* Core activity properties — split: text = 🌌 Prostor multi-select, emoji = 🤡 Emoce immediate */}
+            {/* 🌌 Prostor — ALL core activity properties, multi-select → batch record */}
+            {/* 🤡 Emoce — moodScale emojis → immediate single record */}
             {(() => {
               void registryVersion;
               const freshActivities = loadActivities();
@@ -442,9 +447,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               const storedProps = coreActivity?.properties || [];
               const configProps = getConfigProperties(coreActivity?.type || 'nalada');
               const activityProps = storedProps.length > 0 ? storedProps : configProps;
-              const isEmoji = (s: string) => /^\p{Emoji}/u.test(s);
-              const textProps = activityProps.filter(p => !isEmoji(p));
-              const emojiProps = activityProps.filter(p => isEmoji(p));
+              const moodEmojis = loadMoodScale();
 
               if (editMode) {
                 return (
@@ -493,10 +496,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
               return (
                 <>
-                  {/* 🌌 Prostor — text properties, multi-select, batch record */}
-                  {textProps.filter(p => !hiddenProperties.has(p)).length > 0 && (
+                  {/* 🌌 Prostor — all core props, multi-select */}
+                  {activityProps.filter(p => !hiddenProperties.has(p)).length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                      {textProps.filter(p => !hiddenProperties.has(p)).map((prop) => (
+                      {activityProps.filter(p => !hiddenProperties.has(p)).map((prop) => (
                         <button
                           key={prop}
                           onClick={() => setSelectedActivitiesMulti(prev => {
@@ -515,7 +518,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       ))}
                     </div>
                   )}
-                  {/* Batch record button — shows count */}
+                  {/* Batch record button — 🌌 + count */}
                   {selectedActivitiesMulti.size > 0 && (
                     <div className="flex justify-center mb-2">
                       <button
@@ -526,22 +529,20 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                       </button>
                     </div>
                   )}
-                  {/* 🤡 Emoce — emoji properties, tap = immediate 'emoce' record */}
-                  {emojiProps.filter(p => !hiddenProperties.has(p)).length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                      {emojiProps.filter(p => !hiddenProperties.has(p)).map((prop) => (
-                        <button
-                          key={prop}
-                          onClick={() => handleEmojiRecord(prop)}
-                          className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                            usedEmojisInSession.has(prop)
-                              ? 'bg-transparent border-themed-accent text-themed-accent'
-                              : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                          }`}
-                        >{prop}</button>
-                      ))}
-                    </div>
-                  )}
+                  {/* 🤡 Emoce — moodScale emojis, tap = immediate 'emoce' record */}
+                  <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+                    {moodEmojis.map((item) => (
+                      <button
+                        key={item.value}
+                        onClick={() => handleEmojiRecord(item.emoji)}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                          usedEmojisInSession.has(item.emoji)
+                            ? 'bg-transparent border-themed-accent text-themed-accent'
+                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        }`}
+                      >{item.emoji}</button>
+                    ))}
+                  </div>
                 </>
               );
             })()}

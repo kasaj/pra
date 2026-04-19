@@ -300,12 +300,20 @@ const normalizeSyntheticTypes = (activities: ActivityDefinition[]): ActivityDefi
   // Strip existing synthetic entries, always re-add from canonical definitions
   const withoutSynthetic = activities.filter(a => !SYNTHETIC_TYPES.has(a.type));
   // Also normalize emoji overrides for builtin types (e.g. komentar 📜→📝)
-  const normalized = withoutSynthetic.map(a =>
-    EMOJI_OVERRIDES[a.type] && a.emoji !== EMOJI_OVERRIDES[a.type]
-      ? { ...a, emoji: EMOJI_OVERRIDES[a.type] }
-      : a
-  );
-  return [...normalized, ...syntheticDefs];
+  let emojiChanged = false;
+  const normalized = withoutSynthetic.map(a => {
+    if (EMOJI_OVERRIDES[a.type] && a.emoji !== EMOJI_OVERRIDES[a.type]) {
+      emojiChanged = true;
+      return { ...a, emoji: EMOJI_OVERRIDES[a.type] };
+    }
+    return a;
+  });
+  const result = [...normalized, ...syntheticDefs];
+  // Persist emoji fixes so next load has correct values
+  if (emojiChanged) {
+    localStorage.setItem(ACTIVITIES_STORAGE_KEY, JSON.stringify(result));
+  }
+  return result;
 };
 
 export const loadActivities = (): ActivityDefinition[] => {
