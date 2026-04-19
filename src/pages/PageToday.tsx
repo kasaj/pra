@@ -200,19 +200,14 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
   }, [sessionStart]);
 
-  // Current session (blue) - activities after sessionStart today
-  // For 'prostor' records: tracks selectedVariant (original activity type) for bubble highlighting
+  // Current session (blue) - counts per activity type for bubble highlighting
   const completedTodayCounts = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
     const counts = new Map<string, number>();
     if (!todayEntry) return counts;
     todayEntry.activities.forEach((a) => {
       if (new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
-        if (a.type === 'prostor' && a.selectedVariant) {
-          counts.set(a.selectedVariant, (counts.get(a.selectedVariant) || 0) + 1);
-        } else {
-          counts.set(a.type, (counts.get(a.type) || 0) + 1);
-        }
+        counts.set(a.type, (counts.get(a.type) || 0) + 1);
       }
     });
     return counts;
@@ -235,13 +230,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // Emoji properties used in current session (from 'emoce' records)
+  // Core emoji properties used in current session (from 'prostor' records with selectedVariant = emoji)
   const usedPropertiesInSession = useMemo(() => {
     const todayEntry = getDayEntry(getTodayDate());
     const used = new Set<string>();
     if (!todayEntry) return used;
     todayEntry.activities.forEach((a) => {
-      if (a.type === 'emoce' && new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
+      if (a.type === 'prostor' && new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
         if (a.selectedVariant) {
           a.selectedVariant.split(', ').forEach(p => used.add(p.trim()));
         }
@@ -272,17 +267,17 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     setRefreshKey((k) => k + 1);
   }, [selectedActivitiesMulti]);
 
-  const handleEmojiRecord = useCallback((emoji: string) => {
+  // Record a non-core (timed/jednorazove) activity directly without modal
+  const handleDirectRecord = useCallback((activity: ActivityDefinition) => {
     const now = customTimeRef.current || new Date().toISOString();
     const id = generateId();
     addActivity({
       id,
-      type: 'emoce',
+      type: activity.type,
       startedAt: now,
       completedAt: now,
-      durationMinutes: null,
-      actualDurationSeconds: 60,
-      selectedVariant: emoji,
+      durationMinutes: activity.durationMinutes,
+      actualDurationSeconds: (activity.durationMinutes || 1) * 60,
       comments: [],
     });
     setRefreshKey((k) => k + 1);
@@ -424,13 +419,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           <div
             className="card"
             style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}
-            onBlur={(e) => {
-              setTimeout(() => {
-                if (!e.currentTarget.contains(document.activeElement)) flushMood();
-              }, 100);
-            }}
           >
-            {/* Activity bubbles — multi-select mode */}
+            {/* Timed / jednorazové aktivity — click to record individually, no multi-select */}
             <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
               {allTranslated.filter(a => !a.core && !a.synthetic).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
                 <span key={activity.type} className="relative inline-flex">
@@ -438,20 +428,16 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     onClick={() => {
                       if (editMode) {
                         toggleHideActivity(activity.type);
+                      } else if (activity.durationMinutes) {
+                        setActiveActivity(activity);
                       } else {
-                        setSelectedActivitiesMulti(prev => {
-                          const next = new Set(prev);
-                          if (next.has(activity.type)) next.delete(activity.type); else next.add(activity.type);
-                          return next;
-                        });
+                        handleDirectRecord(activity);
                       }
                     }}
                     className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                       editMode
                         ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                        : selectedActivitiesMulti.has(activity.type)
-                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
-                          : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                     }`}
                   >{activity.emoji} {activity.name}</button>
                   {editMode && (
@@ -473,32 +459,21 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 >+</button>
               )}
             </div>
-            {/* Batch record button — shown when any activities selected */}
-            {selectedActivitiesMulti.size > 0 && (
-              <div className="flex justify-center mb-2">
-                <button
-                  onClick={handleBatchRecord}
-                  className="px-4 py-1.5 text-sm rounded-full border border-themed-accent bg-themed-accent text-themed-accent font-medium transition-colors hover:opacity-90"
-                >
-                  ⏺ {selectedActivitiesMulti.size}
-                </button>
-              </div>
-            )}
-            {/* Emoji properties from core activity */}
+
+            {/* Core activity (🌌 Prostor) — multi-select emoji properties */}
             {(() => {
               void registryVersion;
               const freshActivities = loadActivities();
-              const naladaActivity = freshActivities.find(a => a.core);
-              const storedProps = naladaActivity?.properties || [];
-              const configProps = getConfigProperties('nalada');
+              const coreActivity = freshActivities.find(a => a.core);
+              const storedProps = coreActivity?.properties || [];
+              const configProps = getConfigProperties(coreActivity?.type || 'nalada');
               const activityProps = storedProps.length > 0 ? storedProps : configProps;
               const emojiProps = activityProps.filter(prop => /^\p{Emoji}/u.test(prop));
-              const allProps = activityProps;
+
               if (editMode) {
-                // In edit mode show all props with hide/delete/add controls
                 return (
                   <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-                    {allProps.filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
+                    {activityProps.filter(prop => editMode || !hiddenProperties.has(prop)).map((prop) => (
                       <span key={prop} className="relative inline-flex">
                         <button
                           onClick={() => toggleHideProperty(prop)}
@@ -507,9 +482,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                               ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
                               : 'bg-themed-input border-themed text-themed-muted'
                           }`}
-                        >
-                          {prop}
-                        </button>
+                        >{prop}</button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -547,19 +520,38 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   {emojiProps.filter(prop => !hiddenProperties.has(prop)).map((prop) => (
                     <button
                       key={prop}
-                      onClick={() => handleEmojiRecord(prop)}
+                      onClick={() => {
+                        setSelectedActivitiesMulti(prev => {
+                          const next = new Set(prev);
+                          if (next.has(prop)) next.delete(prop); else next.add(prop);
+                          return next;
+                        });
+                      }}
                       className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        usedPropertiesInSession.has(prop)
-                          ? 'bg-transparent border-themed-accent text-themed-accent'
-                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                        selectedActivitiesMulti.has(prop)
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                          : usedPropertiesInSession.has(prop)
+                            ? 'bg-transparent border-themed-accent text-themed-accent'
+                            : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                       }`}
-                    >
-                      {prop}
-                    </button>
+                    >{prop}</button>
                   ))}
                 </div>
               );
             })()}
+
+            {/* Batch record button for core (🌌 Prostor) — shown when emoji props selected */}
+            {selectedActivitiesMulti.size > 0 && (
+              <div className="flex justify-center mb-2">
+                <button
+                  onClick={handleBatchRecord}
+                  className="px-4 py-1.5 text-sm rounded-full border border-themed-accent bg-themed-accent text-themed-accent font-medium transition-colors hover:opacity-90"
+                >
+                  🌌 {selectedActivitiesMulti.size}
+                </button>
+              </div>
+            )}
+
             {/* Core duration setting in edit mode */}
             {editMode && (
               <div className="flex justify-center mb-2">
@@ -591,25 +583,34 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               </div>
             )}
-            {/* Comment area: star rating + textarea */}
-            <div className="flex justify-center mb-3">
-              <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
-            </div>
-            <div className="flex items-start gap-2">
-              <textarea
-                ref={moodTextareaRef}
-                value={moodComment}
-                onChange={(e) => {
-                  setMoodCommentSync(e.target.value);
-                  e.target.style.height = 'auto';
-                  e.target.style.height = e.target.scrollHeight + 'px';
-                }}
-                placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
-                rows={1}
-                className="flex-1 px-3 py-2 rounded-xl bg-themed-input border border-themed
-                         focus:outline-none focus:border-themed-accent resize-none
-                         text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
-              />
+
+            {/* Comment area: star rating + textarea — wrapped separately for onBlur */}
+            <div
+              onBlur={(e) => {
+                setTimeout(() => {
+                  if (!e.currentTarget.contains(document.activeElement)) flushMood();
+                }, 100);
+              }}
+            >
+              <div className="flex justify-center mb-3">
+                <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
+              </div>
+              <div className="flex items-start gap-2">
+                <textarea
+                  ref={moodTextareaRef}
+                  value={moodComment}
+                  onChange={(e) => {
+                    setMoodCommentSync(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = e.target.scrollHeight + 'px';
+                  }}
+                  placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
+                  rows={1}
+                  className="flex-1 px-3 py-2 rounded-xl bg-themed-input border border-themed
+                           focus:outline-none focus:border-themed-accent resize-none
+                           text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
+                />
+              </div>
             </div>
             {/* Session total + records */}
             {(() => {
@@ -617,11 +618,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               const todayActivities = todayEntry?.activities || [];
               const ss = localStorage.getItem('pra_session_start') || '';
 
-              // Core recording types: prostor, emoce, komentar
+              // Core recording types: prostor, komentar
               const coreTypes = [
                 { key: 'prostor', emoji: '🌌' },
-                { key: 'emoce', emoji: '🤡' },
-                { key: 'komentar', emoji: '📜' },
+                { key: 'komentar', emoji: '📝' },
               ];
               const rows: { key: string; emoji: string; total: number; totalMin: number; sessionCount: number }[] = [];
 

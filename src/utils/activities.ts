@@ -57,7 +57,7 @@ const DEFAULT_ACTIVITY_BASE: Array<{
   { type: 'sobe', emoji: '⏸️', durationMinutes: 3 },
   { type: 'pohyb', emoji: '🚶', durationMinutes: 30 },
   { type: 'rozjimani', emoji: '🌅', durationMinutes: 15 },
-  { type: 'komentar', emoji: '📜', durationMinutes: null },
+  { type: 'komentar', emoji: '📝', durationMinutes: null },
   { type: 'objeti', emoji: '🤗', durationMinutes: null },
   { type: 'vyzva', emoji: '🔥', durationMinutes: null },
   { type: 'emoce', emoji: '🤡', durationMinutes: null, synthetic: true },
@@ -162,7 +162,7 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
   {
     type: 'komentar',
     name: 'Komentář',
-    emoji: '📜',
+    emoji: '📝',
     description: 'Reflexe, záměr, slovo nebo věta která provede dnem',
     durationMinutes: null,
     properties: ['Ranní záměr', 'Večerní reflexe', 'Vděčnost', 'Afirmace'],
