@@ -434,44 +434,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             className="card"
             style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}
           >
-            {/* Timed / jednorazové aktivity — click to record individually, no multi-select */}
-            <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-              {allTranslated.filter(a => !a.core && !a.synthetic).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
-                <span key={activity.type} className="relative inline-flex">
-                  <button
-                    onClick={() => {
-                      if (editMode) {
-                        toggleHideActivity(activity.type);
-                      } else {
-                        setActiveActivity(activity);
-                      }
-                    }}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                      editMode
-                        ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                    }`}
-                  >{activity.emoji} {activity.name}</button>
-                  {editMode && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteActivity(activity.type);
-                        setActivities(loadActivities());
-                      }}
-                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
-                    >✕</button>
-                  )}
-                </span>
-              ))}
-              {editMode && (
-                <button
-                  onClick={() => setShowNewActivity(true)}
-                  className="px-3 py-1.5 text-sm rounded-full border border-themed-accent text-themed-accent-solid hover:bg-themed-accent transition-colors"
-                >+</button>
-              )}
-            </div>
-
             {/* Core activity properties — split: text = 🌌 Prostor multi-select, emoji = 🤡 Emoce immediate */}
             {(() => {
               void registryVersion;
@@ -616,33 +578,63 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               </div>
             )}
 
-            {/* Comment area: star rating + textarea — wrapped separately for onBlur */}
-            <div
-              onBlur={(e) => {
-                setTimeout(() => {
-                  if (!e.currentTarget.contains(document.activeElement)) flushMood();
-                }, 100);
-              }}
-            >
-              <div className="flex justify-center mb-3">
-                <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
-              </div>
-              <div className="flex items-start gap-2">
-                <textarea
-                  ref={moodTextareaRef}
-                  value={moodComment}
-                  onChange={(e) => {
-                    setMoodCommentSync(e.target.value);
-                    e.target.style.height = 'auto';
-                    e.target.style.height = e.target.scrollHeight + 'px';
-                  }}
-                  placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
-                  rows={1}
-                  className="flex-1 px-3 py-2 rounded-xl bg-themed-input border border-themed
-                           focus:outline-none focus:border-themed-accent resize-none
-                           text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
-                />
-              </div>
+            {/* Timed / jednorazové aktivity — below core props, click = ActivityFlow */}
+            <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
+              {allTranslated.filter(a => !a.core && !a.synthetic).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
+                <span key={activity.type} className="relative inline-flex">
+                  <button
+                    onClick={() => {
+                      if (editMode) {
+                        toggleHideActivity(activity.type);
+                      } else {
+                        setActiveActivity(activity);
+                      }
+                    }}
+                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                      editMode
+                        ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
+                        : completedTodayCounts.has(activity.type) ? 'bg-transparent border-themed-accent text-themed-accent' : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                    }`}
+                  >{activity.emoji} {activity.name}</button>
+                  {editMode && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteActivity(activity.type);
+                        setActivities(loadActivities());
+                      }}
+                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
+                    >✕</button>
+                  )}
+                </span>
+              ))}
+              {editMode && (
+                <button
+                  onClick={() => setShowNewActivity(true)}
+                  className="px-3 py-1.5 text-sm rounded-full border border-themed-accent text-themed-accent-solid hover:bg-themed-accent transition-colors"
+                >+</button>
+              )}
+            </div>
+
+            {/* Comment area: star rating + textarea — flushed on nav/visibility, NOT on blur */}
+            <div className="flex justify-center mb-3">
+              <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
+            </div>
+            <div className="flex items-start gap-2">
+              <textarea
+                ref={moodTextareaRef}
+                value={moodComment}
+                onChange={(e) => {
+                  setMoodCommentSync(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
+                rows={1}
+                className="flex-1 px-3 py-2 rounded-xl bg-themed-input border border-themed
+                         focus:outline-none focus:border-themed-accent resize-none
+                         text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
+              />
             </div>
             {/* Session total + records */}
             {(() => {

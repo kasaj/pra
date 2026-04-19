@@ -288,12 +288,24 @@ export const mergeWithConfig = (existing: ActivityDefinition[]): ActivityDefinit
   return merged;
 };
 
-// Ensure synthetic types (emoce, prostor) are always in the list for record display
-const ensureSyntheticTypes = (activities: ActivityDefinition[]): ActivityDefinition[] => {
+// Always replace synthetic types and fix known emoji overrides (never trust localStorage for these)
+const EMOJI_OVERRIDES: Record<string, string> = {
+  komentar: '📝',
+  emoce: '🤡',
+  prostor: '🌌',
+};
+
+const normalizeSyntheticTypes = (activities: ActivityDefinition[]): ActivityDefinition[] => {
   const syntheticDefs = DEFAULT_ACTIVITIES.filter(a => a.synthetic);
-  const existingTypes = new Set(activities.map(a => a.type));
-  const missing = syntheticDefs.filter(a => !existingTypes.has(a.type));
-  return missing.length > 0 ? [...activities, ...missing] : activities;
+  // Strip existing synthetic entries, always re-add from canonical definitions
+  const withoutSynthetic = activities.filter(a => !SYNTHETIC_TYPES.has(a.type));
+  // Also normalize emoji overrides for builtin types (e.g. komentar 📜→📝)
+  const normalized = withoutSynthetic.map(a =>
+    EMOJI_OVERRIDES[a.type] && a.emoji !== EMOJI_OVERRIDES[a.type]
+      ? { ...a, emoji: EMOJI_OVERRIDES[a.type] }
+      : a
+  );
+  return [...normalized, ...syntheticDefs];
 };
 
 export const loadActivities = (): ActivityDefinition[] => {
@@ -302,14 +314,14 @@ export const loadActivities = (): ActivityDefinition[] => {
     if (stored) {
       const activities = JSON.parse(stored) as ActivityDefinition[];
       // Auto-merge new activities from config
-      return ensureSyntheticTypes(mergeWithConfig(activities));
+      return normalizeSyntheticTypes(mergeWithConfig(activities));
     }
   } catch {
     // Při chybě vrátíme výchozí
   }
   const defaults = getDefaultFromConfig();
   saveActivities(defaults);
-  return ensureSyntheticTypes(defaults);
+  return normalizeSyntheticTypes(defaults);
 };
 
 export const saveActivities = (activities: ActivityDefinition[]): void => {
