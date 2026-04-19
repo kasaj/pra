@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
-import { getCachedConfig, ConfigInfo, ConfigQuote } from '../utils/config';
+import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote } from '../utils/config';
 
 interface InfoNotes {
   why: string;
@@ -54,6 +54,12 @@ function Paragraphs({ text }: { text: string }) {
 
 export default function PageInfo() {
   const { language, t } = useLanguage();
+  const [, setConfigVersion] = useState(0);
+
+  // Ensure config is loaded (it's fetched async at app start)
+  useEffect(() => {
+    loadConfig().then(() => setConfigVersion(v => v + 1));
+  }, []);
 
   // Config is always source of truth for content
   const config = getCachedConfig();

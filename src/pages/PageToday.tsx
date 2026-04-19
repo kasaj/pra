@@ -11,6 +11,7 @@ import {
 } from '../utils/activities';
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
+import { loadConfig } from '../utils/config';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -63,6 +64,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     }
   }, [downloadStatus]);
   const [registryVersion, setRegistryVersion] = useState(0);
+  // Re-render once config finishes loading (it's async, app renders before it resolves)
+  useEffect(() => {
+    loadConfig().then(() => setRegistryVersion(v => v + 1));
+  }, []);
   const [customTime, setCustomTime] = useState<string | null>(null);
   const customTimeRef = useRef<string | null>(null);
   const setCustomTimeSync = (t: string | null) => { customTimeRef.current = t; setCustomTime(t); };
@@ -275,21 +280,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // Properties used in current session (from stored core activities)
-  const usedPropertiesInSession = useMemo(() => {
-    const todayEntry = getDayEntry(getTodayDate());
-    const used = new Set<string>();
-    if (!todayEntry) return used;
-    todayEntry.activities.forEach((a) => {
-      if (new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
-        if (a.selectedVariant) {
-          a.selectedVariant.split(', ').forEach(p => used.add(p.trim()));
-        }
-      }
-    });
-    return used;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshKey, sessionStart]);
 
 
 
@@ -502,9 +492,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                             ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
                             : selectedProperties.has(prop)
                               ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
-                              : usedPropertiesInSession.has(prop)
-                                ? 'bg-transparent border-themed-accent text-themed-accent'
-                                : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                              : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                         }`}
                       >
                         {prop}
