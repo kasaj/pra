@@ -436,6 +436,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           <div className="flex-1">
           <div
             className="card"
+            data-build="20260419b"
             style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}
           >
             {/* 🌌 Prostor — ALL core activity properties, multi-select → batch record */}
