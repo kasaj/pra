@@ -525,7 +525,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         onClick={handleBatchRecord}
                         className="px-4 py-1.5 text-sm rounded-full border border-themed-accent bg-themed-accent text-themed-accent font-medium transition-colors hover:opacity-90"
                       >
-                        🌌 {selectedActivitiesMulti.size}
+                        🌌
                       </button>
                     </div>
                   )}
@@ -618,7 +618,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </div>
 
             {/* Comment area: star rating + textarea — flushed on nav/visibility, NOT on blur */}
-            <div className="flex justify-center mb-3">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <span className="text-base">📝</span>
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
             </div>
             <div className="flex items-start gap-2">
