@@ -280,7 +280,21 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-
+  // Core properties used in current session (accent border after flush)
+  const usedPropertiesInSession = useMemo(() => {
+    const todayEntry = getDayEntry(getTodayDate());
+    const used = new Set<string>();
+    if (!todayEntry) return used;
+    todayEntry.activities.forEach((a) => {
+      if (new Date(a.completedAt || a.startedAt) >= new Date(sessionStart)) {
+        if (a.selectedVariant) {
+          a.selectedVariant.split(', ').forEach(p => used.add(p.trim()));
+        }
+      }
+    });
+    return used;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey, sessionStart]);
 
 
   const handleSaveActivity = useCallback((activity: ActivityDefinition) => {
@@ -492,7 +506,9 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                             ? 'opacity-30 border-themed bg-themed-input text-themed-faint'
                             : selectedProperties.has(prop)
                               ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
-                              : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                              : usedPropertiesInSession.has(prop)
+                                ? 'bg-transparent border-themed-accent text-themed-accent'
+                                : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                         }`}
                       >
                         {prop}
