@@ -33,8 +33,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'busy' | 'success' | 'error'>('idle');
   const [downloadErrorStatus, setDownloadErrorStatus] = useState<number | null>(null);
 
+  const flushMoodRef = useRef<() => void>(() => {});
+
   const handleUpload = useCallback(async () => {
     if (uploadStatus === 'busy') return;
+    flushMoodRef.current(); // ensure pending session data is saved before backup
     setUploadStatus('busy');
     try {
       const theme = localStorage.getItem('pra_theme') || 'modern';
@@ -201,6 +204,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     }
     setRefreshKey((k) => k + 1);
   }, []);
+  flushMoodRef.current = flushMood;
 
   // Flush mood on page navigation, tab hide, or page reload/close
   useEffect(() => {
