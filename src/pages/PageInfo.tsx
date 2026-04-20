@@ -74,7 +74,7 @@ export default function PageInfo() {
   }, [language]);
 
   const coreHasInfoSymbol = loadActivities().some(
-    a => a.description?.includes('ℹ️')
+    a => a.description?.includes('💡')
   );
 
   const title = cfgInfo.title || t.info.title;
