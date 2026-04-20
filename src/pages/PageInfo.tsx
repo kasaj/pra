@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
 import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote } from '../utils/config';
-import { loadActivities } from '../utils/activities';
 
 function whyNoteKey(lang: string): string {
   return `pra_info_notes_${lang}`;
@@ -54,13 +53,9 @@ function Paragraphs({ text }: { text: string }) {
 export default function PageInfo() {
   const { language, t } = useLanguage();
   const [, setConfigVersion] = useState(0);
-  const [activities, setActivities] = useState(() => loadActivities());
 
   useEffect(() => {
-    loadConfig().then(() => {
-      setActivities(loadActivities());
-      setConfigVersion(v => v + 1);
-    });
+    loadConfig().then(() => setConfigVersion(v => v + 1));
   }, [language]);
 
   const config = getCachedConfig();
@@ -76,10 +71,6 @@ export default function PageInfo() {
     setWhyNote(value);
     saveWhyNote(language, value);
   }, [language]);
-
-  const infoActivity = activities.find(
-    a => a.description?.includes('💡') || a.description?.includes('ℹ️')
-  );
 
   const title = cfgInfo.title || t.info.title;
   const subtitle = cfgInfo.subtitle || '';
@@ -123,23 +114,6 @@ export default function PageInfo() {
           <section>
             <div className="card">
               <Paragraphs text={body} />
-            </div>
-          </section>
-        )}
-
-        {infoActivity && (
-          <section>
-            <div className="card" style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-2xl">{infoActivity.emoji}</span>
-                <span className="text-sm text-themed-muted">{infoActivity.name}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-themed-input border border-themed text-base leading-relaxed whitespace-pre-line text-themed-primary">
-                {whyNote
-                  ? whyNote
-                  : <span className="text-themed-faint italic">{cfgInfo.noteWhy || t.info.notePlaceholder}</span>
-                }
-              </div>
             </div>
           </section>
         )}
