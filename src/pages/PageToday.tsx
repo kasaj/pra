@@ -28,7 +28,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [moodComment, setMoodComment] = useState('');
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [editMode, setEditMode] = useState(false);
-  const [infoPopupOpen, setInfoPopupOpen] = useState(false);
   const syncConfigured = !!(localStorage.getItem('pra_sync_url') && localStorage.getItem('pra_sync_secret'));
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'busy' | 'success' | 'error'>('idle');
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'busy' | 'success' | 'error'>('idle');
@@ -327,21 +326,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
-  // ℹ️ feature: core activity description contains ℹ️ → show popup with why note
-  const coreHasInfoButton = useMemo(() => {
-    const coreAct = allTranslated.find(a => a.core);
-    return !!coreAct?.description?.includes('ℹ️');
-  }, [allTranslated]);
-
-  const coreInfoNote = useMemo(() => {
-    try {
-      const s = localStorage.getItem(`pra_info_notes_${language}`);
-      if (s) { const p = JSON.parse(s); return typeof p === 'string' ? p : (p.why || ''); }
-    } catch {}
-    return '';
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language, refreshKey]);
-
   const handleSaveActivity = useCallback((activity: ActivityDefinition) => {
     const current = loadActivities();
     const index = current.findIndex((a) => a.type === activity.type);
@@ -624,15 +608,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               </div>
             )}
-            <div className="flex items-center justify-center mb-3 relative">
+            <div className="flex justify-center mb-3">
               <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
-              {coreHasInfoButton && (
-                <button
-                  onClick={() => setInfoPopupOpen(v => !v)}
-                  className="absolute right-0 text-base leading-none opacity-50 hover:opacity-100 transition-opacity"
-                  title={language === 'cs' ? 'Proč' : 'Why'}
-                >ℹ️</button>
-              )}
             </div>
             <textarea
               ref={moodTextareaRef}
@@ -744,23 +721,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
 
         </section>
-
-      {infoPopupOpen && (
-        <div
-          className="fixed inset-0 z-40 flex items-center justify-center p-6"
-          onClick={() => setInfoPopupOpen(false)}
-        >
-          <div
-            className="card max-w-sm w-full shadow-xl text-themed-secondary text-sm leading-relaxed whitespace-pre-line"
-            onClick={e => e.stopPropagation()}
-          >
-            {coreInfoNote
-              ? <p>{coreInfoNote}</p>
-              : <p className="text-themed-faint italic">{language === 'cs' ? 'Zatím bez poznámky — napiš ji na Info stránce.' : 'No note yet — write it on the Info page.'}</p>
-            }
-          </div>
-        </div>
-      )}
 
       {activeActivity && (
         <ActivityFlow

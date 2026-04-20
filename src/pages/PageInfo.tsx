@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
-import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote, ConfigActivity } from '../utils/config';
+import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote } from '../utils/config';
 
 function whyNoteKey(lang: string): string {
   return `pra_info_notes_${lang}`;
@@ -77,13 +77,6 @@ export default function PageInfo() {
   const why = cfgInfo.why || '';
   const body = cfgInfo.body || '';
 
-  // ℹ️ feature: show whyNote as inline bubble on Info page if core activity description has ℹ️
-  const coreHasInfoSymbol = (() => {
-    const coreAct = config?.activities?.find((a: ConfigActivity) => a.core);
-    if (!coreAct) return false;
-    const desc = language === 'cs' ? coreAct.cs?.description : coreAct.en?.description;
-    return desc?.includes('ℹ️') || false;
-  })();
 
   return (
     <div className="page-container">
@@ -121,11 +114,6 @@ export default function PageInfo() {
           <section>
             <div className="card">
               <Paragraphs text={body} />
-              {coreHasInfoSymbol && whyNote && (
-                <div className="mt-4 pt-4 border-t border-themed text-sm leading-relaxed whitespace-pre-line text-themed-secondary">
-                  {whyNote}
-                </div>
-              )}
             </div>
           </section>
         )}
