@@ -53,10 +53,27 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
   const handleDownload = useCallback(async () => {
     if (downloadStatus === 'busy') return;
+    // Flush any pending session state before download so it can be preserved
+    flushMoodRef.current();
+    // Capture current session's nalada records (they may be lost if server data overwrites local history)
+    const ss = localStorage.getItem('pra_session_start');
+    const localSessionNalada = ss
+      ? (getDayEntry(getTodayDate())?.activities.filter(
+          a => a.type === 'nalada' && new Date(a.completedAt || a.startedAt) >= new Date(ss)
+        ) || [])
+      : [];
     setDownloadStatus('busy');
     setDownloadErrorStatus(null);
     try {
       await downloadSync();
+      // Re-add any local session nalada records that weren't on the server
+      if (localSessionNalada.length > 0) {
+        const serverEntry = getDayEntry(getTodayDate());
+        const serverIds = new Set(serverEntry?.activities.map(a => a.id) || []);
+        localSessionNalada.forEach(record => {
+          if (!serverIds.has(record.id)) addActivity(record);
+        });
+      }
       setDownloadStatus('success');
       setTimeout(() => { window.scrollTo(0, 0); window.location.reload(); }, 800);
     } catch (e) {
@@ -68,8 +85,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   }, [downloadStatus]);
   const [registryVersion, setRegistryVersion] = useState(0);
   // Re-render once config finishes loading (it's async, app renders before it resolves)
+  // Also refresh activities: on first render mergeWithConfig runs before config is cached
+  // and may overwrite config-based activities (e.g. rozjimani) with hardcoded defaults
   useEffect(() => {
-    loadConfig().then(() => setRegistryVersion(v => v + 1));
+    loadConfig().then(() => {
+      setActivities(loadActivities());
+      setRegistryVersion(v => v + 1);
+    });
   }, [language]);
   const [customTime, setCustomTime] = useState<string | null>(null);
   const customTimeRef = useRef<string | null>(null);
