@@ -6,28 +6,11 @@ export interface ConfigQuote {
 export interface ConfigInfo {
   title?: string;
   subtitle?: string;
-  statement?: string;
-  intro?: string;
   body?: string;
   quotes?: ConfigQuote[];
   featuredQuote?: ConfigQuote;
   why?: string;
-  how?: string;
-  what?: string;
-  bioTitle?: string;
-  bioText?: string;
-  psychTitle?: string;
-  psychText?: string;
-  philoTitle?: string;
-  philoText?: string;
   noteWhy?: string;
-  noteHow?: string;
-  noteWhat?: string;
-  // Legacy fields for backwards compat
-  intro1?: string;
-  intro2?: string;
-  sequence?: string;
-  intro3?: string;
 }
 
 export interface ConfigActivity {
