@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
-import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote, ConfigActivity } from '../utils/config';
+import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote } from '../utils/config';
+import { loadActivities } from '../utils/activities';
 
 function whyNoteKey(lang: string): string {
   return `pra_info_notes_${lang}`;
@@ -72,9 +73,9 @@ export default function PageInfo() {
     saveWhyNote(language, value);
   }, [language]);
 
-  const coreHasInfoSymbol = config?.activities?.some(
-    (a: ConfigActivity) => a.core && (language === 'cs' ? a.cs?.description : a.en?.description)?.includes('ℹ️')
-  ) ?? false;
+  const coreHasInfoSymbol = loadActivities().some(
+    a => a.core && a.description?.includes('ℹ️')
+  );
 
   const title = cfgInfo.title || t.info.title;
   const subtitle = cfgInfo.subtitle || '';
