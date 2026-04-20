@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
-import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote } from '../utils/config';
+import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote, ConfigActivity } from '../utils/config';
 
 function whyNoteKey(lang: string): string {
   return `pra_info_notes_${lang}`;
@@ -72,6 +72,10 @@ export default function PageInfo() {
     saveWhyNote(language, value);
   }, [language]);
 
+  const coreHasInfoSymbol = config?.activities?.some(
+    (a: ConfigActivity) => a.core && (language === 'cs' ? a.cs?.description : a.en?.description)?.includes('ℹ️')
+  ) ?? false;
+
   const title = cfgInfo.title || t.info.title;
   const subtitle = cfgInfo.subtitle || '';
   const why = cfgInfo.why || '';
@@ -114,6 +118,11 @@ export default function PageInfo() {
           <section>
             <div className="card">
               <Paragraphs text={body} />
+              {coreHasInfoSymbol && whyNote && (
+                <div className="mt-4 pt-4 border-t border-themed text-sm leading-relaxed whitespace-pre-line text-themed-secondary">
+                  {whyNote}
+                </div>
+              )}
             </div>
           </section>
         )}
