@@ -119,13 +119,17 @@ export default function PageInfo() {
           <section>
             <div className="card">
               <Paragraphs text={body} />
-              {coreHasInfoSymbol && whyNote && (
-                <div className="mt-4 pt-4 border-t border-themed text-sm leading-relaxed whitespace-pre-line text-themed-secondary">
-                  {whyNote}
-                </div>
-              )}
             </div>
           </section>
+        )}
+
+        {coreHasInfoSymbol && (
+          <div className="card text-sm leading-relaxed whitespace-pre-line text-themed-secondary">
+            {whyNote
+              ? whyNote
+              : <span className="text-themed-faint italic">{cfgInfo.noteWhy || t.info.notePlaceholder}</span>
+            }
+          </div>
         )}
 
         {cfgInfo.featuredQuote && (
