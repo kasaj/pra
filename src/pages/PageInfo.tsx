@@ -54,9 +54,13 @@ function Paragraphs({ text }: { text: string }) {
 export default function PageInfo() {
   const { language, t } = useLanguage();
   const [, setConfigVersion] = useState(0);
+  const [activities, setActivities] = useState(() => loadActivities());
 
   useEffect(() => {
-    loadConfig().then(() => setConfigVersion(v => v + 1));
+    loadConfig().then(() => {
+      setActivities(loadActivities());
+      setConfigVersion(v => v + 1);
+    });
   }, [language]);
 
   const config = getCachedConfig();
@@ -73,8 +77,8 @@ export default function PageInfo() {
     saveWhyNote(language, value);
   }, [language]);
 
-  const coreHasInfoSymbol = loadActivities().some(
-    a => a.description?.includes('💡')
+  const infoActivity = activities.find(
+    a => a.description?.includes('💡') || a.description?.includes('ℹ️')
   );
 
   const title = cfgInfo.title || t.info.title;
@@ -123,13 +127,21 @@ export default function PageInfo() {
           </section>
         )}
 
-        {coreHasInfoSymbol && (
-          <div className="card text-sm leading-relaxed whitespace-pre-line text-themed-secondary">
-            {whyNote
-              ? whyNote
-              : <span className="text-themed-faint italic">{cfgInfo.noteWhy || t.info.notePlaceholder}</span>
-            }
-          </div>
+        {infoActivity && (
+          <section>
+            <div className="card" style={{ borderColor: 'var(--bg-base)', backgroundColor: 'var(--bg-base)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">{infoActivity.emoji}</span>
+                <span className="text-sm text-themed-muted">{infoActivity.name}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-themed-input border border-themed text-base leading-relaxed whitespace-pre-line text-themed-primary">
+                {whyNote
+                  ? whyNote
+                  : <span className="text-themed-faint italic">{cfgInfo.noteWhy || t.info.notePlaceholder}</span>
+                }
+              </div>
+            </div>
+          </section>
         )}
 
         {cfgInfo.featuredQuote && (
