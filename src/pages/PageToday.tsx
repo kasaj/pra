@@ -202,15 +202,18 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     setRefreshKey((k) => k + 1);
   }, []);
 
-  // Flush mood on page navigation or tab hide
+  // Flush mood on page navigation, tab hide, or page reload/close
   useEffect(() => {
     const handleBeforeNav = () => flushMood();
     window.addEventListener('pra-flush-mood', handleBeforeNav);
     const handleVisibility = () => { if (document.hidden) flushMood(); };
     document.addEventListener('visibilitychange', handleVisibility);
+    const handleBeforeUnload = () => flushMood();
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('pra-flush-mood', handleBeforeNav);
       document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       flushMood();
     };
   }, [flushMood]);
