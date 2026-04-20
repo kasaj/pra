@@ -98,7 +98,6 @@ export default function PageInfo() {
 
         {why && (
           <section>
-            <h2 className="font-serif text-xl text-themed-primary mb-3">{language === 'cs' ? 'Proč' : 'Why'}</h2>
             <div className="card">
               <Paragraphs text={why} />
               <NoteField
@@ -112,7 +111,6 @@ export default function PageInfo() {
 
         {body && (
           <section>
-            <h2 className="font-serif text-xl text-themed-primary mb-3">{language === 'cs' ? 'Já' : 'I'}</h2>
             <div className="card">
               <Paragraphs text={body} />
             </div>
