@@ -1,47 +1,54 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
 import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote } from '../utils/config';
+import { InfoActivity, loadInfoActivity, saveInfoActivity } from '../utils/infoActivity';
 
-function whyNoteKey(lang: string): string {
-  return `pra_info_notes_${lang}`;
-}
-
-function loadWhyNote(lang: string): string {
-  try {
-    const stored = localStorage.getItem(whyNoteKey(lang));
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // backwards compat: previously stored as { why, how, what }
-      return typeof parsed === 'string' ? parsed : (parsed.why || '');
-    }
-  } catch { /* default */ }
-  return '';
-}
-
-function saveWhyNote(lang: string, value: string): void {
-  localStorage.setItem(whyNoteKey(lang), JSON.stringify({ why: value }));
-}
-
-function NoteField({ value, onChange, placeholder }: {
-  value: string; onChange: (v: string) => void; placeholder: string;
+function InfoActivityEditor({ value, onChange, notePlaceholder, namePlaceholder }: {
+  value: InfoActivity;
+  onChange: (v: InfoActivity) => void;
+  notePlaceholder: string;
+  namePlaceholder: string;
 }) {
-  const ref = useRef<HTMLTextAreaElement>(null);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
   const autoResize = () => {
-    const el = ref.current;
+    const el = commentRef.current;
     if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
   };
-  useEffect(autoResize, [value]);
+  useEffect(autoResize, [value.comment]);
+
   return (
-    <textarea
-      ref={ref}
-      value={value}
-      onChange={(e) => { onChange(e.target.value); autoResize(); }}
-      placeholder={placeholder}
-      rows={2}
-      className="w-full p-3 mt-3 rounded-xl bg-themed-input border border-themed
-               focus:outline-none focus:border-themed-accent resize-none
-               text-themed-primary placeholder:text-themed-faint text-base overflow-hidden leading-relaxed"
-    />
+    <div className="mt-3 space-y-2">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={value.emoji}
+          onChange={(e) => onChange({ ...value, emoji: e.target.value })}
+          placeholder="💡"
+          className="w-14 p-2 rounded-xl bg-themed-input border border-themed
+                     focus:outline-none focus:border-themed-accent
+                     text-themed-primary text-center text-xl"
+        />
+        <input
+          type="text"
+          value={value.name}
+          onChange={(e) => onChange({ ...value, name: e.target.value })}
+          placeholder={namePlaceholder}
+          className="flex-1 p-2 rounded-xl bg-themed-input border border-themed
+                     focus:outline-none focus:border-themed-accent
+                     text-themed-primary placeholder:text-themed-faint"
+        />
+      </div>
+      <textarea
+        ref={commentRef}
+        value={value.comment}
+        onChange={(e) => { onChange({ ...value, comment: e.target.value }); autoResize(); }}
+        placeholder={notePlaceholder}
+        rows={2}
+        className="w-full p-3 rounded-xl bg-themed-input border border-themed
+                   focus:outline-none focus:border-themed-accent resize-none
+                   text-themed-primary placeholder:text-themed-faint text-base overflow-hidden leading-relaxed"
+      />
+    </div>
   );
 }
 
@@ -61,22 +68,23 @@ export default function PageInfo() {
   const config = getCachedConfig();
   const cfgInfo: ConfigInfo = config?.info?.[language] || {};
 
-  const [whyNote, setWhyNote] = useState<string>(() => loadWhyNote(language));
+  const [infoActivity, setInfoActivity] = useState<InfoActivity>(() => loadInfoActivity(language));
 
   useEffect(() => {
-    setWhyNote(loadWhyNote(language));
+    setInfoActivity(loadInfoActivity(language));
   }, [language]);
 
-  const updateWhyNote = useCallback((value: string) => {
-    setWhyNote(value);
-    saveWhyNote(language, value);
-  }, [language]);
+  const updateInfoActivity = useCallback((value: InfoActivity) => {
+    setInfoActivity(value);
+    saveInfoActivity(value);
+  }, []);
 
   const title = cfgInfo.title || t.info.title;
   const subtitle = cfgInfo.subtitle || '';
   const why = cfgInfo.why || '';
   const body = cfgInfo.body || '';
 
+  const namePlaceholder = language === 'cs' ? 'Název...' : 'Name...';
 
   return (
     <div className="page-container">
@@ -97,18 +105,17 @@ export default function PageInfo() {
           </section>
         )}
 
-        {why && (
-          <section>
-            <div className="card">
-              <Paragraphs text={why} />
-              <NoteField
-                value={whyNote}
-                onChange={updateWhyNote}
-                placeholder={cfgInfo.noteWhy || t.info.notePlaceholder}
-              />
-            </div>
-          </section>
-        )}
+        <section>
+          <div className="card">
+            {why && <Paragraphs text={why} />}
+            <InfoActivityEditor
+              value={infoActivity}
+              onChange={updateInfoActivity}
+              notePlaceholder={cfgInfo.noteWhy || t.info.notePlaceholder}
+              namePlaceholder={namePlaceholder}
+            />
+          </div>
+        </section>
 
         {body && (
           <section>

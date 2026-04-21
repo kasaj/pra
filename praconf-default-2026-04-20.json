@@ -1,0 +1,153 @@
+{
+  "type": "config",
+  "version": 1,
+  "exportedAt": "2026-04-20T13:17:55.215Z",
+  "name": "Default",
+  "language": "cs",
+  "theme": "modern",
+  "activities": [
+    {
+      "type": "rozjimani",
+      "emoji": "📄",
+      "durationMinutes": null,
+      "name": "Log",
+      "description": "Vědomé aktivity...",
+      "properties": [
+        "💻 Práce",
+        "🍲 Jídlo",
+        "🏡 Práce",
+        "☕️",
+        "🍵",
+        "📝 Poznámka",
+        "😨 Strach",
+        "🥱 Únava",
+        "🌘 Stín",
+        "☀️ Slunce",
+        "💩 WC",
+        "👫 Rodina",
+        "🍩 Sladkost",
+        "💭 Myšlenka",
+        "💤 Sen",
+        "🐓",
+        "🏃‍♂️ Pohyb",
+        "🛌 Uvolnění",
+        "🌅  Probuzení 🙏",
+        "📜 Poznání",
+        "🤸 Protažení",
+        "🤗 Vztahy",
+        "🧎‍♂️ Usebrání",
+        "💡 Nápad",
+        "🎯 Záměr",
+        "🍺",
+        "🚴"
+      ],
+      "durationOptions": [
+        1
+      ],
+      "defaultDuration": 15
+    },
+    {
+      "type": "sobe",
+      "emoji": "🧍‍♂️",
+      "durationMinutes": 4,
+      "name": "Usebrání",
+      "description": "Vědomá pauza...",
+      "properties": [
+        "Sken těla",
+        "Pozorování",
+        "Klid gesta 👌",
+        "Energie života",
+        "☀️ Slunce",
+        "👃 Klid dechu",
+        "Kontakt se zemí"
+      ],
+      "durationOptions": [
+        4
+      ],
+      "defaultDuration": 4
+    },
+    {
+      "type": "nalada",
+      "emoji": "🌌",
+      "durationMinutes": null,
+      "name": "Prostor",
+      "description": "Zaznamenej svůj aktuální stav",
+      "properties": [
+        "🧬 Stav? (tělo, hmota)",
+        "🧲 Situace? (vztah, inklinace)",
+        "🌀 Splynutí (integrace, záměr)"
+      ],
+      "core": true,
+      "durationOptions": [
+        10
+      ],
+      "defaultDuration": 1
+    }
+  ],
+  "info": {
+    "cs": {
+      "title": "Info",
+      "subtitle": "",
+      "quotes": [
+        {
+          "text": "Nejsem tím, co se mi přihodilo, ale tím, čím jsem se rozhodl stát.",
+          "author": "Carl Gustav Jung"
+        },
+        {
+          "text": "Žádný problém nelze vyřešit na stejné úrovni vědomí, na kterém vznikl.",
+          "author": "Albert Einstein"
+        },
+        {
+          "text": "Kde vědomí (pozornost) bloudí, tam energie proudí.",
+          "author": "Gurudéva"
+        }
+      ],
+      "why": "Např. radost z pomoci druhým a šířením světla - dobra, pravdy, sebe.",
+      "noteWhy": "Např. radost z pomoci druhým a šířením světla - dobra, pravdy, sebe.",
+      "body": "Teprve na tomto základě nastupuje otázka jak — a ta nesouvisí s technikou, nýbrž se způsobem života. Disciplína je formou lásky k tomu, čím se chceme stát. Nelze přitom přehlížet řád skutečnosti, neboť právě s ním každé jak pracuje. Jak není neosobní záležitostí: je projevem toho, kým jsme. Každý čin — dobrý i zlý — nás formuje, a neměl by přetrhat naše kořeny (proč). Protože jak nás provází celým životem, existují metody a rozmanitost kroků v realitě — co. Zjednodušeně řečeno: prožíváme buď stav (tělo, fakt, hmotu), nebo situaci (vztah, inklinaci, čas) — a uvědomíme-li si to, vždy je lze zasadit do kontextu skutečnosti: integrovat prostřednictvím záměru - malé kroku srdcem (střed mezi emocemi a myslí), který je v souladu s tím, kdo jsme a proč jsme zde — splynutí.\n\nSložka já bývá natolik přirozenou součástí naší existence, že ji snadno přehlédneme. Já lze chápat jako odraz světa v nás samých — nikoli jako obsah obrazu světa samotného. Kolikrát jsme jednali, aniž tato složka byla s námi plně přítomna? Dostaneme-li se při nějaké činnosti do stavu flow — tedy do ryzího prožívání dovednosti s jasným cílem a bezprostřední zpětnou vazbou — o přehlížení já hovořit nelze: jsme zároveň odrazem i obsahem. Ohrožuje-li nás něco, složka já nám pomáhá a chrání hranice naší integrity. Jak však víme, obranné mechanismy mysli mohou vést k nezdravé separaci od energie přirozeného proudu života.",
+      "featuredQuote": {
+        "text": "Poznej sám sebe a poznáš svět (ty jsi ten svět).",
+        "author": "Věštírna v Delfách"
+      },
+      "how": "Např. snaha být bdělý a silný přijímat skutečnost za zodpovědnost.",
+      "what": "Např. vědomá tvorba a zdravý životní styl - spánek, vztahy, přirozenost."
+    }
+  },
+  "moodScale": [
+    {
+      "value": 1,
+      "emoji": "😡",
+      "labelCs": "Vztek"
+    },
+    {
+      "value": 2,
+      "emoji": "😰",
+      "labelCs": "Úzkost"
+    },
+    {
+      "value": 3,
+      "emoji": "🙁",
+      "labelCs": "Sklíčenost"
+    },
+    {
+      "value": 4,
+      "emoji": "😐",
+      "labelCs": "Neutrál"
+    },
+    {
+      "value": 5,
+      "emoji": "🙂",
+      "labelCs": "Pohoda"
+    },
+    {
+      "value": 6,
+      "emoji": "😊",
+      "labelCs": "Radost"
+    },
+    {
+      "value": 7,
+      "emoji": "😄",
+      "labelCs": "Nadšení"
+    }
+  ]
+}

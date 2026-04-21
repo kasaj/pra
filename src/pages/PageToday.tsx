@@ -12,6 +12,7 @@ import {
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
 import { loadConfig } from '../utils/config';
+import { loadInfoActivity, InfoActivity } from '../utils/infoActivity';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -34,6 +35,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [downloadErrorStatus, setDownloadErrorStatus] = useState<number | null>(null);
 
   const flushMoodRef = useRef<() => void>(() => {});
+  const [infoAct, setInfoAct] = useState<InfoActivity>(() => loadInfoActivity());
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
 
   const handleUpload = useCallback(async () => {
     if (uploadStatus === 'busy') return;
@@ -93,6 +96,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       setRegistryVersion(v => v + 1);
     });
   }, [language]);
+
+  // Reload info activity when page becomes visible (user may have edited it on Info page)
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') setInfoAct(loadInfoActivity()); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
   const [customTime, setCustomTime] = useState<string | null>(null);
   const customTimeRef = useRef<string | null>(null);
   const setCustomTimeSync = (t: string | null) => { customTimeRef.current = t; setCustomTime(t); };
@@ -454,6 +464,33 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             <div className="flex-1" />
           </div>
 
+
+          {/* Info activity pill */}
+          {(infoAct.emoji || infoAct.name) && (
+            <div className="mb-2">
+              {showInfoPopup && infoAct.comment && (
+                <div className="card mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line">
+                  {infoAct.comment}
+                </div>
+              )}
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    const willOpen = !showInfoPopup;
+                    setShowInfoPopup(willOpen);
+                    if (willOpen && infoAct.name) {
+                      const current = moodCommentRef.current.trimEnd();
+                      setMoodCommentSync(current ? current + '\n' + infoAct.name : infoAct.name);
+                      setTimeout(resizeTextarea, 0);
+                    }
+                  }}
+                  className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted hover:border-themed-medium transition-colors"
+                >
+                  {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
