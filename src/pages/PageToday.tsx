@@ -191,12 +191,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     const c = moodCommentRef.current;
     const props = [...selectedPropertiesRef.current];
     const celebrate = showInfoPopupRef.current;
+    if (celebrate) {
+      setShowInfoPopup(false);
+      showInfoPopupRef.current = false;
+    }
     if (!r && !c.trim() && props.length === 0) {
-      if (celebrate) {
-        setShowInfoPopup(false);
-        showInfoPopupRef.current = false;
-        window.dispatchEvent(new Event('pra-celebrate'));
-      }
+      if (celebrate) setTimeout(() => window.dispatchEvent(new Event('pra-celebrate')), 50);
       return;
     }
     const now = customTimeRef.current || new Date().toISOString();
@@ -245,9 +245,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     }
 
     if (celebrate) {
-      setShowInfoPopup(false);
-      showInfoPopupRef.current = false;
-      window.dispatchEvent(new Event('pra-celebrate'));
+      setTimeout(() => window.dispatchEvent(new Event('pra-celebrate')), 50);
     }
 
     setRefreshKey((k) => k + 1);
