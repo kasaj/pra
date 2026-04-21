@@ -57,7 +57,7 @@ function AppContent() {
       {showCelebration && (
         <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <img
-            src="/jupi.png"
+            src={`${import.meta.env.BASE_URL}jupi.png`}
             alt=""
             className="celebrate-jupi w-48 h-auto drop-shadow-xl"
           />
