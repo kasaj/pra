@@ -38,7 +38,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [infoAct, setInfoAct] = useState<InfoActivity>(() => loadInfoActivity());
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const showInfoPopupRef = useRef(false);
-  const [showCelebration, setShowCelebration] = useState(false);
 
   const handleUpload = useCallback(async () => {
     if (uploadStatus === 'busy') return;
@@ -240,8 +239,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     if (showInfoPopupRef.current) {
       setShowInfoPopup(false);
       showInfoPopupRef.current = false;
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 1800);
+      window.dispatchEvent(new Event('pra-celebrate'));
     }
 
     setRefreshKey((k) => k + 1);
@@ -817,33 +815,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
         />
       )}
 
-      {showCelebration && (
-        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          {[
-            { dx: '0px',    dy: '-140px', delay: '0ms',   size: '3rem' },
-            { dx: '-110px', dy: '-90px',  delay: '60ms',  size: '2rem' },
-            { dx: '110px',  dy: '-90px',  delay: '80ms',  size: '2.2rem' },
-            { dx: '-60px',  dy: '-160px', delay: '30ms',  size: '2.5rem' },
-            { dx: '60px',   dy: '-160px', delay: '100ms', size: '1.8rem' },
-            { dx: '-140px', dy: '-40px',  delay: '50ms',  size: '1.6rem' },
-            { dx: '140px',  dy: '-40px',  delay: '70ms',  size: '1.6rem' },
-            { dx: '0px',    dy: '-200px', delay: '20ms',  size: '1.4rem' },
-          ].map((p, i) => (
-            <span
-              key={i}
-              className="celebrate-particle absolute"
-              style={{
-                '--dx': p.dx,
-                '--dy': p.dy,
-                animationDelay: p.delay,
-                fontSize: p.size,
-              } as React.CSSProperties}
-            >
-              🎉
-            </span>
-          ))}
-        </div>
-      )}
 
     </div>
   );

@@ -17,6 +17,16 @@ function AppContent() {
     setCurrentPageRaw(page);
   };
   const [, setRefresh] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  useEffect(() => {
+    const handler = () => {
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 2000);
+    };
+    window.addEventListener('pra-celebrate', handler);
+    return () => window.removeEventListener('pra-celebrate', handler);
+  }, []);
 
   // Check for config updates when tab becomes visible
   useEffect(() => {
@@ -43,6 +53,16 @@ function AppContent() {
       </main>
 
       <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
+
+      {showCelebration && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          <img
+            src="/jupi.png"
+            alt=""
+            className="celebrate-jupi w-48 h-auto drop-shadow-xl"
+          />
+        </div>
+      )}
     </div>
   );
 }
