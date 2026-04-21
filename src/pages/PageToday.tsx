@@ -37,6 +37,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const flushMoodRef = useRef<() => void>(() => {});
   const [infoAct, setInfoAct] = useState<InfoActivity>(() => loadInfoActivity());
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const showInfoPopupRef = useRef(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const handleUpload = useCallback(async () => {
     if (uploadStatus === 'busy') return;
@@ -234,6 +236,14 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     if (moodTextareaRef.current) {
       moodTextareaRef.current.style.height = 'auto';
     }
+
+    if (showInfoPopupRef.current) {
+      setShowInfoPopup(false);
+      showInfoPopupRef.current = false;
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 1800);
+    }
+
     setRefreshKey((k) => k + 1);
   }, []);
   flushMoodRef.current = flushMood;
@@ -465,33 +475,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
 
 
-          {/* Info activity pill */}
-          {(infoAct.emoji || infoAct.name) && (
-            <div className="mb-2">
-              {showInfoPopup && infoAct.comment && (
-                <div className="card mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line">
-                  {infoAct.comment}
-                </div>
-              )}
-              <div className="flex justify-center">
-                <button
-                  onClick={() => {
-                    const willOpen = !showInfoPopup;
-                    setShowInfoPopup(willOpen);
-                    if (willOpen && infoAct.name) {
-                      const current = moodCommentRef.current.trimEnd();
-                      setMoodCommentSync(current ? current + '\n' + infoAct.name : infoAct.name);
-                      setTimeout(resizeTextarea, 0);
-                    }
-                  }}
-                  className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted hover:border-themed-medium transition-colors"
-                >
-                  {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
           <div className="flex-1">
@@ -546,6 +529,33 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             </div>
             {/* Separator */}
             <hr className="border-t border-themed mx-4 mb-2" />
+            {/* Info activity pill */}
+            {(infoAct.emoji || infoAct.name) && (
+              <div className="mb-2">
+                {showInfoPopup && infoAct.comment && (
+                  <div className="mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
+                    {infoAct.comment}
+                  </div>
+                )}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      const willOpen = !showInfoPopup;
+                      setShowInfoPopup(willOpen);
+                      showInfoPopupRef.current = willOpen;
+                      if (willOpen && infoAct.name) {
+                        const current = moodCommentRef.current.trimEnd();
+                        setMoodCommentSync(current ? current + '\n' + infoAct.name : infoAct.name);
+                        setTimeout(resizeTextarea, 0);
+                      }
+                    }}
+                    className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted hover:border-themed-medium transition-colors"
+                  >
+                    {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
+                  </button>
+                </div>
+              </div>
+            )}
             {/* Properties from nalada (stored + config fallback) */}
             {(
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
@@ -805,6 +815,34 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           onSave={handleSaveActivity}
           onClose={() => setShowNewActivity(false)}
         />
+      )}
+
+      {showCelebration && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+          {[
+            { dx: '0px',    dy: '-140px', delay: '0ms',   size: '3rem' },
+            { dx: '-110px', dy: '-90px',  delay: '60ms',  size: '2rem' },
+            { dx: '110px',  dy: '-90px',  delay: '80ms',  size: '2.2rem' },
+            { dx: '-60px',  dy: '-160px', delay: '30ms',  size: '2.5rem' },
+            { dx: '60px',   dy: '-160px', delay: '100ms', size: '1.8rem' },
+            { dx: '-140px', dy: '-40px',  delay: '50ms',  size: '1.6rem' },
+            { dx: '140px',  dy: '-40px',  delay: '70ms',  size: '1.6rem' },
+            { dx: '0px',    dy: '-200px', delay: '20ms',  size: '1.4rem' },
+          ].map((p, i) => (
+            <span
+              key={i}
+              className="celebrate-particle absolute"
+              style={{
+                '--dx': p.dx,
+                '--dy': p.dy,
+                animationDelay: p.delay,
+                fontSize: p.size,
+              } as React.CSSProperties}
+            >
+              🎉
+            </span>
+          ))}
+        </div>
       )}
 
     </div>
