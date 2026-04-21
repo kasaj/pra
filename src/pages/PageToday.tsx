@@ -190,7 +190,15 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     const r = moodRatingRef.current;
     const c = moodCommentRef.current;
     const props = [...selectedPropertiesRef.current];
-    if (!r && !c.trim() && props.length === 0) return;
+    const celebrate = showInfoPopupRef.current;
+    if (!r && !c.trim() && props.length === 0) {
+      if (celebrate) {
+        setShowInfoPopup(false);
+        showInfoPopupRef.current = false;
+        window.dispatchEvent(new Event('pra-celebrate'));
+      }
+      return;
+    }
     const now = customTimeRef.current || new Date().toISOString();
     const id = generateId();
 
@@ -236,7 +244,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       moodTextareaRef.current.style.height = 'auto';
     }
 
-    if (showInfoPopupRef.current) {
+    if (celebrate) {
       setShowInfoPopup(false);
       showInfoPopupRef.current = false;
       window.dispatchEvent(new Event('pra-celebrate'));
