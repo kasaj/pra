@@ -6,7 +6,7 @@
   "activities": [
     {
       "type": "rozjimani",
-      "emoji": "📄",
+      "emoji": "📋",
       "durationMinutes": null,
       "name": "Log",
       "description": "Vědomé aktivity...",
@@ -68,8 +68,8 @@
       "name": "Prostor",
       "description": "Zaznamenej svůj aktuální stav",
       "properties": [
-        "🎯 Co řeším?",
-        "🧭 Jak to řeším?"
+        "🔍 Co řeším?",
+        "🗺️ Jak teď?"
       ],
       "durationOptions": [10],
       "defaultDuration": 1
