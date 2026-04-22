@@ -379,6 +379,26 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
+  // Instant activity types used in current session — detected by scanning nalada comment lines
+  const usedInstantTypesInSession = useMemo(() => {
+    const todayEntry = getDayEntry(getTodayDate());
+    const used = new Set<string>();
+    if (!todayEntry) return used;
+    const instants = activities.filter(a => !a.core && a.durationMinutes == null);
+    todayEntry.activities.forEach((a) => {
+      if (new Date(a.completedAt || a.startedAt) < new Date(sessionStart)) return;
+      a.comments?.forEach((c) => {
+        if (!c.text) return;
+        instants.forEach((inst) => {
+          const prefix = [inst.emoji, inst.name].filter(Boolean).join(' ');
+          if (prefix && c.text!.includes(prefix)) used.add(inst.type);
+        });
+      });
+    });
+    return used;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey, sessionStart, activities]);
+
   const infoActUsedInSession = useMemo(() => {
     if (!infoAct.name) return false;
     const todayEntry = getDayEntry(getTodayDate());
@@ -534,8 +554,11 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {/* Activity bubbles from config */}
             <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
               {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => {
-                const isInstant = activity.durationMinutes === null;
+                const isInstant = activity.durationMinutes == null;
                 const isExpanded = expandedActivityType === activity.type;
+                const isUsedInSession = isInstant
+                  ? (usedInstantTypesInSession.has(activity.type) || (selectedActivityProps.get(activity.type)?.size ?? 0) > 0)
+                  : completedTodayCounts.has(activity.type);
                 return (
                   <span key={activity.type} className={`relative inline-flex${editMode ? ' mx-2' : ''}`}>
                     <button
@@ -556,13 +579,22 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         }, 600);
                       }}
                       onPointerUp={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
-                      onPointerLeave={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
+                      onPointerCancel={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        if (editMode) return;
+                        if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; }
+                        longPressTriggeredRef.current = true;
+                        const original = activities.find(a => a.type === activity.type);
+                        setEditingActivity(original || activity);
+                        setExpandedActivityType(null);
+                      }}
                       className={`px-3 py-1.5 text-sm rounded-full border transition-colors select-none ${
                         editMode
                           ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
                           : isExpanded
                             ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
-                            : completedTodayCounts.has(activity.type)
+                            : isUsedInSession
                               ? 'bg-transparent border-themed-accent text-themed-accent'
                               : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                       }`}
