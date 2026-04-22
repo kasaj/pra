@@ -64,27 +64,12 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
 
   const handleDownload = useCallback(async () => {
     if (downloadStatus === 'busy') return;
-    // Flush any pending session state before download so it can be preserved
+    // Flush any pending session state before download so it is included in the merge
     flushMoodRef.current();
-    // Capture current session's nalada records (they may be lost if server data overwrites local history)
-    const ss = localStorage.getItem('pra_session_start');
-    const localSessionNalada = ss
-      ? (getDayEntry(getTodayDate())?.activities.filter(
-          a => a.type === 'nalada' && new Date(a.completedAt || a.startedAt) >= new Date(ss)
-        ) || [])
-      : [];
     setDownloadStatus('busy');
     setDownloadErrorStatus(null);
     try {
-      await downloadSync();
-      // Re-add any local session nalada records that weren't on the server
-      if (localSessionNalada.length > 0) {
-        const serverEntry = getDayEntry(getTodayDate());
-        const serverIds = new Set(serverEntry?.activities.map(a => a.id) || []);
-        localSessionNalada.forEach(record => {
-          if (!serverIds.has(record.id)) addActivity(record);
-        });
-      }
+      await downloadSync(); // merge-based: local records are never lost
       setDownloadStatus('success');
       setTimeout(() => { window.scrollTo(0, 0); window.location.reload(); }, 800);
     } catch (e) {

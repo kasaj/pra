@@ -347,33 +347,35 @@ function importPraFile(file: PraFile, currentLang: string): void {
     if (file.durationBubbles) localStorage.setItem('pra_duration_bubbles', JSON.stringify(file.durationBubbles));
   }
   // Deletion tombstones (backup only) — propagate deletes from other client
+  // Only apply tombstones for records/types that are NOT already present in the local data
+  // being added by this import (i.e. don't let an old backup's deletions erase current data).
   if (file.type === 'backup') {
-    // Deleted activity records
+    // Deleted activity records — only remove records that exist locally but NOT in the import
     if (file.deletedRecordIds && file.deletedRecordIds.length > 0) {
       let local: string[] = [];
       try { const s = localStorage.getItem('pra_deleted_record_ids'); if (s) local = JSON.parse(s); } catch { /* */ }
       localStorage.setItem('pra_deleted_record_ids', JSON.stringify([...new Set([...local, ...file.deletedRecordIds])]));
-      const idSet = new Set(file.deletedRecordIds);
-      const data = loadAllData();
-      const cleaned = data
-        .map(d => ({ ...d, activities: d.activities.filter(a => !idSet.has(a.id)) }))
-        .filter(d => d.activities.length > 0);
-      saveAllData(cleaned);
+      // Only delete records whose IDs are not in the imported history
+      const importedIds = new Set<string>(
+        (file.history || []).flatMap(d => d.activities.map(a => a.id)).filter(Boolean)
+      );
+      const idSet = new Set(file.deletedRecordIds.filter(id => !importedIds.has(id)));
+      if (idSet.size > 0) {
+        const data = loadAllData();
+        const cleaned = data
+          .map(d => ({ ...d, activities: d.activities.filter(a => !idSet.has(a.id)) }))
+          .filter(d => d.activities.length > 0);
+        saveAllData(cleaned);
+      }
     }
-    // Deleted activity types
+    // Deleted activity types — only merge the set, never delete records from current data
+    // (old backups may have userDeleted containing types still actively used here)
     if (file.userDeleted && file.userDeleted.length > 0) {
       let local: string[] = [];
       try { const s = localStorage.getItem('pra_user_deleted_activities'); if (s) local = JSON.parse(s); } catch { /* */ }
       localStorage.setItem('pra_user_deleted_activities', JSON.stringify([...new Set([...local, ...file.userDeleted])]));
-      const typeSet = new Set(file.userDeleted);
-      const acts = loadActivities();
-      const filtered = acts.filter(a => !typeSet.has(a.type));
-      if (filtered.length !== acts.length) saveActivities(filtered);
-      const data = loadAllData();
-      const cleaned = data
-        .map(d => ({ ...d, activities: d.activities.filter(a => !typeSet.has(a.type)) }))
-        .filter(d => d.activities.length > 0);
-      saveAllData(cleaned);
+      // Do NOT delete records or activity definitions based on imported userDeleted —
+      // the user might be actively using those types here.
     }
   }
 }

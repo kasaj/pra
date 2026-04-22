@@ -25,15 +25,18 @@ export function mergeHistory(
       if (!byDate.has(day.date)) byDate.set(day.date, new Map());
       const dayMap = byDate.get(day.date)!;
       for (const activity of day.activities) {
-        if (deletedIds.has(activity.id)) continue;
-        const existing = dayMap.get(activity.id);
+        // Surrogate key for activities without id (old backup format)
+        const key: string = activity.id ||
+          `${activity.startedAt || activity.completedAt || day.date}-${activity.type}-noId`;
+        if (deletedIds.has(key) || (activity.id && deletedIds.has(activity.id))) continue;
+        const existing = dayMap.get(key);
         if (!existing) {
-          dayMap.set(activity.id, activity);
+          dayMap.set(key, activity);
         } else {
           // Keep the more recently completed/started version
           const tsExisting = new Date(existing.completedAt || existing.startedAt).getTime();
           const tsNew = new Date(activity.completedAt || activity.startedAt).getTime();
-          if (tsNew > tsExisting) dayMap.set(activity.id, activity);
+          if (tsNew > tsExisting) dayMap.set(key, activity);
         }
       }
     }
