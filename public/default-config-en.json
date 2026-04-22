@@ -68,7 +68,7 @@
       "name": "Space",
       "description": "Record your current state",
       "properties": [
-        "🔍 What do I focus on?",
+        "🔍 What is the status?",
         "🗺️ How to proceed?"
       ],
       "durationOptions": [10],

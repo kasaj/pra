@@ -68,7 +68,7 @@
       "name": "Prostor",
       "description": "Zaznamenej svůj aktuální stav",
       "properties": [
-        "🔍 Co řeším?",
+        "🔍 Co stav?",
         "🗺️ Jak teď?"
       ],
       "durationOptions": [10],
