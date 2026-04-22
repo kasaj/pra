@@ -566,7 +566,19 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                               : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
                       }`}
                     >{activity.emoji} {activity.name}</button>
-                    {editMode && (
+                    {editMode && (<>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const original = activities.find(a => a.type === activity.type);
+                          setEditingActivity(original || activity);
+                        }}
+                        className="absolute -top-1.5 -left-1.5 w-4 h-4 rounded-full bg-themed-muted text-white flex items-center justify-center"
+                      >
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15H9v-2.828z" />
+                        </svg>
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -575,7 +587,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         }}
                         className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
                       >✕</button>
-                    )}
+                    </>)}
                   </span>
                 );
               })}
