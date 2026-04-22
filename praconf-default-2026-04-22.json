@@ -1,7 +1,7 @@
 {
   "type": "config",
   "version": 1,
-  "exportedAt": "2026-04-22T08:53:01.966Z",
+  "exportedAt": "2026-04-22T09:05:11.124Z",
   "name": "Default",
   "language": "cs",
   "theme": "modern",
@@ -148,5 +148,10 @@
       "emoji": "😄",
       "labelCs": "Nadšení"
     }
-  ]
+  ],
+  "infoActivity": {
+    "emoji": "🌱",
+    "name": "Splynutí proč a přítomný krok středem",
+    "comment": "Rád vnímám krásy světa a pomáhám tím, jaký jsem. Smyslem a silou je metafyzické propojení. Jaký jsem říká tělo a čím jsem další krok."
+  }
 }
