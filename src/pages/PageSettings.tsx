@@ -7,6 +7,7 @@ import { DayEntry, ActivityDefinition } from '../types';
 import { loadMoodScale, saveMoodScale, getDefaultMoodScale, MoodScaleItem } from '../utils/moodScale';
 import { Theme, loadTheme, saveTheme } from '../utils/theme';
 import { getCachedConfig } from '../utils/config';
+import { loadInfoActivity, saveInfoActivity } from '../utils/infoActivity';
 import { uploadSync, downloadSync } from '../utils/sync';
 
 interface ExportActivity {
@@ -42,6 +43,7 @@ interface PraFile {
   durationBubbles?: number[];
   deletedRecordIds?: string[];
   userDeleted?: string[];
+  infoActivity?: { emoji: string; name: string; comment: string };
 }
 
 function generateBackup(lang: string, currentTheme: string, profileName: string): PraFile {
@@ -144,6 +146,7 @@ function generateBackup(lang: string, currentTheme: string, profileName: string)
     durationBubbles: (() => { try { const s = localStorage.getItem('pra_duration_bubbles'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
     deletedRecordIds: deletedRecordIds.length > 0 ? deletedRecordIds : undefined,
     userDeleted: userDeleted.length > 0 ? userDeleted : undefined,
+    infoActivity: loadInfoActivity(),
   } as PraFile;
 }
 
@@ -201,6 +204,7 @@ function generateConfigExport(lang: string, currentTheme: string, profileName: s
       value: item.value, emoji: item.emoji,
       ...(lang === 'en' ? { labelEn: item.labelEn } : { labelCs: item.labelCs }),
     })),
+    infoActivity: loadInfoActivity(),
   };
 }
 
@@ -326,6 +330,10 @@ function importPraFile(file: PraFile, currentLang: string): void {
   // Session start
   if (file.type === 'backup' && file.sessionStart) {
     localStorage.setItem('pra_session_start', file.sessionStart);
+  }
+  // Info activity (special activity pill)
+  if (file.infoActivity) {
+    saveInfoActivity(file.infoActivity);
   }
   // Mood scale
   if (file.moodScale && Array.isArray(file.moodScale) && file.moodScale.length > 0) {
