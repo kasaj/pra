@@ -389,6 +389,17 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey, sessionStart]);
 
+  const infoActUsedInSession = useMemo(() => {
+    if (!infoAct.name) return false;
+    const todayEntry = getDayEntry(getTodayDate());
+    if (!todayEntry) return false;
+    return todayEntry.activities.some(a =>
+      new Date(a.completedAt || a.startedAt) >= new Date(sessionStart) &&
+      a.comments?.some(c => c.text?.includes(infoAct.name))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey, sessionStart, infoAct.name]);
+
   const handleSaveActivity = useCallback((activity: ActivityDefinition) => {
     const current = loadActivities();
     const index = current.findIndex((a) => a.type === activity.type);
@@ -518,6 +529,53 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
 
 
+          {/* Special activity pill — standalone, session-aware */}
+          {(infoAct.emoji || infoAct.name) && (
+            <div className="mb-2">
+              {showInfoPopup && infoAct.comment && (
+                <div className="card mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
+                  {infoAct.comment}
+                </div>
+              )}
+              <div className="flex justify-center">
+                <button
+                  onClick={() => {
+                    const willOpen = !showInfoPopup;
+                    setShowInfoPopup(willOpen);
+                    showInfoPopupRef.current = willOpen;
+                    const text = [infoAct.emoji, infoAct.name].filter(Boolean).join(' ');
+                    if (text) {
+                      if (willOpen) {
+                        const current = moodCommentRef.current.trimEnd();
+                        setMoodCommentSync(current ? current + '\n' + text : text);
+                      } else {
+                        const lines = moodCommentRef.current.split('\n');
+                        setMoodCommentSync(lines.filter(l => l.trim() !== text.trim()).join('\n'));
+                      }
+                      setTimeout(resizeTextarea, 0);
+                    }
+                  }}
+                  className="px-3 py-1.5 text-sm rounded-full border transition-colors"
+                  style={{
+                    borderColor: showInfoPopup
+                      ? 'var(--accent-solid)'
+                      : infoActUsedInSession
+                        ? 'var(--accent-border)'
+                        : 'var(--border-light)',
+                    color: showInfoPopup
+                      ? 'var(--accent-solid)'
+                      : infoActUsedInSession
+                        ? 'var(--accent-text)'
+                        : 'var(--text-muted)',
+                    backgroundColor: showInfoPopup ? 'var(--accent-bg)' : 'var(--bg-input)',
+                  }}
+                >
+                  {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
           <div className="flex-1">
@@ -573,7 +631,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                           const original = activities.find(a => a.type === activity.type);
                           setEditingActivity(original || activity);
                         }}
-                        className="absolute -top-1.5 -left-1.5 w-4 h-4 rounded-full bg-themed-muted text-white flex items-center justify-center"
+                        className="absolute -top-1.5 -left-1.5 w-4 h-4 rounded-full text-white flex items-center justify-center"
+                        style={{ backgroundColor: 'var(--text-faint)' }}
                       >
                         <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15H9v-2.828z" />
@@ -621,33 +680,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             })()}
             {/* Separator */}
             <hr className="border-t border-themed mx-4 mb-2" />
-            {/* Info activity pill */}
-            {(infoAct.emoji || infoAct.name) && (
-              <div className="mb-2">
-                {showInfoPopup && infoAct.comment && (
-                  <div className="mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
-                    {infoAct.comment}
-                  </div>
-                )}
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => {
-                      const willOpen = !showInfoPopup;
-                      setShowInfoPopup(willOpen);
-                      showInfoPopupRef.current = willOpen;
-                      if (willOpen && infoAct.name) {
-                        const current = moodCommentRef.current.trimEnd();
-                        setMoodCommentSync(current ? current + '\n' + infoAct.name : infoAct.name);
-                        setTimeout(resizeTextarea, 0);
-                      }
-                    }}
-                    className="px-3 py-1.5 text-sm rounded-full border border-themed bg-themed-input text-themed-muted hover:border-themed-medium transition-colors"
-                  >
-                    {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
-                  </button>
-                </div>
-              </div>
-            )}
             {/* Properties from nalada (stored + config fallback) */}
             {(
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
@@ -790,6 +822,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                     const sessionCount = completedTodayCounts.get(activity.type) || 0;
                     rows.push({ key: activity.type, emoji: activity.emoji, total, totalMin, sessionCount });
                   });
+                  // Special (info) activity row
+                  if (infoAct.emoji || infoAct.name) {
+                    rows.push({ key: '__infoAct__', emoji: infoAct.emoji || '🌱', total: 0, totalMin: 0, sessionCount: infoActUsedInSession ? 1 : 0 });
+                  }
 
                   const fmtMin = (m: number) => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 > 0 ? ` ${m % 60} m` : ''}` : `${m} m`;
                   rows.sort((a, b) => fmtMin(b.totalMin).length - fmtMin(a.totalMin).length || b.totalMin - a.totalMin);
