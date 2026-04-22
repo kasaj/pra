@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '../i18n';
 import { getCachedConfig, loadConfig, ConfigInfo, ConfigQuote } from '../utils/config';
-import { InfoActivity, loadInfoActivity, saveInfoActivity } from '../utils/infoActivity';
+import { InfoActivity, loadInfoActivity, saveInfoActivity, markInfoActivityUserSet } from '../utils/infoActivity';
 
 function InfoActivityEditor({ value, onChange, notePlaceholder, namePlaceholder }: {
   value: InfoActivity;
@@ -77,6 +77,7 @@ export default function PageInfo() {
   const updateInfoActivity = useCallback((value: InfoActivity) => {
     setInfoActivity(value);
     saveInfoActivity(value);
+    markInfoActivityUserSet();
   }, []);
 
   const title = cfgInfo.title || t.info.title;

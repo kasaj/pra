@@ -25,12 +25,23 @@ export function loadInfoActivity(lang?: string): InfoActivity {
   return { emoji: '', name: '', comment: '' };
 }
 
+const INFO_ACTIVITY_USER_SET_KEY = 'pra_info_activity_user_set';
+
 export function saveInfoActivity(a: InfoActivity): void {
   localStorage.setItem(INFO_ACTIVITY_KEY, JSON.stringify(a));
 }
 
-/** Apply config default only if user has never set infoActivity themselves. */
+/** Called when user explicitly saves infoActivity from Info page. */
+export function markInfoActivityUserSet(): void {
+  localStorage.setItem(INFO_ACTIVITY_USER_SET_KEY, '1');
+}
+
+export function isInfoActivityUserSet(): boolean {
+  return !!localStorage.getItem(INFO_ACTIVITY_USER_SET_KEY);
+}
+
+/** Apply config default only if user has not customized infoActivity themselves. */
 export function applyConfigInfoActivity(infoActivity: { emoji: string; name: string; comment: string }): void {
-  if (localStorage.getItem(INFO_ACTIVITY_KEY)) return; // user already has one
+  if (isInfoActivityUserSet()) return;
   saveInfoActivity(infoActivity);
 }
