@@ -547,7 +547,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 const isInstant = activity.durationMinutes === null;
                 const isExpanded = expandedActivityType === activity.type;
                 return (
-                  <span key={activity.type} className="relative inline-flex">
+                  <span key={activity.type} className={`relative inline-flex${editMode ? ' mx-2' : ''}`}>
                     <button
                       onClick={() => {
                         if (longPressTriggeredRef.current) return;
