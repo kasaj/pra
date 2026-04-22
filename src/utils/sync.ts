@@ -4,6 +4,7 @@ import { loadSettings, saveSettings } from './settings';
 import { loadMoodScale, saveMoodScale, MoodScaleItem } from './moodScale';
 import { Theme, saveTheme } from './theme';
 import { getCachedConfig } from './config';
+import { loadInfoActivity, saveInfoActivity, InfoActivity } from './infoActivity';
 import { DayEntry, ActivityDefinition } from '../types';
 
 export interface PraFile {
@@ -27,6 +28,7 @@ export interface PraFile {
   durationBubbles?: number[];
   deletedRecordIds?: string[];
   userDeleted?: string[];
+  infoActivity?: InfoActivity;
 }
 
 export function generateBackup(lang: string, currentTheme: string, profileName: string): PraFile {
@@ -81,6 +83,7 @@ export function generateBackup(lang: string, currentTheme: string, profileName: 
     durationBubbles: (() => { try { const s = localStorage.getItem('pra_duration_bubbles'); return s ? JSON.parse(s) : undefined; } catch { return undefined; } })(),
     deletedRecordIds: deletedRecordIds.length > 0 ? deletedRecordIds : undefined,
     userDeleted: userDeleted.length > 0 ? userDeleted : undefined,
+    infoActivity: loadInfoActivity(),
   };
 }
 
@@ -101,6 +104,7 @@ export function applyFullSync(file: PraFile): void {
   localStorage.setItem('pra_deleted_record_ids', JSON.stringify(file.deletedRecordIds || []));
   if (file.notes?.cs) localStorage.setItem('pra_info_notes_cs', JSON.stringify(file.notes.cs));
   if (file.notes?.en) localStorage.setItem('pra_info_notes_en', JSON.stringify(file.notes.en));
+  if (file.infoActivity) saveInfoActivity(file.infoActivity);
 }
 
 function getSyncConfig() {
