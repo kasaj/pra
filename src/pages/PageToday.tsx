@@ -794,7 +794,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {/* Special activity pill — below textarea, session-aware */}
             {(infoAct.emoji || infoAct.name) && (
               <div className="mt-2">
-                <hr className="border-t border-themed mx-4 mb-2" />
                 {showInfoPopup && infoAct.comment && (
                   <div className="mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
                     {infoAct.comment}
@@ -831,7 +830,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               </div>
             )}
             {/* Separator above session stats */}
-            <hr className="border-t border-themed mx-4 mt-3 mb-2" />
             {/* Session total + records */}
             {allTranslated.length > 0 && (
               <>
