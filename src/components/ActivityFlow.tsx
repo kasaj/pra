@@ -75,7 +75,7 @@ function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewR
             rows={1}
             className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
                      focus:outline-none focus:border-themed-accent resize-none
-                     text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
+                     text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
           />
         </div>
       </div>
@@ -113,7 +113,7 @@ function CommentsBlock({ comments, newComment, setNewComment, newRating, setNewR
             }}
             className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
                      focus:outline-none focus:border-themed-accent resize-none
-                     text-themed-primary text-base overflow-hidden"
+                     text-themed-primary text-sm overflow-hidden"
           />
         </div>
       ))}
