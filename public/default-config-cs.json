@@ -2,13 +2,13 @@
   "version": 1,
   "language": "cs",
   "theme": "modern",
-  "infoActivity": { "emoji": "🎯", "name": "Záměr", "comment": "" },
+  "infoActivity": { "emoji": "🌱", "name": "Splynutí proč a přítomný krok středem", "comment": "Rád vnímám krásy světa a pomáhám tím, jaký jsem. Smyslem a silou je metafyzické propojení. Jaký jsem říká tělo a čím jsem další krok." },
   "activities": [
     {
       "type": "rozjimani",
-      "emoji": "🗃️",
+      "emoji": "📄",
       "durationMinutes": null,
-      "name": "Záznamy",
+      "name": "Log",
       "description": "Vědomé aktivity...",
       "properties": [
         "💻 Práce",
@@ -16,8 +16,6 @@
         "🏡 Práce",
         "☕️",
         "🍵",
-        "💧 Hydratace",
-        "🍺",
         "📝 Poznámka",
         "😨 Strach",
         "🥱 Únava",
@@ -27,22 +25,28 @@
         "👫 Rodina",
         "🍩 Sladkost",
         "💭 Myšlenka",
-        "😴 Spánek 8h",
         "💤 Sen",
-        "📜 Zkušenost",
-        "🏃‍♂️ Sport",
-        "🐕",
         "🐓",
+        "🏃‍♂️ Pohyb",
+        "🛌 Uvolnění",
+        "🌅  Probuzení 🙏",
+        "📜 Poznání",
+        "🤸 Protažení",
+        "🤗 Vztahy",
+        "🧎‍♂️ Usebrání",
+        "💡 Nápad",
+        "🎯 Záměr",
+        "🍺",
         "🚴"
       ],
       "durationOptions": [1],
-      "defaultDuration": 15
+      "defaultDuration": 5
     },
     {
       "type": "sobe",
-      "emoji": "⏸️",
-      "durationMinutes": 2,
-      "name": "Pauza",
+      "emoji": "🧍‍♂️",
+      "durationMinutes": 5,
+      "name": "Usebrání",
       "description": "Vědomá pauza...",
       "properties": [
         "Sken těla",
@@ -53,8 +57,8 @@
         "👃 Klid dechu",
         "Kontakt se zemí"
       ],
-      "durationOptions": [2],
-      "defaultDuration": 2
+      "durationOptions": [5],
+      "defaultDuration": 5
     },
     {
       "type": "nalada",
@@ -64,61 +68,11 @@
       "name": "Prostor",
       "description": "Zaznamenej svůj aktuální stav",
       "properties": [
-        "🏃‍♂️ Pohyb",
-        "🤸 Protažení",
-        "🤗 Vztahy",
-        "🛌 Uvolnění",
-        "😌 Sebereflexe",
-        "🌅  Probuzení 🙏"
+        "🎯 Co řeším?",
+        "🧭 Jak to řeším?"
       ],
       "durationOptions": [10],
-      "defaultDuration": 15
-    },
-    {
-      "type": "vyzva",
-      "emoji": "🔥",
-      "durationMinutes": null,
-      "name": "Změna",
-      "description": "Vědomá změna proti automatismu...",
-      "properties": [
-        "Přijetí bolesti nebo pocitu",
-        "Klid gesta 👌",
-        "Konfrontace strachu",
-        "👫 Rodina",
-        "🏡 Práce",
-        "💻 Práce",
-        "💨 Dlouhý výdech - zklidnění",
-        "🙏 Fail je výhrou",
-        "👁️ Vůle jen pozorovat",
-        "Společnost",
-        "🦴 Nový návyk",
-        "⚖️ Kontrola emocí",
-        "😨 Překonání strachu",
-        "🌘 Integrace stínu",
-        "Sebeúcta",
-        "♥️ Malý krok středem"
-      ],
-      "durationOptions": [1],
       "defaultDuration": 1
-    },
-    {
-      "type": "custom_1775388274735",
-      "emoji": "🧎‍♂️",
-      "durationMinutes": 15,
-      "name": "Usebrání",
-      "description": "Vědomé bytí...",
-      "properties": [
-        "☀️ Slunce",
-        "Imaginace",
-        "Kontemplace",
-        "Pozorování myšlenek",
-        "Soustředěné dýchání",
-        "Procítění štěstí",
-        "🧘‍♂️ Meditace",
-        "🌿 Rozjímání"
-      ],
-      "durationOptions": [1],
-      "defaultDuration": 15
     }
   ],
   "moodScale": [
