@@ -529,53 +529,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           </div>
 
 
-          {/* Special activity pill — standalone, session-aware */}
-          {(infoAct.emoji || infoAct.name) && (
-            <div className="mb-2">
-              {showInfoPopup && infoAct.comment && (
-                <div className="card mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
-                  {infoAct.comment}
-                </div>
-              )}
-              <div className="flex justify-center">
-                <button
-                  onClick={() => {
-                    const willOpen = !showInfoPopup;
-                    setShowInfoPopup(willOpen);
-                    showInfoPopupRef.current = willOpen;
-                    const text = [infoAct.emoji, infoAct.name].filter(Boolean).join(' ');
-                    if (text) {
-                      if (willOpen) {
-                        const current = moodCommentRef.current.trimEnd();
-                        setMoodCommentSync(current ? current + '\n' + text : text);
-                      } else {
-                        const lines = moodCommentRef.current.split('\n');
-                        setMoodCommentSync(lines.filter(l => l.trim() !== text.trim()).join('\n'));
-                      }
-                      setTimeout(resizeTextarea, 0);
-                    }
-                  }}
-                  className="px-3 py-1.5 text-sm rounded-full border transition-colors"
-                  style={{
-                    borderColor: showInfoPopup
-                      ? 'var(--accent-solid)'
-                      : infoActUsedInSession
-                        ? 'var(--accent-border)'
-                        : 'var(--border-light)',
-                    color: showInfoPopup
-                      ? 'var(--accent-solid)'
-                      : infoActUsedInSession
-                        ? 'var(--accent-text)'
-                        : 'var(--text-muted)',
-                    backgroundColor: showInfoPopup ? 'var(--accent-bg)' : 'var(--bg-input)',
-                  }}
-                >
-                  {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Core activity centered */}
           <div className="flex items-center gap-1">
           <div className="flex-1">
@@ -796,6 +749,44 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                        focus:outline-none focus:border-themed-accent resize-none
                        text-themed-primary placeholder:text-themed-faint text-base overflow-hidden"
             />
+            {/* Special activity pill — below textarea, session-aware */}
+            {(infoAct.emoji || infoAct.name) && (
+              <div className="mt-2">
+                {showInfoPopup && infoAct.comment && (
+                  <div className="mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
+                    {infoAct.comment}
+                  </div>
+                )}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      const willOpen = !showInfoPopup;
+                      setShowInfoPopup(willOpen);
+                      showInfoPopupRef.current = willOpen;
+                      const text = [infoAct.emoji, infoAct.name].filter(Boolean).join(' ');
+                      if (text) {
+                        if (willOpen) {
+                          const current = moodCommentRef.current.trimEnd();
+                          setMoodCommentSync(current ? current + '\n' + text : text);
+                        } else {
+                          const lines = moodCommentRef.current.split('\n');
+                          setMoodCommentSync(lines.filter(l => l.trim() !== text.trim()).join('\n'));
+                        }
+                        setTimeout(resizeTextarea, 0);
+                      }
+                    }}
+                    className="px-3 py-1.5 text-sm rounded-full border transition-colors"
+                    style={{
+                      borderColor: showInfoPopup ? 'var(--accent-solid)' : infoActUsedInSession ? 'var(--accent-border)' : 'var(--border-light)',
+                      color: showInfoPopup ? 'var(--accent-solid)' : infoActUsedInSession ? 'var(--accent-text)' : 'var(--text-muted)',
+                      backgroundColor: showInfoPopup ? 'var(--accent-bg)' : 'var(--bg-input)',
+                    }}
+                  >
+                    {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
+                  </button>
+                </div>
+              </div>
+            )}
             {/* Session total + records */}
             {allTranslated.length > 0 && (
               <>
