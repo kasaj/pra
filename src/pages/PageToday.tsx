@@ -574,9 +574,14 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         longPressTimerRef.current = setTimeout(() => {
                           longPressTriggeredRef.current = true;
                           longPressTimerRef.current = null;
-                          const original = activities.find(a => a.type === activity.type);
-                          setEditingActivity(original || activity);
                           setExpandedActivityType(null);
+                          if (isInstant) {
+                            flushMood();
+                            setActiveActivity(activity);
+                          } else {
+                            const original = activities.find(a => a.type === activity.type);
+                            setEditingActivity(original || activity);
+                          }
                         }, 600);
                       }}
                       onTouchEnd={(e) => {
@@ -591,9 +596,14 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                         longPressTimerRef.current = setTimeout(() => {
                           longPressTriggeredRef.current = true;
                           longPressTimerRef.current = null;
-                          const original = activities.find(a => a.type === activity.type);
-                          setEditingActivity(original || activity);
                           setExpandedActivityType(null);
+                          if (isInstant) {
+                            flushMood();
+                            setActiveActivity(activity);
+                          } else {
+                            const original = activities.find(a => a.type === activity.type);
+                            setEditingActivity(original || activity);
+                          }
                         }, 600);
                       }}
                       onPointerUp={(e) => { if ((e as React.PointerEvent).pointerType === 'touch') return; if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
