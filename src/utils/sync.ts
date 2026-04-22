@@ -5,7 +5,53 @@ import { loadMoodScale, saveMoodScale, MoodScaleItem } from './moodScale';
 import { Theme, saveTheme } from './theme';
 import { getCachedConfig } from './config';
 import { loadInfoActivity, saveInfoActivity, InfoActivity } from './infoActivity';
-import { DayEntry, ActivityDefinition } from '../types';
+import { DayEntry, Activity, ActivityDefinition } from '../types';
+
+/** Merge two history arrays by activity ID.
+ *  - Tombstoned IDs (deletedIds) are excluded from the result.
+ *  - If the same ID exists in both, the version with the later timestamp wins.
+ *  - Activities only in one side are always included (unless tombstoned).
+ */
+export function mergeHistory(
+  local: DayEntry[],
+  remote: DayEntry[],
+  deletedIds: Set<string>,
+): DayEntry[] {
+  // date → (activityId → Activity)
+  const byDate = new Map<string, Map<string, Activity>>();
+
+  const absorb = (days: DayEntry[]) => {
+    for (const day of days) {
+      if (!byDate.has(day.date)) byDate.set(day.date, new Map());
+      const dayMap = byDate.get(day.date)!;
+      for (const activity of day.activities) {
+        if (deletedIds.has(activity.id)) continue;
+        const existing = dayMap.get(activity.id);
+        if (!existing) {
+          dayMap.set(activity.id, activity);
+        } else {
+          // Keep the more recently completed/started version
+          const tsExisting = new Date(existing.completedAt || existing.startedAt).getTime();
+          const tsNew = new Date(activity.completedAt || activity.startedAt).getTime();
+          if (tsNew > tsExisting) dayMap.set(activity.id, activity);
+        }
+      }
+    }
+  };
+
+  absorb(remote);
+  absorb(local); // local with newer timestamps overwrites
+
+  const result: DayEntry[] = [];
+  for (const [date, actMap] of byDate) {
+    const activities = [...actMap.values()].sort(
+      (a, b) => new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime(),
+    );
+    if (activities.length > 0) result.push({ date, activities });
+  }
+  result.sort((a, b) => b.date.localeCompare(a.date));
+  return result;
+}
 
 export interface PraFile {
   type: 'backup' | 'config';
@@ -142,7 +188,54 @@ export async function downloadSync(): Promise<void> {
     err.status = response.status;
     throw err;
   }
-  const data = await response.json() as PraFile;
-  applyFullSync(data);
+  const remote = await response.json() as PraFile;
+
+  // --- Merge history (local + remote, dedup by ID, tombstones respected) ---
+  const localHistory = loadAllData();
+
+  // Union tombstones from both sides so deletions propagate in both directions
+  const localDeletedIds: string[] = (() => {
+    try { return JSON.parse(localStorage.getItem('pra_deleted_record_ids') || '[]'); } catch { return []; }
+  })();
+  const remoteDeletedIds: string[] = remote.deletedRecordIds || [];
+  const mergedDeletedIds = new Set<string>([...localDeletedIds, ...remoteDeletedIds]);
+
+  // Union user-modified / user-deleted activity type lists
+  const localUserModified: string[] = (() => {
+    try { return JSON.parse(localStorage.getItem('pra_user_modified_activities') || '[]'); } catch { return []; }
+  })();
+  const localUserDeleted: string[] = (() => {
+    try { return JSON.parse(localStorage.getItem('pra_user_deleted_activities') || '[]'); } catch { return []; }
+  })();
+  const mergedUserModified = [...new Set([...localUserModified, ...(remote.userModified || [])])];
+  const mergedUserDeleted  = [...new Set([...localUserDeleted,  ...(remote.userDeleted  || [])])];
+
+  const mergedHistory = mergeHistory(localHistory, remote.history || [], mergedDeletedIds);
+
+  // Apply everything — history via merged result, rest from remote (server is source of truth)
+  saveAllData(mergedHistory);
+  if (remote.activities) saveActivities(remote.activities);
+  if (remote.language) localStorage.setItem('pra_language', remote.language);
+  if (remote.theme) saveTheme(remote.theme as Theme);
+  if (remote.name) { const s = loadSettings(); saveSettings({ ...s, name: remote.name }); }
+  if (remote.sessionStart) localStorage.setItem('pra_session_start', remote.sessionStart);
+  if (remote.moodScale && remote.moodScale.length > 0) saveMoodScale(remote.moodScale);
+  if (remote.hiddenActivities !== undefined)
+    localStorage.setItem('pra_hidden_activities', JSON.stringify(remote.hiddenActivities));
+  if (remote.hiddenProperties !== undefined)
+    localStorage.setItem('pra_hidden_properties', JSON.stringify(remote.hiddenProperties));
+  if (remote.hiddenDurations !== undefined)
+    localStorage.setItem('pra_hidden_durations', JSON.stringify(remote.hiddenDurations));
+  if (remote.durationBubbles !== undefined)
+    localStorage.setItem('pra_duration_bubbles', JSON.stringify(remote.durationBubbles));
+  if (remote.notes?.cs) localStorage.setItem('pra_info_notes_cs', JSON.stringify(remote.notes.cs));
+  if (remote.notes?.en) localStorage.setItem('pra_info_notes_en', JSON.stringify(remote.notes.en));
+  if (remote.infoActivity) saveInfoActivity(remote.infoActivity);
+
+  // Persist merged tombstones & type lists
+  localStorage.setItem('pra_deleted_record_ids',       JSON.stringify([...mergedDeletedIds]));
+  localStorage.setItem('pra_user_modified_activities', JSON.stringify(mergedUserModified));
+  localStorage.setItem('pra_user_deleted_activities',  JSON.stringify(mergedUserDeleted));
+
   localStorage.setItem('pra_last_synced', new Date().toISOString());
 }
