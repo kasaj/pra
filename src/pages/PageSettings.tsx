@@ -507,6 +507,7 @@ export default function PageSettings() {
   }, [language, theme, name]);
 
   const backupInputRef = useRef<HTMLInputElement>(null);
+  const historyOnlyInputRef = useRef<HTMLInputElement>(null);
 
   const handleImportBackup = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -527,6 +528,46 @@ export default function PageSettings() {
     reader.readAsText(file);
     if (backupInputRef.current) backupInputRef.current.value = '';
   }, [language]);
+
+  /** Import only the history (records) from a backup — activities, theme, language etc. untouched. */
+  const handleImportHistoryOnly = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const praFile = JSON.parse(event.target?.result as string) as PraFile;
+        if (!praFile.version) throw new Error('Invalid');
+        if (!praFile.history || !Array.isArray(praFile.history)) throw new Error('No history');
+        // Merge history only — same logic as importPraFile history section
+        const existing = loadAllData();
+        const existingMap = new Map(existing.map(d => [d.date, d]));
+        praFile.history.forEach((importDay) => {
+          const existingDay = existingMap.get(importDay.date);
+          if (existingDay) {
+            const existingById = new Map(existingDay.activities.map(a => [a.id, a]));
+            importDay.activities.forEach((importAct) => {
+              if (!existingById.has(importAct.id)) {
+                existingDay.activities.push(importAct);
+              }
+            });
+            existingMap.set(importDay.date, existingDay);
+          } else {
+            existingMap.set(importDay.date, importDay);
+          }
+        });
+        const merged = Array.from(existingMap.values()).sort((a, b) => b.date.localeCompare(a.date));
+        saveAllData(merged);
+        setImportStatus('success');
+        setTimeout(() => { window.scrollTo(0, 0); window.location.reload(); }, 1500);
+      } catch {
+        setImportStatus('error');
+      }
+      setTimeout(() => setImportStatus(null), 3000);
+    };
+    reader.readAsText(file);
+    if (historyOnlyInputRef.current) historyOnlyInputRef.current.value = '';
+  }, []);
 
   const [synced, setSynced] = useState(false);
 
@@ -722,6 +763,14 @@ export default function PageSettings() {
                   <input ref={backupInputRef} type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
                 </label>
               </div>
+              <label
+                className="block w-full py-2 px-3 rounded-lg text-sm font-medium text-center cursor-pointer border border-dashed transition-colors"
+                style={{ borderColor: 'var(--border-medium)', color: 'var(--text-faint)' }}
+                title={language === 'cs' ? 'Přidá záznamy ze zálohy, aniž by změnil aktivity, téma nebo jazyk' : 'Merges records from backup without changing activities, theme or language'}
+              >
+                {language === 'cs' ? 'Import jen záznamů' : 'Import records only'}
+                <input ref={historyOnlyInputRef} type="file" accept=".json" onChange={handleImportHistoryOnly} className="hidden" />
+              </label>
             </div>
           )}
 
