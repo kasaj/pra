@@ -78,6 +78,7 @@ export default function PageInfo() {
     setInfoActivity(value);
     saveInfoActivity(value);
     markInfoActivityUserSet();
+    window.dispatchEvent(new Event('pra-info-activity-updated'));
   }, []);
 
   const title = cfgInfo.title || t.info.title;

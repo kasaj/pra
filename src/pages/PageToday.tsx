@@ -110,8 +110,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   // Reload info activity when page becomes visible (user may have edited it on Info page)
   useEffect(() => {
     const onVisible = () => { if (document.visibilityState === 'visible') setInfoAct(loadInfoActivity()); };
+    const onInfoActUpdated = () => setInfoAct(loadInfoActivity());
     document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    window.addEventListener('pra-info-activity-updated', onInfoActUpdated);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('pra-info-activity-updated', onInfoActUpdated);
+    };
   }, []);
   const [customTime, setCustomTime] = useState<string | null>(null);
   const customTimeRef = useRef<string | null>(null);
@@ -741,7 +746,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 e.target.style.height = 'auto';
                 e.target.style.height = e.target.scrollHeight + 'px';
               }}
-              placeholder={language === 'cs' ? 'Tak jak?' : 'So how?'}
+              placeholder={language === 'cs' ? 'Tak?' : 'So?'}
               rows={1}
               className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
                        focus:outline-none focus:border-themed-accent resize-none
