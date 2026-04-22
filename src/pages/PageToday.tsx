@@ -563,32 +563,42 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                   <span key={activity.type} className={`relative inline-flex${editMode ? ' mx-2' : ''}`}>
                     <button
                       onClick={() => {
-                        if (longPressTriggeredRef.current) return;
+                        if (longPressTriggeredRef.current) { longPressTriggeredRef.current = false; return; }
                         if (editMode) { toggleHideActivity(activity.type); return; }
                         if (!isInstant) { flushMood(); setActiveActivity(activity); return; }
                         setExpandedActivityType(prev => prev === activity.type ? null : activity.type);
                       }}
-                      onPointerDown={() => {
+                      onTouchStart={() => {
                         if (editMode) return;
                         longPressTriggeredRef.current = false;
                         longPressTimerRef.current = setTimeout(() => {
                           longPressTriggeredRef.current = true;
+                          longPressTimerRef.current = null;
                           const original = activities.find(a => a.type === activity.type);
                           setEditingActivity(original || activity);
                           setExpandedActivityType(null);
                         }, 600);
                       }}
-                      onPointerUp={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
-                      onPointerCancel={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
-                      onContextMenu={(e) => {
-                        e.preventDefault();
-                        if (editMode) return;
+                      onTouchEnd={(e) => {
                         if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; }
-                        longPressTriggeredRef.current = true;
-                        const original = activities.find(a => a.type === activity.type);
-                        setEditingActivity(original || activity);
-                        setExpandedActivityType(null);
+                        if (longPressTriggeredRef.current) e.preventDefault();
                       }}
+                      onTouchCancel={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
+                      onPointerDown={(e) => {
+                        if ((e as React.PointerEvent).pointerType === 'touch') return;
+                        if (editMode) return;
+                        longPressTriggeredRef.current = false;
+                        longPressTimerRef.current = setTimeout(() => {
+                          longPressTriggeredRef.current = true;
+                          longPressTimerRef.current = null;
+                          const original = activities.find(a => a.type === activity.type);
+                          setEditingActivity(original || activity);
+                          setExpandedActivityType(null);
+                        }, 600);
+                      }}
+                      onPointerUp={(e) => { if ((e as React.PointerEvent).pointerType === 'touch') return; if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
+                      onPointerCancel={(e) => { if ((e as React.PointerEvent).pointerType === 'touch') return; if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
+                      onContextMenu={(e) => { e.preventDefault(); }}
                       className={`px-3 py-1.5 text-sm rounded-full border transition-colors select-none ${
                         editMode
                           ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
@@ -772,6 +782,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
             {/* Special activity pill — below textarea, session-aware */}
             {(infoAct.emoji || infoAct.name) && (
               <div className="mt-2">
+                <hr className="border-t border-themed mx-4 mb-2" />
                 {showInfoPopup && infoAct.comment && (
                   <div className="mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
                     {infoAct.comment}

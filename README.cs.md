@@ -40,31 +40,44 @@ PRA obsahuje výchozí sadu aktivit, které lze libovolně upravit nebo doplnit 
 
 | Aktivita | Typ | Popis |
 |----------|-----|-------|
-| 🌌 **Prostor** | Základní (core) | Základ stránky Dnes — hodnocení nálady hvězdičkami, vlastnosti (properties) a komentář |
-| 🗃️ **Záznamy** | Okamžik | Rychlý záznam poznámky nebo záměru |
-| ⏸️ **Pauza** | Časová (2 min) | Vědomé zastavení, dech, přítomnost |
-| 🔥 **Změna** | Okamžik | Vědomý krok ke změně — čelení zlozvyku, nový návyk, malý odvážný čin |
-| 🧎 **Usebrání** | Okamžik | Krátká sebereflexe, ztišení, návrat k sobě |
+| 🌌 **Prostor** | Základní (core) | Základ stránky Dnes — hodnocení nálady, vlastnosti a komentář. Ostatní aktivity se zapisují do jeho komentáře |
+| 📋 **Log** | Okamžik | Rychlý záznam aktuální aktivity — vyber vlastnost (co právě děláš) a ta se vloží do komentáře Prostoru |
+| 🧍‍♂️ **Usebrání** | Časová (5 min) | Vědomá pauza, sken těla, dech, kontakt se zemí |
 
-Všechny aktivity jsou plně přizpůsobitelné — název, emoji, popis, délka trvání a vlastnosti. Změny se ukládají automaticky. Aktivity lze přidávat a mazat přímo ze stránky Dnes (režim úprav).
+Všechny aktivity jsou plně přizpůsobitelné — název, emoji, popis, délka trvání a vlastnosti. Změny se ukládají automaticky. Aktivity lze přidávat, skrývat a mazat přímo ze stránky Dnes (režim úprav).
 
 ## Funkce
 
-- **Stránka Dnes** — centrální obrazovka: bubliny aktivit, vlastnosti (properties), hodnocení hvězdičkami, komentář, přehled relace a záznamů
-- **Vlastnosti (properties)** — klikatelné štítky pro kontext záznamu (stav, téma, situace). Použité v relaci mají accent rámeček, aktuálně vybrané jsou vyplněné
-- **Relace** — čas strávený praxí od posledního resetování; resetování spustí novou relaci. Záznamy aktivit jsou seřazeny dle celkové doby
-- **Časové aktivity** — odpočítávání s plánovaným časem ukončení, gong, pauza/pokračování, předčasné dokončení
-- **Okamžikové aktivity** — okamžitý záznam bez časovače
-- **Hodnocení stavu** — hvězdičková škála 1–5 s volitelným komentářem; vše propojeno s časovou značkou
-- **Škála nálady** — přizpůsobitelná emoji škála pro sledování emočního stavu
-- **Propojování aktivit** — automatické propojení záznamů v rámci relace, navigace šipkami
-- **Stránka Čas** — chronologický přehled záznamů, denní/týdenní/měsíční trend nálady, kalendář s barevným kódováním, statistiky
-- **Stránka Info** — filozofický kontext (Proč/Jak/Co) s osobními poznámkami a citáty
-- **Nastavení** — správa aktivit, jazyk (čeština/angličtina), téma (Auto/Klasické/Tmavé), záloha a import
-- **Konfigurace** — oddělené JSON soubory pro češtinu (`default-config-cs.json`) a angličtinu (`default-config-en.json`). Export konfigurace je vždy v aktuálním jazyce
-- **Záloha** — kompletní export dat (záznamy + konfigurace) ve formátu JSON, import vždy merguje
-- **Chytrá synchronizace** — detekuje změny konfigurace, přidá nové aktivity a zachová uživatelské úpravy
-- **Dvojjazyčné** — čeština a angličtina s oddělenými vlastnostmi a poznámkami dle jazyka
+### Stránka Dnes
+- **Bubliny aktivit** — klepnutím zahájíš záznam. Časové aktivity otevřou odpočítávání; okamžikové zobrazí inline výběr vlastností
+- **Inline výběr vlastností** — klepnutím na okamžikovou aktivitu se rozbalí její vlastnosti; vybrané se vloží do komentáře Prostoru spolu s názvem aktivity (např. `📋 Log - 💻 Práce`)
+- **Podržení** na libovolné bublině aktivity otevře editor aktivity
+- **Režim úprav** — tlačítko tužky na každé bublině pro editaci, × pro smazání; skrývání aktivit a vlastností
+- **Speciální aktivita** — zobrazuje osobní *proč* ze stránky Info. Klepnutím ji přidáš/odeberáš jako kotvu relace; zvýrazní se, pokud je v aktuální relaci použita
+- **Hodnocení + komentář** — ohodnoť stav hvězdičkami 1–7 a přidej volný text ke Prostoru
+- **Vlastnosti** — klikatelné štítky pod polem komentáře. Použité v relaci mají accent rámeček; aktuálně vybrané jsou vyplněné
+- **Přehled relace** — seznam všech aktivit od posledního resetování relace, včetně speciální aktivity
+
+### Stránka Čas
+- Chronologický přehled záznamů s fulltextovým vyhledáváním (včetně víceřádkových komentářů)
+- Denní / týdenní / měsíční trend nálady
+- Barevně kódovaný kalendář
+- Statistiky na aktivitu (počet, celkový čas, průměrná nálada)
+
+### Stránka Info
+- Filozofický kontext (Proč / Jak / Co) s osobními poznámkami a citáty
+- **Speciální aktivita** — zapiš své osobní *proč* (emoji + název + poznámka). Zobrazí se jako bublina na stránce Dnes a je součástí každé zálohy
+
+### Nastavení
+- Správa aktivit (přidat, upravit, smazat)
+- Jazyk (čeština / angličtina), téma (Auto / Klasické / Tmavé)
+- **Záloha** — kompletní export dat jako JSON (záznamy + aktivity + speciální aktivita); import vždy merguje
+- **Import jen záznamů** — přidá historii ze zálohy bez změny aktivit, tématu nebo jazyka
+- **Synchronizace** — volitelný Azure sync mezi zařízeními (merge-based: lokální záznamy se při stažení nikdy neztratí)
+- **Sync konfigurace** — stáhne aktuální definice aktivit z výchozího configu bez přepsání uživatelských úprav
+
+### Ostatní
+- **Dvojjazyčné** — čeština a angličtina s oddělenými vlastnostmi, poznámkami a config soubory
 - **Offline / PWA** — funguje bez internetu, instalovatelná na plochu telefonu
 - **CI/CD** — push na main automaticky nasadí přes GitHub Actions
 
@@ -78,13 +91,13 @@ Všechny aktivity jsou plně přizpůsobitelné — název, emoji, popis, délka
    - `📱 Obrazovka` — sáhl jsem po telefonu bez záměru
    - `🍬 Impulz` — přišla chuť nebo nutkání
    - `🔁 Náhrada` — zlozvyk jsem vědomě nahradil jinou akcí
-2. Jako vlastnosti (properties) nastav kontexty: `Stres`, `Nuda`, `Únava`, `Automatismus`
+2. Jako vlastnosti nastav kontexty: `Stres`, `Nuda`, `Únava`, `Automatismus`
 3. Délku trvání core aktivity (Prostor) nastav dle potřeby — třeba 1–2 min
 
 **Každodenní praxe:**
 
 - Ráno: ohodnoť náladu hvězdičkami a zapiš záměr dne jako komentář
-- Během dne: při každém výskytu situace — otevřeš aplikaci, klepneš na aktivitu, vybereš property (co to spustilo) a uložíš
+- Během dne: při každém výskytu situace — otevřeš aplikaci, klepneš na aktivitu, vybereš vlastnost (co to spustilo) a uložíš
 - Opakovaný výskyt v rámci relace se automaticky propojí a zobrazí jako série
 - Večer nebo kdykoliv: na stránce Čas prohlédni vzorce — kdy, za jakých podmínek, jak často
 
@@ -112,36 +125,57 @@ Aplikaci řídí oddělené soubory `public/default-config-cs.json` a `public/de
 ```json
 {
   "version": 1,
-  "name": "default",
   "language": "cs",
   "theme": "modern",
+  "infoActivity": {
+    "emoji": "🌱",
+    "name": "Moje proč",
+    "comment": "Osobní poznámka zobrazená na stránce Info a jako kotva relace na stránce Dnes"
+  },
   "activities": [
     {
-      "type": "pauza",
-      "emoji": "⏸️",
-      "durationMinutes": 2,
-      "name": "Pauza",
-      "description": "Vědomé zastavení",
-      "properties": ["Dech", "Ticho"]
+      "type": "log",
+      "emoji": "📋",
+      "durationMinutes": null,
+      "name": "Log",
+      "description": "Rychlý záznam aktivity",
+      "properties": ["💻 Práce", "🍲 Jídlo", "📝 Poznámka"],
+      "core": false
+    },
+    {
+      "type": "prostor",
+      "emoji": "🌌",
+      "durationMinutes": null,
+      "name": "Prostor",
+      "description": "Zaznamenej svůj aktuální stav",
+      "properties": ["🎯 Co řeším?", "🧭 Jak teď?"],
+      "core": true
     }
   ],
   "moodScale": [
     { "value": 1, "emoji": "😡", "labelCs": "Vztek" }
   ],
   "info": {
-    "cs": { "intro": "...", "why": "...", "how": "...", "what": "..." }
+    "cs": {
+      "title": "Info",
+      "quotes": [{ "text": "...", "author": "..." }],
+      "why": "...",
+      "noteWhy": "Výchozí text zobrazený v editoru speciální aktivity",
+      "body": "...",
+      "featuredQuote": { "text": "...", "author": "..." }
+    }
   }
 }
 ```
 
-Úprava configu → push na main → automatické nasazení. Nové aktivity se uživatelům přidají automaticky. Uživatelem upravené aktivity se nikdy nepřepisují.
+Úprava configu → push na main → automatické nasazení. Nové aktivity se uživatelům přidají automaticky. Uživatelem upravené aktivity ani speciální aktivita se nikdy nepřepíší aktualizací configu.
 
 ## Soukromí
 
 - Všechna data zůstávají na vašem zařízení (localStorage)
 - Žádná analytika, sledování ani cookies
 - Žádný server — čistě klientská aplikace
-- Zálohování je ve vaší odpovědnosti
+- Synchronizace je volitelná a vlastní; zálohování je ve vaší odpovědnosti
 
 ## Technologie
 
@@ -159,7 +193,7 @@ Push na `main` automaticky nasadí přes GitHub Actions.
 
 ## Synchronizace (volitelné)
 
-PRA umí synchronizovat data mezi zařízeními přes Azure Function. Funkce merguje data od všech klientů a ukládá je do Azure Blob Storage.
+PRA umí synchronizovat data mezi zařízeními přes Azure Function. Stahování je **merge-based** — záznamy vytvořené lokálně od posledního uploadu se při stažení ze serveru nikdy neztratí.
 
 ### Nasazení vlastního sync backendu
 
@@ -178,13 +212,15 @@ Skript vytvoří všechny Azure prostředky (Storage Account, Function App, Appl
 
 **Cena:** Azure consumption plan — pro osobní použití prakticky zdarma (1M požadavků/měsíc zdarma).
 
-### Manuální záloha přes PowerShell
+### Co je na serveru
 
-```powershell
-$r = Invoke-RestMethod -Uri "https://<tvoje-app>.azurewebsites.net/api/sync" `
-  -Method POST -ContentType "application/json" `
-  -Body '{"secret":"<tvuj-secret>","data":{"version":1,"exportedAt":"2000-01-01T00:00:00.000Z","history":[],"activities":[],"hiddenDefaultActivities":[]}}'
-$r | ConvertTo-Json -Depth 20 | Out-File backup.json
+```bash
+az storage blob list \
+  --account-name <storage-account> \
+  --container-name pra-sync \
+  --auth-mode login \
+  --query "[].{name:name, size:properties.contentLength, modified:properties.lastModified}" \
+  -o table
 ```
 
 ## Licence

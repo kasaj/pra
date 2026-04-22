@@ -40,32 +40,45 @@ PRA comes with a default set of activities, fully customizable or replaceable wi
 
 | Activity | Type | Description |
 |----------|------|-------------|
-| 🌌 **Space** | Core | Foundation of the Today page — star rating, properties, and comment |
-| 🗃️ **Records** | Moment | Quick note or intention |
-| ⏸️ **Pause** | Timed (2 min) | Conscious stop, breath, presence |
-| 🔥 **Change** | Moment | A deliberate step toward change — facing a habit, a small brave act |
-| 🧎 **Recollection** | Moment | Brief self-reflection, stillness, returning to yourself |
+| 🌌 **Space** | Core | Foundation of the Today page — star rating, properties, and comment. All other activities feed into its comment |
+| 📋 **Log** | Moment | Quick log of the current activity — select a property (what you are doing), it is inserted into the Space comment |
+| 🧍‍♂️ **Recollection** | Timed (5 min) | Conscious pause, body scan, breath, grounding |
 
-All activities are fully customizable — name, emoji, description, duration, and properties. Changes auto-save. Activities can be added and deleted directly from the Today page (edit mode).
+All activities are fully customizable — name, emoji, description, duration, and properties. Changes auto-save. Activities can be added, reordered, hidden, and deleted directly from the Today page (edit mode).
 
 ## Features
 
-- **Today page** — central screen: activity bubbles, properties, star rating, comment, session summary and records
-- **Properties** — clickable tags for context (state, theme, situation). Used in session show accent border, currently selected are filled
-- **Session** — time spent in practice since last reset; resetting starts a new session. Records sorted by total duration
-- **Timed activities** — countdown with planned end time, gong, pause/resume, finish early
-- **Moment activities** — instant record without timer
-- **State rating** — 1–5 star scale with optional comment, timestamped
-- **Mood scale** — customizable emoji scale for emotional state tracking
-- **Activity linking** — automatic linking within sessions, navigate with arrows
-- **Time page** — chronological record history, daily/weekly/monthly mood trend, color-coded calendar, statistics
-- **Info page** — philosophical context (Why/How/What) with personal notes and quotes
-- **Settings** — manage activities, language (Czech/English), theme (Auto/Classic/Dark), backup and import
-- **Configuration** — separate JSON files for Czech (`default-config-cs.json`) and English (`default-config-en.json`). Config export always uses the current language
-- **Backup** — full data export (records + config) as JSON, import always merges
-- **Smart sync** — detects config changes, adds new activities while preserving user edits
-- **Bilingual** — Czech and English with per-language properties and notes
-- **Offline / PWA** — works without internet, installable on phone home screen
+### Today page
+- **Activity bubbles** — tap to record. Timed activities open a countdown flow; moment activities show an inline property picker
+- **Inline property picker** — tap a moment activity to expand its properties; selected properties are inserted into the Space comment together with the activity name (e.g. `📋 Log - 💻 Work`)
+- **Long press** on any activity bubble to open the activity editor
+- **Edit mode** — pencil button on each bubble to edit, × to delete; toggle hidden activities and properties
+- **Special activity pill** — shows the personal *why* from the Info page. Tap to toggle it as the session anchor; highlighted when referenced in the current session
+- **Star rating + comment** — rate state 1–7 and add a free-text comment for the Space record
+- **Properties** — clickable tags below the comment field. Used in session show accent border; currently selected are filled
+- **Session summary** — lists all activities recorded since the last session reset, including the special activity
+
+### Time page
+- Chronological record history with full-text search (including multi-line comments)
+- Daily / weekly / monthly mood trend chart
+- Color-coded calendar heatmap
+- Per-activity statistics (count, total time, average mood)
+
+### Info page
+- Philosophical context (Why / How / What) with personal notes and quotes
+- **Special activity** — set your personal *why* (emoji + name + note). It appears as a pill on the Today page and is included in every backup
+
+### Settings
+- Manage activities (add, edit, delete, reorder)
+- Language (Czech / English), theme (Auto / Classic / Dark)
+- **Backup** — full data export as JSON (records + activities + special activity); import merges without overwriting
+- **Import records only** — add history from a backup file without changing current activities, theme, or language
+- **Sync** — optional Azure-backed sync between devices (merge-based: local records are never lost on download)
+- **Config sync** — pulls latest activity definitions from the default config without touching user edits
+
+### Other
+- **Bilingual** — Czech and English with per-language properties, notes, and config files
+- **Offline / PWA** — works without internet, installable on the phone home screen
 - **CI/CD** — push to main auto-deploys via GitHub Actions
 
 ## Use Case: Tracking Bad Habits and Replacing Them
@@ -112,36 +125,57 @@ The app is driven by separate files `public/default-config-cs.json` and `public/
 ```json
 {
   "version": 1,
-  "name": "default",
   "language": "en",
   "theme": "modern",
+  "infoActivity": {
+    "emoji": "🌱",
+    "name": "My why",
+    "comment": "Personal note shown on the Info page and as a session anchor on Today"
+  },
   "activities": [
     {
-      "type": "pause",
-      "emoji": "⏸️",
-      "durationMinutes": 2,
-      "name": "Pause",
-      "description": "Conscious stop",
-      "properties": ["Breath", "Silence"]
+      "type": "log",
+      "emoji": "📋",
+      "durationMinutes": null,
+      "name": "Log",
+      "description": "Quick activity log",
+      "properties": ["💻 Work", "🍲 Food", "📝 Note"],
+      "core": false
+    },
+    {
+      "type": "space",
+      "emoji": "🌌",
+      "durationMinutes": null,
+      "name": "Space",
+      "description": "Record your current state",
+      "properties": ["🎯 What am I working on?", "🧭 How am I working on it?"],
+      "core": true
     }
   ],
   "moodScale": [
     { "value": 1, "emoji": "😡", "labelEn": "Anger" }
   ],
   "info": {
-    "en": { "intro": "...", "why": "...", "how": "...", "what": "..." }
+    "en": {
+      "title": "Info",
+      "quotes": [{ "text": "...", "author": "..." }],
+      "why": "...",
+      "noteWhy": "Default note shown in the special activity editor",
+      "body": "...",
+      "featuredQuote": { "text": "...", "author": "..." }
+    }
   }
 }
 ```
 
-Edit config → push to main → auto-deploy. New activities appear for users automatically. User-edited activities are never overwritten.
+Edit config → push to main → auto-deploy. New activities appear for users automatically. User-edited activities and the special activity are never overwritten by config updates.
 
 ## Privacy
 
 - All data stays on your device (localStorage)
 - No analytics, no tracking, no cookies
 - No server — purely client-side
-- Backup is your responsibility
+- Sync is optional and self-hosted; backup is your responsibility
 
 ## Tech Stack
 
@@ -159,7 +193,7 @@ Push to `main` auto-deploys via GitHub Actions.
 
 ## Sync (optional)
 
-PRA can sync data between devices using an Azure Function as a backend. The function merges data from all clients and stores it in Azure Blob Storage.
+PRA can sync data between devices using an Azure Function as a backend. Download is **merge-based** — local records created since the last upload are never lost when pulling from the server.
 
 ### Deploy your own sync backend
 
@@ -174,17 +208,19 @@ cd azure-function/infra
   -SyncSecret "choose-a-strong-secret"
 ```
 
-The script provisions all Azure resources (Storage Account, Function App, Application Insights) via Bicep and deploys the function code. On completion it prints the **Sync URL** and **Secret** to enter in PRA Settings → Synchronizace.
+The script provisions all Azure resources (Storage Account, Function App, Application Insights) via Bicep and deploys the function code. On completion it prints the **Sync URL** and **Secret** to enter in PRA Settings → Sync.
 
 **Cost:** Azure consumption plan — effectively free for personal use (1M free requests/month).
 
-### Manual backup via PowerShell
+### Check what's on the server
 
-```powershell
-$r = Invoke-RestMethod -Uri "https://<your-app>.azurewebsites.net/api/sync" `
-  -Method POST -ContentType "application/json" `
-  -Body '{"secret":"<your-secret>","data":{"version":1,"exportedAt":"2000-01-01T00:00:00.000Z","history":[],"activities":[],"hiddenDefaultActivities":[]}}'
-$r | ConvertTo-Json -Depth 20 | Out-File backup.json
+```bash
+az storage blob list \
+  --account-name <storage-account> \
+  --container-name pra-sync \
+  --auth-mode login \
+  --query "[].{name:name, size:properties.contentLength, modified:properties.lastModified}" \
+  -o table
 ```
 
 ## License
