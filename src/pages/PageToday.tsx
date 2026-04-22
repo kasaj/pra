@@ -551,6 +551,44 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
               }, 100);
             }}
           >
+            {/* Special activity pill — above activity bubbles, session-aware */}
+            {(infoAct.emoji || infoAct.name) && (
+              <div className="mb-2">
+                {showInfoPopup && infoAct.comment && (
+                  <div className="mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
+                    {infoAct.comment}
+                  </div>
+                )}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      const willOpen = !showInfoPopup;
+                      setShowInfoPopup(willOpen);
+                      showInfoPopupRef.current = willOpen;
+                      const text = [infoAct.emoji, infoAct.name].filter(Boolean).join(' ');
+                      if (text) {
+                        if (willOpen) {
+                          const current = moodCommentRef.current.trimEnd();
+                          setMoodCommentSync(current ? current + '\n' + text : text);
+                        } else {
+                          const lines = moodCommentRef.current.split('\n');
+                          setMoodCommentSync(lines.filter(l => l.trim() !== text.trim()).join('\n'));
+                        }
+                        setTimeout(resizeTextarea, 0);
+                      }
+                    }}
+                    className="px-3 py-1.5 text-sm rounded-full border transition-colors"
+                    style={{
+                      borderColor: showInfoPopup ? 'var(--accent-solid)' : infoActUsedInSession ? 'var(--accent-border)' : 'var(--border-light)',
+                      color: showInfoPopup ? 'var(--accent-solid)' : infoActUsedInSession ? 'var(--accent-text)' : 'var(--text-muted)',
+                      backgroundColor: showInfoPopup ? 'var(--accent-bg)' : 'var(--bg-input)',
+                    }}
+                  >
+                    {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
+                  </button>
+                </div>
+              </div>
+            )}
             {/* Activity bubbles from config */}
             <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
               {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => {
@@ -791,44 +829,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                          text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
               />
             </div>
-            {/* Special activity pill — below textarea, session-aware */}
-            {(infoAct.emoji || infoAct.name) && (
-              <div className="mt-2">
-                {showInfoPopup && infoAct.comment && (
-                  <div className="mb-2 text-sm text-themed-secondary leading-relaxed whitespace-pre-line text-center">
-                    {infoAct.comment}
-                  </div>
-                )}
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => {
-                      const willOpen = !showInfoPopup;
-                      setShowInfoPopup(willOpen);
-                      showInfoPopupRef.current = willOpen;
-                      const text = [infoAct.emoji, infoAct.name].filter(Boolean).join(' ');
-                      if (text) {
-                        if (willOpen) {
-                          const current = moodCommentRef.current.trimEnd();
-                          setMoodCommentSync(current ? current + '\n' + text : text);
-                        } else {
-                          const lines = moodCommentRef.current.split('\n');
-                          setMoodCommentSync(lines.filter(l => l.trim() !== text.trim()).join('\n'));
-                        }
-                        setTimeout(resizeTextarea, 0);
-                      }
-                    }}
-                    className="px-3 py-1.5 text-sm rounded-full border transition-colors"
-                    style={{
-                      borderColor: showInfoPopup ? 'var(--accent-solid)' : infoActUsedInSession ? 'var(--accent-border)' : 'var(--border-light)',
-                      color: showInfoPopup ? 'var(--accent-solid)' : infoActUsedInSession ? 'var(--accent-text)' : 'var(--text-muted)',
-                      backgroundColor: showInfoPopup ? 'var(--accent-bg)' : 'var(--bg-input)',
-                    }}
-                  >
-                    {infoAct.emoji}{infoAct.emoji && infoAct.name ? ' ' : ''}{infoAct.name}
-                  </button>
-                </div>
-              </div>
-            )}
             {/* Separator above session stats */}
             {/* Session total + records */}
             {allTranslated.length > 0 && (
