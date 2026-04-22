@@ -28,3 +28,9 @@ export function loadInfoActivity(lang?: string): InfoActivity {
 export function saveInfoActivity(a: InfoActivity): void {
   localStorage.setItem(INFO_ACTIVITY_KEY, JSON.stringify(a));
 }
+
+/** Apply config default only if user has never set infoActivity themselves. */
+export function applyConfigInfoActivity(infoActivity: { emoji: string; name: string; comment: string }): void {
+  if (localStorage.getItem(INFO_ACTIVITY_KEY)) return; // user already has one
+  saveInfoActivity(infoActivity);
+}

@@ -12,7 +12,7 @@ import {
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
 import { loadConfig } from '../utils/config';
-import { loadInfoActivity, InfoActivity } from '../utils/infoActivity';
+import { loadInfoActivity, applyConfigInfoActivity, InfoActivity } from '../utils/infoActivity';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -92,8 +92,10 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   // Also refresh activities: on first render mergeWithConfig runs before config is cached
   // and may overwrite config-based activities (e.g. rozjimani) with hardcoded defaults
   useEffect(() => {
-    loadConfig().then(() => {
+    loadConfig().then((cfg) => {
+      if (cfg.infoActivity) applyConfigInfoActivity(cfg.infoActivity);
       setActivities(loadActivities());
+      setInfoAct(loadInfoActivity());
       setRegistryVersion(v => v + 1);
     });
   }, [language]);

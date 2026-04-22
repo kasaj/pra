@@ -2,6 +2,7 @@
   "version": 1,
   "language": "en",
   "theme": "modern",
+  "infoActivity": { "emoji": "🎯", "name": "Intention", "comment": "" },
   "activities": [
     {
       "type": "rozjimani",

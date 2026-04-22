@@ -34,6 +34,7 @@ export interface AppConfig {
     cs: ConfigInfo;
     en: ConfigInfo;
   };
+  infoActivity?: { emoji: string; name: string; comment: string };
 }
 
 // Flat single-language activity format (used in language-specific config files)
@@ -57,6 +58,7 @@ interface FlatAppConfig {
   activities: FlatActivity[];
   moodScale?: Array<{ value: number; emoji: string; labelCs?: string; labelEn?: string }>;
   info: { cs?: ConfigInfo; en?: ConfigInfo };
+  infoActivity?: { emoji: string; name: string; comment: string };
 }
 
 function getConfigUrl(): string {
@@ -85,6 +87,7 @@ function normalizeFlatConfig(flat: FlatAppConfig): AppConfig {
       cs: lang === 'cs' ? infoLang : {},
       en: lang === 'en' ? infoLang : {},
     } as AppConfig['info'],
+    infoActivity: flat.infoActivity,
   };
 }
 

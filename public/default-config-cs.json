@@ -2,6 +2,7 @@
   "version": 1,
   "language": "cs",
   "theme": "modern",
+  "infoActivity": { "emoji": "🎯", "name": "Záměr", "comment": "" },
   "activities": [
     {
       "type": "rozjimani",
