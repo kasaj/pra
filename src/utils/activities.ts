@@ -242,7 +242,15 @@ export const mergeWithConfig = (existing: ActivityDefinition[]): ActivityDefinit
       a = { ...a, core: fromConfig.core };
       changed = true;
     }
-    if (userModified.has(a.type) || a.core) return a; // user edited or core activity - keep (but core flag synced)
+    if (userModified.has(a.type)) return a; // user edited - keep as-is
+    if (a.core) {
+      // Core activity: sync properties from config (e.g. on language change), keep rest
+      if (fromConfig && JSON.stringify(a.properties) !== JSON.stringify(fromConfig.properties)) {
+        changed = true;
+        return { ...a, properties: fromConfig.properties };
+      }
+      return a;
+    }
     // Check if different
     if (a.name !== fromConfig.name || a.description !== fromConfig.description ||
         a.emoji !== fromConfig.emoji || a.durationMinutes !== fromConfig.durationMinutes ||

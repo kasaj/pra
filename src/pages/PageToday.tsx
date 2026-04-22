@@ -12,7 +12,7 @@ import {
 import { getDayEntry, getTodayDate, loadAllData, generateId, addActivity, updateActivityById, findActivityById } from '../utils/storage';
 import { uploadSync, downloadSync } from '../utils/sync';
 import { loadConfig } from '../utils/config';
-import { loadInfoActivity, applyConfigInfoActivity, InfoActivity } from '../utils/infoActivity';
+import { loadInfoActivity, saveInfoActivity, InfoActivity } from '../utils/infoActivity';
 import ActivityFlow from '../components/ActivityFlow';
 import ActivityEditor from '../components/ActivityEditor';
 import StarRating from '../components/StarRating';
@@ -100,7 +100,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   // and may overwrite config-based activities (e.g. rozjimani) with hardcoded defaults
   useEffect(() => {
     loadConfig().then((cfg) => {
-      if (cfg.infoActivity) applyConfigInfoActivity(cfg.infoActivity);
+      if (cfg.infoActivity) saveInfoActivity(cfg.infoActivity); // force-apply on lang change
       setActivities(loadActivities());
       setInfoAct(loadInfoActivity());
       setRegistryVersion(v => v + 1);
@@ -631,8 +631,6 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               );
             })()}
-            {/* Separator */}
-            <hr className="border-t border-themed mx-4 mb-2" />
             {/* Properties from nalada (stored + config fallback) */}
             {(
               <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
@@ -787,6 +785,8 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               </div>
             )}
+            {/* Separator above session stats */}
+            <hr className="border-t border-themed mx-4 mt-3 mb-2" />
             {/* Session total + records */}
             {allTranslated.length > 0 && (
               <>
