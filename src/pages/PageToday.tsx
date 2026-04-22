@@ -772,23 +772,25 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 </div>
               </div>
             )}
-            <div className="flex justify-center mb-3">
-              <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
+            <div style={{ display: 'grid', width: 'fit-content', margin: '0 auto' }}>
+              <div className="flex justify-center mb-3">
+                <StarRating value={moodRating} onChange={(r) => setMoodRatingSync(r)} size="lg" />
+              </div>
+              <textarea
+                ref={moodTextareaRef}
+                value={moodComment}
+                onChange={(e) => {
+                  setMoodCommentSync(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                placeholder={language === 'cs' ? 'Tak?' : 'So?'}
+                rows={1}
+                className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
+                         focus:outline-none focus:border-themed-accent resize-none
+                         text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
+              />
             </div>
-            <textarea
-              ref={moodTextareaRef}
-              value={moodComment}
-              onChange={(e) => {
-                setMoodCommentSync(e.target.value);
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
-              }}
-              placeholder={language === 'cs' ? 'Tak?' : 'So?'}
-              rows={1}
-              className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
-                       focus:outline-none focus:border-themed-accent resize-none
-                       text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
-            />
             {/* Special activity pill — below textarea, session-aware */}
             {(infoAct.emoji || infoAct.name) && (
               <div className="mt-2">
