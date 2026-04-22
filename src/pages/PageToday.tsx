@@ -39,6 +39,13 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const showInfoPopupRef = useRef(false);
 
+  // Instant activity property panel
+  const [expandedActivityType, setExpandedActivityType] = useState<string | null>(null);
+  const [selectedActivityProps, setSelectedActivityProps] = useState<Map<string, Set<string>>>(new Map());
+  const selectedActivityPropsRef = useRef<Map<string, Set<string>>>(new Map());
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTriggeredRef = useRef(false);
+
   const handleUpload = useCallback(async () => {
     if (uploadStatus === 'busy') return;
     flushMoodRef.current(); // ensure pending session data is saved before backup
@@ -188,6 +195,33 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
   };
 
 
+  const updateCommentForActivity = useCallback((emoji: string, name: string, props: Set<string>) => {
+    const prefix = `${emoji} ${name}`;
+    const fragment = props.size > 0 ? `${prefix} - ${[...props].join(', ')}` : '';
+    const lines = moodCommentRef.current.split('\n');
+    const idx = lines.findIndex(l => l.startsWith(prefix));
+    if (idx >= 0) {
+      if (fragment) lines[idx] = fragment;
+      else lines.splice(idx, 1);
+    } else if (fragment) {
+      lines.push(fragment);
+    }
+    setMoodCommentSync(lines.filter(Boolean).join('\n'));
+    setTimeout(resizeTextarea, 0);
+  }, []);
+
+  const toggleActivityProp = useCallback((activity: ActivityDefinition, prop: string) => {
+    setSelectedActivityProps(prev => {
+      const next = new Map(prev);
+      const props = new Set(next.get(activity.type) || []);
+      if (props.has(prop)) props.delete(prop); else props.add(prop);
+      if (props.size === 0) next.delete(activity.type); else next.set(activity.type, props);
+      selectedActivityPropsRef.current = next;
+      updateCommentForActivity(activity.emoji, activity.name, props);
+      return next;
+    });
+  }, [updateCommentForActivity]);
+
   const flushMood = useCallback(() => {
     const r = moodRatingRef.current;
     const c = moodCommentRef.current;
@@ -240,6 +274,9 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
     setMoodCommentSync('');
     selectedPropertiesRef.current = new Set();
     setSelectedProperties(new Set());
+    selectedActivityPropsRef.current = new Map();
+    setSelectedActivityProps(new Map());
+    setExpandedActivityType(null);
 
     setCustomTimeSync(null);
     if (moodTextareaRef.current) {
@@ -495,37 +532,53 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
           >
             {/* Activity bubbles from config */}
             <div className="flex flex-wrap gap-1.5 mb-2 justify-center">
-              {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => (
-                <span key={activity.type} className="relative inline-flex">
-                  <button
-                    onClick={() => {
-                      if (editMode) {
-                        toggleHideActivity(activity.type);
-                      } else {
-                        flushMood();
-                        setActiveActivity(activity);
-                      }
-                    }}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                      editMode
-                        ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
-                        : completedTodayCounts.has(activity.type)
-                          ? 'bg-transparent border-themed-accent text-themed-accent'
-                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
-                    }`}
-                  >{activity.emoji} {activity.name}</button>
-                  {editMode && (
+              {allTranslated.filter(a => !a.core).filter(a => editMode || !hiddenActivities.has(a.type)).map((activity) => {
+                const isInstant = activity.durationMinutes === null;
+                const isExpanded = expandedActivityType === activity.type;
+                return (
+                  <span key={activity.type} className="relative inline-flex">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteActivity(activity.type);
-                        setActivities(loadActivities());
+                      onClick={() => {
+                        if (longPressTriggeredRef.current) return;
+                        if (editMode) { toggleHideActivity(activity.type); return; }
+                        if (!isInstant) { flushMood(); setActiveActivity(activity); return; }
+                        setExpandedActivityType(prev => prev === activity.type ? null : activity.type);
                       }}
-                      className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
-                    >✕</button>
-                  )}
-                </span>
-              ))}
+                      onPointerDown={() => {
+                        if (editMode) return;
+                        longPressTriggeredRef.current = false;
+                        longPressTimerRef.current = setTimeout(() => {
+                          longPressTriggeredRef.current = true;
+                          const original = activities.find(a => a.type === activity.type);
+                          setEditingActivity(original || activity);
+                          setExpandedActivityType(null);
+                        }, 600);
+                      }}
+                      onPointerUp={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
+                      onPointerLeave={() => { if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; } }}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors select-none ${
+                        editMode
+                          ? hiddenActivities.has(activity.type) ? 'opacity-30 bg-themed-input border-themed text-themed-faint' : 'bg-themed-input border-themed text-themed-muted'
+                          : isExpanded
+                            ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                            : completedTodayCounts.has(activity.type)
+                              ? 'bg-transparent border-themed-accent text-themed-accent'
+                              : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >{activity.emoji} {activity.name}</button>
+                    {editMode && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteActivity(activity.type);
+                          setActivities(loadActivities());
+                        }}
+                        className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] leading-none"
+                      >✕</button>
+                    )}
+                  </span>
+                );
+              })}
               {editMode && (
                 <button
                   onClick={() => setShowNewActivity(true)}
@@ -533,6 +586,27 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 >+</button>
               )}
             </div>
+            {/* Instant activity property panel */}
+            {expandedActivityType && !editMode && (() => {
+              const act = allTranslated.find(a => a.type === expandedActivityType);
+              if (!act?.properties?.length) return null;
+              const selProps = selectedActivityProps.get(expandedActivityType) || new Set<string>();
+              return (
+                <div className="flex flex-wrap gap-1.5 mb-2 justify-center px-1">
+                  {act.properties.map(prop => (
+                    <button
+                      key={prop}
+                      onClick={() => toggleActivityProp(act, prop)}
+                      className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                        selProps.has(prop)
+                          ? 'bg-themed-accent border-themed-accent text-themed-accent font-medium'
+                          : 'bg-themed-input border-themed text-themed-muted hover:border-themed-medium'
+                      }`}
+                    >{prop}</button>
+                  ))}
+                </div>
+              );
+            })()}
             {/* Separator */}
             <hr className="border-t border-themed mx-4 mb-2" />
             {/* Info activity pill */}
