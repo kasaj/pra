@@ -180,7 +180,10 @@ export const DEFAULT_ACTIVITIES: ActivityDefinition[] = [
 
 const getDefaultFromConfig = (lang?: string): ActivityDefinition[] => {
   const config = getCachedConfig();
-  if (!config?.activities?.length) return [...DEFAULT_ACTIVITIES];
+  // Config not yet loaded — return empty so we don't pollute localStorage with hardcoded defaults
+  if (!config) return [];
+  // Config loaded but has no activities (edge case) — also return empty
+  if (!config.activities?.length) return [];
   const l = lang || (localStorage.getItem('pra_language') === 'en' ? 'en' : 'cs');
   return config.activities.map((item) => {
     const localized = l === 'en' ? item.en : item.cs;
@@ -276,7 +279,7 @@ export const loadActivities = (): ActivityDefinition[] => {
     // Při chybě vrátíme výchozí
   }
   const defaults = getDefaultFromConfig();
-  saveActivities(defaults);
+  if (defaults.length > 0) saveActivities(defaults);
   return defaults;
 };
 
