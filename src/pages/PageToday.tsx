@@ -824,7 +824,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
                 }}
                 placeholder={language === 'cs' ? 'Tak?' : 'So?'}
                 rows={1}
-                className="w-full px-3 py-2 rounded-full bg-themed-input border border-themed
+                className="w-full px-3 py-2 rounded-xl bg-themed-input border border-themed
                          focus:outline-none focus:border-themed-accent resize-none
                          text-themed-primary placeholder:text-themed-faint text-sm overflow-hidden"
               />
