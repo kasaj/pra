@@ -326,7 +326,7 @@ export default function PageTime({ onNavigate }: { onNavigate?: (page: string) =
   }, []);
 
   // Search filter
-  const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\r\n]+/g, ' ');
 
   const matchesSearch = useCallback((activity: Activity): boolean => {
     if (!searchQuery.trim()) return true;

@@ -261,7 +261,7 @@ export default function PageToday({ onNavigate }: { onNavigate?: (page: string) 
       actualDurationSeconds: coreDur * 60,
       comments: [{
         id: `c-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-        text: [props.length > 0 ? props.join(', ') : '', c.trim()].filter(Boolean).join(' — '),
+        text: c.trim(),
         createdAt: now,
         rating: r || undefined,
       }],
