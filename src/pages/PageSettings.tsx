@@ -7,7 +7,7 @@ import { DayEntry, ActivityDefinition } from '../types';
 import { loadMoodScale, saveMoodScale, getDefaultMoodScale, MoodScaleItem } from '../utils/moodScale';
 import { Theme, loadTheme, saveTheme } from '../utils/theme';
 import { getCachedConfig } from '../utils/config';
-import { loadInfoActivity, saveInfoActivity } from '../utils/infoActivity';
+import { loadInfoActivity, saveInfoActivity, markInfoActivityUserSet } from '../utils/infoActivity';
 import { uploadSync, downloadSync } from '../utils/sync';
 
 interface ExportActivity {
@@ -334,6 +334,7 @@ function importPraFile(file: PraFile, currentLang: string): void {
   // Info activity (special activity pill)
   if (file.infoActivity) {
     saveInfoActivity(file.infoActivity);
+    if (file.infoActivity.emoji || file.infoActivity.name) markInfoActivityUserSet();
   }
   // Mood scale
   if (file.moodScale && Array.isArray(file.moodScale) && file.moodScale.length > 0) {
