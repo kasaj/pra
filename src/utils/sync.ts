@@ -4,7 +4,7 @@ import { loadSettings, saveSettings } from './settings';
 import { loadMoodScale, saveMoodScale, MoodScaleItem } from './moodScale';
 import { Theme, saveTheme } from './theme';
 import { getCachedConfig } from './config';
-import { loadInfoActivity, saveInfoActivity, InfoActivity } from './infoActivity';
+import { loadInfoActivity, saveInfoActivity, markInfoActivityUserSet, InfoActivity } from './infoActivity';
 import { DayEntry, Activity, ActivityDefinition } from '../types';
 
 /** Merge two history arrays by activity ID.
@@ -153,7 +153,10 @@ export function applyFullSync(file: PraFile): void {
   localStorage.setItem('pra_deleted_record_ids', JSON.stringify(file.deletedRecordIds || []));
   if (file.notes?.cs) localStorage.setItem('pra_info_notes_cs', JSON.stringify(file.notes.cs));
   if (file.notes?.en) localStorage.setItem('pra_info_notes_en', JSON.stringify(file.notes.en));
-  if (file.infoActivity) saveInfoActivity(file.infoActivity);
+  if (file.infoActivity) {
+    saveInfoActivity(file.infoActivity);
+    if (file.infoActivity.emoji || file.infoActivity.name) markInfoActivityUserSet();
+  }
 }
 
 function getSyncConfig() {
@@ -233,7 +236,10 @@ export async function downloadSync(): Promise<void> {
     localStorage.setItem('pra_duration_bubbles', JSON.stringify(remote.durationBubbles));
   if (remote.notes?.cs) localStorage.setItem('pra_info_notes_cs', JSON.stringify(remote.notes.cs));
   if (remote.notes?.en) localStorage.setItem('pra_info_notes_en', JSON.stringify(remote.notes.en));
-  if (remote.infoActivity) saveInfoActivity(remote.infoActivity);
+  if (remote.infoActivity) {
+    saveInfoActivity(remote.infoActivity);
+    if (remote.infoActivity.emoji || remote.infoActivity.name) markInfoActivityUserSet();
+  }
 
   // Persist merged tombstones & type lists
   localStorage.setItem('pra_deleted_record_ids',       JSON.stringify([...mergedDeletedIds]));
